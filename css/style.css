@@ -1,0 +1,19 @@
+/* Reusable stylings*/
+:root {
+    --primary-color:#4164C3;
+    --secondary-color:#A296DE;
+    --accent-color:#9168CF;
+    
+    --dark:#090E1B;
+    --light:#EFF2FB;
+    /*--font-title:*/
+
+}
+
+body {
+    background-color: var(--light);
+}
+
+
+
+
