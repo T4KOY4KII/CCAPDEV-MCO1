@@ -1,19 +1,68 @@
 /* Reusable stylings*/
 :root {
-    --primary-color:#4164C3;
-    --secondary-color:#A296DE;
-    --accent-color:#9168CF;
-    
-    --dark:#090E1B;
-    --light:#EFF2FB;
+    --primary-color: #4164C3;
+    --secondary-color: #A296DE;
+    --accent-color: #9168CF;
+
+    --dark: #090E1B;
+    --light: #EFF2FB;
+    --white: #edeff5;
+    --grey: #6c757d;
     /*--font-title:*/
 
 }
+
+/* Main components*/
+#logo {
+    width: auto;
+    height: 48px;
+}
+
+.profile-image {
+    width: auto;
+    height: 40px;
+}
+
 
 body {
     background-color: var(--light);
 }
 
+/** USER DASHBOARD **/
 
+/* Hero section */
+.hero {
+    /* Hero image*/
+    height: 500px;
+    background-image: url("/assets/imgs/hero-banner-image.jpg");
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-position: center;
 
+    /*Hero branding*/
+    display: flex;
+    justify-content: start;
+    padding-top: 40px;
+}
 
+/* Search Widget*/
+.search-widget {
+    background: var(--white);
+    border-radius: 16px;
+    padding: 24px 28px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
+
+    margin-top: -60px;
+    position: relative;
+    z-index: 10;
+}
+
+.search-field-label {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--grey);
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+    margin-bottom: 6px;
+    display: block;
+}
