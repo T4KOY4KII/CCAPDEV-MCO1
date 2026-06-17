@@ -4,9 +4,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Company Name - Profile</title>
+    <title>TravelBuddy - Profile</title>
 
-    <!--CSS-->
+    <!-- CSS -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css">
     <link rel="stylesheet" href="css/style.css">
@@ -14,94 +14,674 @@
 
 <body>
 
-    <!--Navigation-->
+    <!-- Navigation -->
     <nav class="navbar navbar-expand-lg navbar-light bg-light sticky-top">
-
         <div class="container-fluid">
 
             <a class="navbar-brand" href="index.html">
-                <img id="logo" src="/public/imgs/branding/travelbuddy-logo.png" alt="TravelBuddy Logo">
+                <img id="logo" src="public/imgs/payments/travelbuddy-logo.png" alt="TravelBuddy Logo">
                 <span id="company-name">TravelBuddy</span>
             </a>
 
-            <!--Hamburger button-->
+            <!-- Hamburger button -->
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navMenu"
                 aria-controls="navMenu" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
 
-            <!--Navigation Links-->
+            <!-- Navigation Links -->
             <div class="collapse navbar-collapse" id="navMenu">
-
                 <ul class="navbar-nav mx-auto mb-lg-1">
                     <li class="nav-item">
                         <a class="nav-link" href="index.html">Home</a>
                     </li>
-
                     <li class="nav-item">
                         <a class="nav-link" href="search.html">Search</a>
                     </li>
-
                     <li class="nav-item">
                         <a class="nav-link" href="booking.html">Book</a>
                     </li>
-
                     <li class="nav-item">
                         <a class="nav-link" href="reservations.html">Reservations</a>
                     </li>
-
                     <li class="nav-item">
                         <a class="nav-link" href="profile.html">Profile</a>
                     </li>
-
                     <li class="nav-item">
                         <a class="nav-link" href="admin-dashboard.html">Admin</a>
                     </li>
                 </ul>
 
-                <!--Dropdown user menu-->
+                <!-- Dropdown User Menu -->
                 <div class="dropdown">
                     <button class="btn d-flex align-items-center gap-2 mb-lg-1" data-bs-toggle="dropdown">
-                        
-                        <img src="public/imgs/branding/travelbuddy-logo.png" alt="Jose Rizal" class="profile-image">
+                        <div class="profile-avatar-sm">JR</div>
                         <div class="username">Jose Rizal</div>
-
                         <i class="bi bi-chevron-down"></i>
                     </button>
-
                     <ul class="dropdown-menu dropdown-menu-end">
-                        <li>
-                            <a class="dropdown-item" href="profile.html">Profile</a>
-                        </li>
-
-                        <li>
-                            <a class="dropdown-item" href="#">Settings</a>
-                        </li>
-
-                        <li>
-                            <hr class="dropdown-divider">
-                        </li>
-
-                        <li>
-                            <a class="dropdown-item text-danger" href="#">Logout</a>
-                        </li>
+                        <li><a class="dropdown-item" href="profile.html">Profile</a></li>
+                        <li><a class="dropdown-item" href="#">Settings</a></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li><a class="dropdown-item text-danger" href="#">Logout</a></li>
                     </ul>
                 </div>
-
             </div>
 
         </div>
-
     </nav>
 
-    <!--CONTENT GOES HERE-->
-    <p>this is the profile page</p>
+    <!-- Profile Tab Navigation -->
+    <div class="profile-tab-nav">
+        <div class="container">
+            <ul class="nav profile-tabs" id="profileTabs">
+                <li class="nav-item">
+                    <a class="profile-tab-link active" href="#" data-tab="profile-info">Profile Info</a>
+                </li>
+                <li class="nav-item">
+                    <a class="profile-tab-link" href="#" data-tab="saved-passengers">Saved Passengers</a>
+                </li>
+                <li class="nav-item">
+                    <a class="profile-tab-link" href="#" data-tab="payment-methods">Payment Methods</a>
+                </li>
+                <li class="nav-item">
+                    <a class="profile-tab-link" href="#" data-tab="notifications">Notifications</a>
+                </li>
+                <li class="nav-item">
+                    <a class="profile-tab-link" href="#" data-tab="travel-history">Travel History</a>
+                </li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- Page Content -->
+    <div class="container py-4">
+
+        <!-- TAB: PROFILE INFO -->
+        <div class="tab-content-panel active" id="profile-info">
+            <div class="row g-4">
+
+                <!-- Left column: avatar + summary -->
+                <div class="col-lg-4">
+
+                    <!-- Avatar -->
+                    <div class="profile-avatar-section text-center mb-4">
+                        <div class="profile-avatar-lg mx-auto mb-3" id="avatarPreview">JR</div>
+                        <h5 class="mb-0">Jose Rizal</h5>
+                        <button class="btn btn-link btn-sm text-muted p-0 mt-1" id="editAvatarBtn">
+                            <i class="bi bi-pencil me-1"></i>Edit Profile Picture
+                        </button>
+                        <!-- Hidden file input triggered by above button -->
+                        <input type="file" id="avatarInput" accept="image/*" class="d-none">
+                    </div>
+
+                    <hr>
+
+                    <!-- Profile Summary Card -->
+                    <div class="profile-summary-card">
+                        <h6 class="fw-bold mb-3">Profile Summary</h6>
+                        <div class="summary-item">
+                            <span class="summary-count">2</span> Upcoming Flights
+                        </div>
+                        <hr class="summary-divider">
+                        <div class="summary-item">
+                            <span class="summary-count">7</span> Saved Passengers
+                        </div>
+                        <hr class="summary-divider">
+                        <div class="summary-item">
+                            <span class="summary-count">1</span> Payment Method Registered
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- Right column: personal information form -->
+                <div class="col-lg-8">
+                    <div class="profile-form-card">
+                        <h5 class="fw-bold mb-4">Personal Information</h5>
+
+                        <form id="personalInfoForm" novalidate>
+
+                            <!-- Title -->
+                            <div class="mb-3">
+                                <label class="form-label" for="title">Title</label>
+                                <select class="form-select" id="title" name="title">
+                                    <option value="" selected disabled></option>
+                                    <option value="Mr">Mr.</option>
+                                    <option value="Ms">Ms.</option>
+                                    <option value="Mrs">Mrs.</option>
+                                    <option value="Dr">Dr.</option>
+                                    <option value="Prof">Prof.</option>
+                                </select>
+                            </div>
+
+                            <!-- First name + Last name -->
+                            <div class="row g-3 mb-3">
+                                <div class="col-md-6">
+                                    <label class="form-label" for="firstName">First Name</label>
+                                    <input type="text" class="form-control" id="firstName" name="firstName"
+                                        placeholder="" value="Jose">
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label" for="lastName">Last Name</label>
+                                    <input type="text" class="form-control" id="lastName" name="lastName"
+                                        placeholder="" value="Rizal">
+                                </div>
+                            </div>
+
+                            <!-- Contact number -->
+                            <div class="mb-3">
+                                <label class="form-label" for="contactNumber">Contact Number</label>
+                                <div class="input-group">
+                                    <select class="form-select contact-code-select" id="contactCode" name="contactCode">
+                                        <option value="+63" selected>🇵🇭 +63</option>
+                                        <option value="+1">🇺🇸 +1</option>
+                                        <option value="+44">🇬🇧 +44</option>
+                                        <option value="+61">🇦🇺 +61</option>
+                                        <option value="+81">🇯🇵 +81</option>
+                                        <option value="+86">🇨🇳 +86</option>
+                                    </select>
+                                    <input type="tel" class="form-control" id="contactNumber" name="contactNumber"
+                                        placeholder="9674206967" value="9674206967">
+                                </div>
+                            </div>
+
+                            <!-- Gender + Date of Birth -->
+                            <div class="row g-3 mb-3">
+                                <div class="col-md-4">
+                                    <label class="form-label" for="gender">Gender</label>
+                                    <select class="form-select" id="gender" name="gender">
+                                        <option value="" disabled></option>
+                                        <option value="male" selected>Male</option>
+                                        <option value="female">Female</option>
+                                        <option value="other">Other</option>
+                                        <option value="prefer-not">Prefer not to say</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-8">
+                                    <label class="form-label">Date of Birth (MM/DD/YYYY)</label>
+                                    <div class="d-flex align-items-center gap-2">
+                                        <input type="text" class="form-control text-center" id="dobMonth"
+                                            name="dobMonth" placeholder="MM" maxlength="2" value="06">
+                                        <span class="text-muted">/</span>
+                                        <input type="text" class="form-control text-center" id="dobDay"
+                                            name="dobDay" placeholder="DD" maxlength="2" value="19">
+                                        <span class="text-muted">/</span>
+                                        <input type="text" class="form-control text-center" id="dobYear"
+                                            name="dobYear" placeholder="YYYY" maxlength="4" value="1861">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Email -->
+                            <div class="mb-3">
+                                <label class="form-label" for="email">Email</label>
+                                <input type="email" class="form-control" id="email" name="email"
+                                    value="joserizal@gmail.com">
+                            </div>
+
+                            <!-- Address -->
+                            <div class="mb-3">
+                                <label class="form-label" for="address">Address</label>
+                                <input type="text" class="form-control" id="address" name="address"
+                                    value="123 Rizal Street">
+                            </div>
+
+                            <!-- City + Country -->
+                            <div class="row g-3 mb-3">
+                                <div class="col-md-6">
+                                    <label class="form-label" for="city">City</label>
+                                    <input type="text" class="form-control" id="city" name="city" value="Calamba">
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label" for="country">Country</label>
+                                    <input type="text" class="form-control" id="country" name="country"
+                                        value="Philippines">
+                                </div>
+                            </div>
+
+                            <!-- Edit / Save controls -->
+                            <div class="d-flex align-items-center gap-3 mt-4">
+                                <button type="button" class="btn btn-outline-secondary btn-sm" id="editInfoBtn">
+                                    <i class="bi bi-pencil me-1"></i>Edit Personal Information
+                                </button>
+                                <button type="submit" class="btn btn-save" id="saveInfoBtn" disabled>
+                                    Save
+                                </button>
+                                <span class="save-feedback text-success d-none" id="saveFeedback">
+                                    <i class="bi bi-check-circle me-1"></i>Saved!
+                                </span>
+                            </div>
+
+                        </form>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- TAB: SAVED PASSENGERS -->
+        <div class="tab-content-panel" id="saved-passengers">
+            <div class="row g-4">
+
+                <!-- Left column: passenger list -->
+                <div class="col-lg-5">
+                    <div class="profile-form-card">
+
+                        <!-- Add New Passenger button -->
+                        <div class="text-end mb-3">
+                            <button class="btn btn-link btn-sm text-muted p-0" id="addPassengerBtn">
+                                <i class="bi bi-plus-circle me-1"></i>Add New Passenger
+                            </button>
+                        </div>
+
+                        <!-- Passenger list from JS -->
+                        <div id="passengerList"></div>
+
+                        <!-- Pagination -->
+                        <div class="d-flex justify-content-between align-items-center mt-3">
+                            <button class="btn btn-outline-secondary btn-sm" id="passengerPrevBtn">
+                                <i class="bi bi-chevron-left"></i> Back
+                            </button>
+                            <span class="text-muted passenger-page-info" style="font-size:13px;" id="passengerPageInfo"></span>
+                            <button class="btn btn-save btn-sm" id="passengerNextBtn">
+                                Next <i class="bi bi-chevron-right"></i>
+                            </button>
+                        </div>
+
+                    </div>
+                </div>
+
+                <!-- Right column: passenger form -->
+                <div class="col-lg-7">
+                    <div class="profile-form-card" id="passengerFormCard">
+
+                        <h5 class="fw-bold mb-4" id="passengerFormTitle">Personal Information</h5>
+
+                        <form id="passengerForm" novalidate>
+                            <input type="hidden" id="passengerIndex" value="">
+
+                            <!-- Title + Passport Number -->
+                            <div class="row g-3 mb-3">
+                                <div class="col-md-4">
+                                    <label class="form-label" for="pTitle">Title</label>
+                                    <select class="form-select" id="pTitle" name="pTitle">
+                                        <option value="" selected disabled></option>
+                                        <option value="Mr">Mr.</option>
+                                        <option value="Ms">Ms.</option>
+                                        <option value="Mrs">Mrs.</option>
+                                        <option value="Dr">Dr.</option>
+                                        <option value="Prof">Prof.</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-8">
+                                    <label class="form-label" for="pPassport">Passport Number</label>
+                                    <input type="text" class="form-control" id="pPassport" name="pPassport" placeholder="e.g. P1234567A">
+                                </div>
+                            </div>
+
+                            <!-- First + Last name -->
+                            <div class="row g-3 mb-3">
+                                <div class="col-md-6">
+                                    <label class="form-label" for="pFirstName">First Name</label>
+                                    <input type="text" class="form-control" id="pFirstName" name="pFirstName">
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label" for="pLastName">Last Name</label>
+                                    <input type="text" class="form-control" id="pLastName" name="pLastName">
+                                </div>
+                            </div>
+
+                            <!-- Contact number -->
+                            <div class="mb-3">
+                                <label class="form-label" for="pContactNumber">Contact Number</label>
+                                <div class="input-group">
+                                    <select class="form-select contact-code-select" id="pContactCode" name="pContactCode">
+                                        <option value="+63" selected>+63</option>
+                                        <option value="+1">+1</option>
+                                        <option value="+44">+44</option>
+                                        <option value="+61">+61</option>
+                                        <option value="+81">+81</option>
+                                        <option value="+86">+86</option>
+                                    </select>
+                                    <input type="tel" class="form-control" id="pContactNumber" name="pContactNumber">
+                                </div>
+                            </div>
+
+                            <!-- Gender + Date of Birth -->
+                            <div class="row g-3 mb-3">
+                                <div class="col-md-4">
+                                    <label class="form-label" for="pGender">Gender</label>
+                                    <select class="form-select" id="pGender" name="pGender">
+                                        <option value="" disabled selected></option>
+                                        <option value="Male">Male</option>
+                                        <option value="Female">Female</option>
+                                        <option value="Other">Other</option>
+                                        <option value="Prefer not to say">Prefer not to say</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-8">
+                                    <label class="form-label">Date of Birth (MM/DD/YYYY)</label>
+                                    <div class="d-flex align-items-center gap-2">
+                                        <input type="text" class="form-control text-center" id="pDobMonth" placeholder="MM" maxlength="2">
+                                        <span class="text-muted">/</span>
+                                        <input type="text" class="form-control text-center" id="pDobDay" placeholder="DD" maxlength="2">
+                                        <span class="text-muted">/</span>
+                                        <input type="text" class="form-control text-center" id="pDobYear" placeholder="YYYY" maxlength="4">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Email -->
+                            <div class="mb-3">
+                                <label class="form-label" for="pEmail">Email</label>
+                                <input type="email" class="form-control" id="pEmail" name="pEmail">
+                            </div>
+
+                            <!-- Address -->
+                            <div class="mb-3">
+                                <label class="form-label" for="pAddress">Address</label>
+                                <input type="text" class="form-control" id="pAddress" name="pAddress">
+                            </div>
+
+                            <!-- City + Country -->
+                            <div class="row g-3 mb-3">
+                                <div class="col-md-6">
+                                    <label class="form-label" for="pCity">City</label>
+                                    <input type="text" class="form-control" id="pCity" name="pCity">
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label" for="pCountry">Country</label>
+                                    <input type="text" class="form-control" id="pCountry" name="pCountry">
+                                </div>
+                            </div>
+
+                            <!-- Save / Cancel -->
+                            <div class="d-flex align-items-center gap-3 mt-4">
+                                <button type="submit" class="btn btn-save" id="savePassengerBtn">Save</button>
+                                <button type="button" class="btn btn-outline-secondary btn-sm" id="cancelPassengerBtn">Cancel</button>
+                                <span class="save-feedback text-success d-none" id="passengerSaveFeedback">
+                                    <i class="bi bi-check-circle me-1"></i>Saved!
+                                </span>
+                            </div>
+
+                        </form>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- TAB: PAYMENT METHODS -->
+        <div class="tab-content-panel" id="payment-methods">
+            <div class="row g-4">
+
+                <!-- Left column: saved payment methods list -->
+                <div class="col-lg-5">
+                    <div class="profile-form-card">
+                        <div id="paymentMethodsList"></div>
+                        <div class="mt-4">
+                            <button class="btn btn-save btn-sm w-100" id="addPaymentBtn">
+                                <i class="bi bi-plus-circle me-1"></i>Add New Payment Method
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right column: add payment method panel -->
+                <div class="col-lg-7">
+                    <div class="profile-form-card" id="paymentFormCard">
+
+                        <div class="d-flex justify-content-between align-items-center mb-4">
+                            <h5 class="fw-bold mb-0">New Payment Method</h5>
+                            <div class="d-flex gap-2">
+                                <button class="btn btn-outline-secondary btn-sm" id="cancelPaymentBtn">
+                                    <i class="bi bi-chevron-left me-1"></i>Back
+                                </button>
+                                <button class="btn btn-save btn-sm" id="savePaymentBtn">Add</button>
+                            </div>
+                        </div>
+
+                        <!-- Radio: Credit/Debit Card -->
+                        <div class="payment-type-option" id="creditCardOption">
+                            <label class="payment-type-label">
+                                <input type="radio" name="paymentType" value="card" checked>
+                                <div class="payment-type-info">
+                                    <span class="payment-type-title">Credit/Debit Card</span>
+                                    <span class="payment-type-sub">Your Flight, Your Bank, One Easy Payment.</span>
+                                </div>
+                                <div class="payment-type-logos">
+                                    <img src="public/imgs/payments/visa-logo.png" alt="Visa" class="payment-logo">
+                                    <img src="public/imgs/payments/mastercard-logo.png" alt="Mastercard" class="payment-logo">
+                                </div>
+                            </label>
+                        </div>
+
+                        <!-- Credit card form -->
+                        <div id="cardForm" class="payment-subform">
+                            <form id="creditCardForm" novalidate>
+                                <div class="mb-3">
+                                    <label class="form-label" for="cardholderName">Cardholder's Name</label>
+                                    <input type="text" class="form-control" id="cardholderName" placeholder="e.g. Jose Rizal">
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label" for="cardName">Card Name</label>
+                                    <input type="text" class="form-control" id="cardName" placeholder="e.g. BDO Titanium">
+                                </div>
+                                <div class="row g-3 mb-3">
+                                    <div class="col-md-7">
+                                        <label class="form-label">Card Expiry (MM/DD/YYYY)</label>
+                                        <div class="d-flex align-items-center gap-2">
+                                            <input type="text" class="form-control text-center" id="cardExpMonth" placeholder="MM" maxlength="2">
+                                            <span class="text-muted">/</span>
+                                            <input type="text" class="form-control text-center" id="cardExpDay" placeholder="DD" maxlength="2">
+                                            <span class="text-muted">/</span>
+                                            <input type="text" class="form-control text-center" id="cardExpYear" placeholder="YYYY" maxlength="4">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-5">
+                                        <label class="form-label" for="cardCVV">CVV</label>
+                                        <input type="text" class="form-control" id="cardCVV" placeholder="e.g. 123" maxlength="4">
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+
+                        <!-- Radio: E-Wallet -->
+                        <div class="payment-type-option mt-2" id="eWalletOption">
+                            <label class="payment-type-label">
+                                <input type="radio" name="paymentType" value="ewallet">
+                                <div class="payment-type-info">
+                                    <span class="payment-type-title">E-Wallet</span>
+                                    <span class="payment-type-sub">Travel Made Easy with E-Wallet Payments.</span>
+                                </div>
+                                <div class="payment-type-logos">
+                                    <img src="public/imgs/payments/paypal-logo.png" alt="PayPal" class="payment-logo">
+                                    <img src="public/imgs/payments/googlepay-logo.png" alt="Google Pay" class="payment-logo" style="width:20px;">
+                                </div>
+                            </label>
+                        </div>
+
+                        <!-- E-Wallet form -->
+                        <div id="ewalletForm" class="payment-subform d-none">
+                            <div class="ewallet-options">
+                                <label class="ewallet-card" id="paypalCard">
+                                    <input type="radio" name="ewalletProvider" value="PayPal">
+                                    <img src="public/imgs/payments/paypal-logo.png" alt="PayPal" class="ewallet-logo">
+                                </label>
+                                <label class="ewallet-card" id="gpayCard">
+                                    <input type="radio" name="ewalletProvider" value="Google Pay">
+                                    <span class="gpay-text">G Pay</span>
+                                </label>
+                            </div>
+                            <div class="mt-3 text-center">
+                                <button type="button" class="btn btn-save btn-sm px-4" id="ewalletLoginBtn">Login</button>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- TAB: NOTIFICATIONS -->
+        <div class="tab-content-panel" id="notifications">
+            <div class="profile-form-card">
+
+                <div class="row g-0">
+
+                    <!-- Left column -->
+                    <div class="col-md-6 notif-col notif-col-left">
+                        <div class="notif-row">
+                            <span class="notif-label">Booking Confirmation Emails</span>
+                            <div class="form-check form-switch">
+                                <input class="form-check-input notif-toggle" type="checkbox" id="notifBooking" checked>
+                            </div>
+                        </div>
+                        <hr class="notif-divider">
+                        <div class="notif-row">
+                            <span class="notif-label">Flight Schedule Changes</span>
+                            <div class="form-check form-switch">
+                                <input class="form-check-input notif-toggle" type="checkbox" id="notifSchedule">
+                            </div>
+                        </div>
+                        <hr class="notif-divider">
+                        <div class="notif-row">
+                            <span class="notif-label">Check-In Reminders</span>
+                            <div class="form-check form-switch">
+                                <input class="form-check-input notif-toggle" type="checkbox" id="notifCheckin" checked>
+                            </div>
+                        </div>
+                        <hr class="notif-divider">
+                        <div class="notif-row">
+                            <span class="notif-label">Travel Alerts</span>
+                            <div class="form-check form-switch">
+                                <input class="form-check-input notif-toggle" type="checkbox" id="notifTravel" checked>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Right column -->
+                    <div class="col-md-6 notif-col notif-col-right">
+                        <div class="notif-row">
+                            <span class="notif-label">Promotional Offers</span>
+                            <div class="form-check form-switch">
+                                <input class="form-check-input notif-toggle" type="checkbox" id="notifPromo" checked>
+                            </div>
+                        </div>
+                        <hr class="notif-divider">
+                        <div class="notif-row">
+                            <span class="notif-label">SMS Notifications</span>
+                            <div class="form-check form-switch">
+                                <input class="form-check-input notif-toggle" type="checkbox" id="notifSms">
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- Save button -->
+                <div class="text-center mt-5">
+                    <span class="save-feedback text-success d-none d-block mb-2" id="notifSaveFeedback">
+                        <i class="bi bi-check-circle me-1"></i>Preferences saved!
+                    </span>
+                    <button class="btn btn-save px-5" id="saveNotifBtn">Save Preferences</button>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- TAB: TRAVEL HISTORY       -->
+        <div class="tab-content-panel" id="travel-history">
+            <div class="row g-4">
+
+                <!-- Left column: flight list -->
+                <div class="col-lg-6">
+                    <div class="profile-form-card">
+                        <div id="travelHistoryList"></div>
+                        <div class="d-flex justify-content-between align-items-center mt-4">
+                            <button class="btn btn-outline-secondary btn-sm" id="travelPrevBtn">
+                                <i class="bi bi-chevron-left me-1"></i>Back
+                            </button>
+                            <button class="btn btn-save btn-sm" id="travelNextBtn">
+                                Next<i class="bi bi-chevron-right ms-1"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right column: flight detail card -->
+                <div class="col-lg-6">
+                    <div class="profile-form-card travel-detail-card" id="travelDetailCard">
+                        <p class="text-muted text-center py-5" id="travelDetailPlaceholder">
+                            Select a flight to view details.
+                        </p>
+                        <div id="travelDetailContent" class="d-none">
+
+                            <!-- Header -->
+                            <div class="d-flex justify-content-between align-items-start mb-4">
+                                <div class="d-flex align-items-center gap-3">
+                                    <img id="detailAirlineLogo" src="" alt="Airline" class="travel-detail-logo">
+                                    <div>
+                                        <div class="travel-detail-route" id="detailRoute"></div>
+                                        <div class="travel-detail-flight" id="detailFlightNum"></div>
+                                    </div>
+                                </div>
+                                <div class="text-end">
+                                    <div class="travel-detail-meta">BOOKING NUMBER</div>
+                                    <div class="travel-detail-booking" id="detailBookingNum"></div>
+                                </div>
+                            </div>
+
+                            <hr>
+
+                            <!-- Body -->
+                            <div class="row g-3">
+                                <div class="col-6">
+                                    <p class="travel-detail-section-title">Passenger Details</p>
+                                    <p class="travel-detail-meta">Full Name</p>
+                                    <p class="travel-detail-value" id="detailName"></p>
+                                    <p class="travel-detail-meta">Gender &bull; Nationality</p>
+                                    <p class="travel-detail-value" id="detailGenderNat"></p>
+                                    <p class="travel-detail-meta">Contact Number</p>
+                                    <p class="travel-detail-value" id="detailContact"></p>
+                                    <p class="travel-detail-meta">Email</p>
+                                    <p class="travel-detail-value" id="detailEmail"></p>
+                                </div>
+                                <div class="col-6 border-start">
+                                    <p class="travel-detail-section-title">Flight Details</p>
+                                    <p class="travel-detail-meta">Gate</p>
+                                    <p class="travel-detail-value" id="detailGate"></p>
+                                    <p class="travel-detail-meta">Seat</p>
+                                    <p class="travel-detail-value" id="detailSeat"></p>
+                                    <p class="travel-detail-meta">Boarding</p>
+                                    <p class="travel-detail-value" id="detailBoarding"></p>
+                                </div>
+                            </div>
+
+                            <hr>
+
+                            <div class="text-start mt-2">
+                                <button class="btn btn-outline-secondary btn-sm" id="travelDetailBackBtn">
+                                    <i class="bi bi-chevron-left me-1"></i>Back
+                                </button>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+    </div>
 
 
-    <!--Scripts-->
+    <!-- Scripts -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
     <script src="js/main.js"></script>
-</body>
 
+</body>
 </html>
