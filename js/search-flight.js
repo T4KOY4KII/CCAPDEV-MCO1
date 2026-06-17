@@ -1,4 +1,71 @@
-//Trip type toggle
+//FLIGHT ROUTE AND DATE FIELDS
+
+//Handles input validation for route and date fields
+$('#searchBtn').on('click', function (e) {
+
+    var from = $('#fromField').val();
+    var to = $('#toField').val();
+    var departD = $('#departDate').val();
+    var returnD = $('#returnDate').val();
+    var isRound = $('input[name="tripType"]:checked').val() === "round";
+
+    //Reset errors
+    $('#fromError, #toError, #dateError').text('');
+
+    // Reset borders
+    $('#fromField, #toField, #departDate, #returnDate').removeClass('is-error');
+
+    let hasError = false;
+
+
+    if (!from) {
+        $('#fromError').text('Select origin');
+        $('#fromField').addClass('is-error');
+        hasError = true;
+    }
+
+    if (!to) {
+        $('#toError').text('Select destination');
+        $('#toField').addClass('is-error');
+        hasError = true;
+    }
+
+    if (!departD) {
+        $('#dateError').text('Select departure date');
+        $('#departDate').addClass('is-error');
+        hasError = true;
+    }
+
+    if (isRound && !returnD) {
+        $('#dateError').text('Select return date');
+        $('#returnDate').addClass('is-error');
+        hasError = true;
+    }
+
+    if (hasError) {
+        e.preventDefault();
+    }
+
+    if (!hasError) {
+        window.location.href = "search.html";
+    }
+});
+
+//Set today as the default departure date 
+var today = new Date().toISOString().split('T')[0];
+$('#departDate').val(today).attr('min', today);
+$('#returnDate').attr('min', today);
+
+//Update return date min when depart changes 
+$('#departDate').on('change', function () {
+    $('#returnDate').attr('min', $(this).val());
+    if ($('#returnDate').val() && $('#returnDate').val() < $(this).val()) {
+        $('#returnDate').val('');
+    }
+});
+
+
+//TRIP TYPE TOGGLE
 
 let tripType = "oneway";
 
@@ -20,8 +87,7 @@ function setTripType(type) {
     }
 }
 
-
-//Filter for passengers and cabin class
+//FILTER FOR CABIN CLASS AND PASSENGER
 
 let passengers = {
     adults: 1,    //Minimum 1 adult required
@@ -30,6 +96,14 @@ let passengers = {
 };
 
 let cabin = "Economy";
+
+/**
+ * Keeps the passenger and cabin class dropdown from closing 
+ */
+$('.dropdown-menu').on('click', function (e) {
+    e.stopPropagation();
+});
+
 
 /**
  * Updates the passenger count based on type and increment/decrement value
@@ -47,18 +121,18 @@ function changeCount(type, value) {
     if (type === "adults") {
         passengers.adults = Math.min(8, Math.max(1, passengers.adults + value));
 
-    
+
         if (passengers.infants > passengers.adults) {
             passengers.infants = passengers.adults;
         }
     }
 
-    
+
     if (type === "children") {
         passengers.children = Math.min(6, Math.max(0, passengers.children + value));
     }
 
-   
+
     if (type === "infants") {
         passengers.infants = Math.min(
             passengers.adults,
@@ -83,9 +157,10 @@ function setCabin(value) {
  * Update UI display passenger values and refreshes label
  */
 function updatePassengerCount() {
-    document.getElementById("adultsCount").innerText = passengers.adults;
-    document.getElementById("childrenCount").innerText = passengers.children;
-    document.getElementById("infantsCount").innerText = passengers.infants;
+    $('#adultsCount').text(passengers.adults);
+    $('#childrenCount').text(passengers.children);
+    $('#infantsCount').text(passengers.infants);
+
 
     updateLabel();
 }
@@ -123,17 +198,9 @@ function updateLabel() {
 
     const summary = `${textParts.join(', ')}, ${cabin}`;
 
-    document.getElementById("passengerCabinBtn").innerText = summary;
+    $('#passengerCabinBtn').text(summary);
 }
 
-/**
- * Keeps the passenger and cabin class dropdown from closing 
- */
-document.querySelectorAll('.dropdown-menu button').forEach(btn => {
-    btn.addEventListener('click', function (e) {
-        e.stopPropagation();
-    });
-});
 
 
 

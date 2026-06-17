@@ -36,6 +36,9 @@ body {
 }
 
 .sidebar-link {
+    display: flex;
+    align-items: center;
+    gap: 12px;
     color: var(--dark);
     transition: all 0.2s ease;
     border-radius: 8px;
@@ -57,7 +60,7 @@ body {
     margin-left: var(--sidebar-width);
     background-color: var(--light);
     min-height: 100vh;
-    width:auto;
+    width: auto;
     padding: 48px;
     transition: all 0.3s ease;
 }
@@ -99,8 +102,3 @@ body {
     padding: 1rem;
     margin: 4px 8px;
 }
-
-.collapsed .sidebar-link i {
-    margin: 0;
-}
-

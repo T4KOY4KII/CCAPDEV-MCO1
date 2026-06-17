@@ -38,7 +38,7 @@
 }
 
 .dropdown-search {
-    max-height: 320px;
+    max-height: 400px;
     min-width: 320px;
 }
 
@@ -48,11 +48,27 @@
     transform: none ;
 }
 
+.search-error {
+    min-height: 24px;
+    padding-left: 8px;
+}
+
+.is-error {
+    border: 1px solid #dc3545;
+    box-shadow: 0 0 0 0.15rem rgba(220, 53, 69, 0.15);
+}
 
 /*Flight statistics*/
 
 .flight-stats {
     transition: transform 0.5s, box-shadow 0.3s ease;
+    background-color: var(--white);
+    border-color: var(--accent-color);
+    color:var(--dark);
+}
+
+.flight-stats:hover {
+    background-color: var(--secondary-color);
 }
 
 /*Promotions section*/
@@ -213,7 +229,6 @@
     display: flex;
     flex-direction: column;
     align-items: flex-end;
-    border-left: 1px solid var(--grey);
     padding-left: 20px;
 }
 
@@ -221,6 +236,10 @@
     font-size: 22px;
     font-weight: 700;
     color: #212529;
+}
+
+.flight-price-block:empty {
+    visibility: hidden;
 }
 
 /* Bottom row: view details toggle */
