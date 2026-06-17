@@ -146,13 +146,6 @@ $(document).ready(function () {
             if ((resPage + 1) * resPerPage < filteredRes.length) { resPage++; renderReservations(); }
         });
 
-        // Edit button — UI simulation (toast)
-        $('#modalEditBtn').on('click', function () {
-            bootstrap.Modal.getInstance(document.getElementById('detailsModal')).hide();
-            var toast = new bootstrap.Toast(document.getElementById('editToast'));
-            toast.show();
-        });
-
         // Cancel booking — open confirmation modal
         $('#modalCancelBtn').on('click', function () {
             if (activeResIdx === null) return;
