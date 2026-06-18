@@ -1,6 +1,7 @@
 document.addEventListener("DOMContentLoaded", () => {
 
     const progress = document.querySelector('.progress');
+    const stepsContainer = document.querySelector(".steps-container");
     const steps = document.querySelectorAll(".step");
     const stepIndicators = document.querySelectorAll(".progress-container li");
     const backButton = document.querySelector('.back-btn');
@@ -15,6 +16,7 @@ document.addEventListener("DOMContentLoaded", () => {
         let width = currentStep / (stepIndicators.length - 1);
         progress.style.transform = `scaleX(${width})`;
 
+        stepsContainer.style.height = steps[currentStep].offsetHeight + "px";
         stepIndicators.forEach((indicator, index) => {
             indicator.classList.toggle("current", currentStep === index);
             indicator.classList.toggle("done", currentStep > index);
