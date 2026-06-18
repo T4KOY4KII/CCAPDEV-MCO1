@@ -10,6 +10,7 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css">
     <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/dashboard.css">
 </head>
 
 <body>
@@ -20,7 +21,7 @@
         <div class="container-fluid">
 
             <a class="navbar-brand" href="index.html">
-                <img id="logo" src="/assets/imgs/travelbuddy-logo.png" alt="TravelBuddy Logo">
+                <img id="logo" src="public/imgs/branding/travelbuddy-logo.png" alt="TravelBuddy Logo"> <!-- CHANGED: removed initial slash to let it show when you double click the html file itself -->
                 <span id="company-name">TravelBuddy</span>
             </a>
 
@@ -62,8 +63,8 @@
                 <!--Dropdown user menu-->
                 <div class="dropdown">
                     <button class="btn d-flex align-items-center gap-2 mb-lg-1" data-bs-toggle="dropdown">
-                        
-                        <img src="assets/imgs/travelbuddy-logo.png" alt="Jose Rizal" class="profile-image">
+
+                        <img src="public/imgs/branding/travelbuddy-logo.png" alt="Jose Rizal" class="profile-image">
                         <div class="username">Jose Rizal</div>
 
                         <i class="bi bi-chevron-down"></i>
@@ -104,28 +105,30 @@
         </div>
     </div>
 
-    <!--Quick flight search widget-->
+    <!-- Quick flight search widget -->
     <div class="container">
 
         <div class="search-widget">
 
-            <!-- Trip type, cabin class, and passenger-->
-            <div class="row g-3 mb-3">
+            <!-- Top filters-->
+            <div class="row g-3 mb-3 align-items-start">
 
-                <!--Trip type radio button-->
-                <div class="col-12 col-md-auto d-flex flex-column">
+                <!--Trip Type -->
+                <div class="col-12 col-md-3">
+
                     <label class="search-field-label">Trip Type</label>
 
                     <div class="d-flex gap-3">
 
-                        <div class="form-check mt-0 mb-0">
+                        <div class="form-check">
                             <input class="form-check-input" type="radio" name="tripType" id="oneWay" value="oneway"
-                                checked />
+                                checked onchange="setTripType(this.value)">
                             <label class="form-check-label" for="oneWay">One-way</label>
                         </div>
 
-                        <div class="form-check mt-0 mb-0">
-                            <input class="form-check-input" type="radio" name="tripType" id="roundTrip" value="round" />
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="tripType" id="roundTrip" value="round"
+                                onchange="setTripType(this.value)">
                             <label class="form-check-label" for="roundTrip">Round-trip</label>
                         </div>
 
@@ -133,40 +136,103 @@
 
                 </div>
 
-                <!--Cabin class dropdown-->
-                <div class="col-6 col-md-auto">
-                    <label class="search-field-label" for="cabinClass">Cabin Class</label>
 
-                    <select class="form-select form-select-sm w-auto" id="cabinClass">
-                        <option>Economy</option>
-                        <option>Premium Economy</option>
-                        <option>Business</option>
-                        <option>First Class</option>
-                    </select>
+                <!--Passengers and cabin class -->
+                <div class="col-12 col-md-9">
 
-                </div>
+                    <label class="search-field-label">Travelers & Class</label>
 
+                    <div class="dropdown">
 
-                <!--Passenger selector dropdown-->
-                <div class="col-6 col-md-auto">
-                    <label class="search-field-label" for="passengers">Passengers</label>
+                        <button class="btn primary-btn dropdown-toggle" id="passengerCabinBtn" type="button"
+                            data-bs-toggle="dropdown" data-bs-display="static">
+                            1 adult, Economy
+                        </button>
 
-                    <select class="form-select form-select-sm w-auto" id="passengers">
-                        <option>Adults</option>
-                        <option>Children</option>
-                        <option>Infants</option>
-                    </select>
+                        <div class="dropdown-menu dropdown-search p-3 ">
+
+                            <h6>Travelers</h6>
+
+                            <!-- Adults -->
+                            <div class="d-flex justify-content-between align-items-center mb-6">
+                                <span>Adults <p class="fw-lighter fs-6">18+</p></span>
+
+                                <div class="mb-4 mt-0">
+                                    <button type="button" class="btn btn-sm btn-light" id="adultsMinus" onclick="changeCount('adults', -1)">
+                                        <i class="bi bi-dash-circle"></i>
+                                    </button>
+
+                                    <span id="adultsCount" class="mx-2">1</span>
+
+                                    <button class="btn btn-sm btn-light" id="adultsPlus" onclick="changeCount('adults', 1)">
+                                        <i class="bi bi-plus-circle"></i>
+                                    </button>
+                                </div>
+
+                            </div>
+
+                            <!-- Children -->
+                            <div class="d-flex justify-content-between align-items-center mb-6">
+                                <span>Children<p class="fw-lighter fs-6">2-17</p></span>
+
+                                <div class="mb-4 mt-0">
+                                    <button class="btn btn-sm btn-light" id="childrenMinus" onclick="changeCount('children', -1)">
+                                        <i class="bi bi-dash-circle"></i>
+                                    </button>
+
+                                    <span id="childrenCount" class="mx-2">0</span>
+
+                                    <button class="btn btn-sm btn-light" id="childrenPlus" onclick="changeCount('children', 1)">
+                                        <i class="bi bi-plus-circle"></i>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- Infants -->
+                            <div class="d-flex justify-content-between align-items-center mb-6">
+                                <span>Infants<p class="fw-lighter fs-6">under 2</p></span>
+                                <div class="mb-4 mt-0">
+                                    <button class="btn btn-sm btn-light" id="infantsMinus"onclick="changeCount('infants', -1)">
+                                        <i class="bi bi-dash-circle"></i>
+                                    </button>
+
+                                    <span id="infantsCount" class="mx-2">0</span>
+
+                                    <button class="btn btn-sm btn-light" id="infantsPlus" onclick="changeCount('infants', 1)">
+                                        <i class="bi bi-plus-circle"></i>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <hr />
+
+                            <h6>Cabin Class</h6>
+
+                            <select class="form-select form-select-sm" id="cabinClass" onchange="setCabin(this.value)">
+
+                                <option value="Economy">Economy</option>
+                                <option value="Premium Economy">Premium Economy</option>
+                                <option value="Business">Business</option>
+                                <option value="First Class">First Class</option>
+
+                            </select>
+
+                        </div>
+
+                    </div>
+
+                    <small class="text-danger d-block search-error" id="passengerError"></small>
 
                 </div>
 
             </div>
 
-            <!--Search fields (orgin+destination & departure+arrival)-->
+            <!-- Search row -->
             <div class="row g-2 align-items-end">
 
-                <!--Origin picker-->
-                <div class="col-12 col-md">
-                    <label class="search-field-label" for="fromField">From</label>
+                <!-- Origin -->
+                <div class="col-12 col-md-3">
+                    <label class="search-field-label">From</label>
 
                     <select class="form-select" id="fromField">
                         <option value="">Select origin</option>
@@ -174,44 +240,61 @@
                         <option>Cebu (CEB)</option>
                     </select>
 
+                    <small class="text-danger d-block search-error" id="fromError"></small>
                 </div>
 
-                <!--Destination picker-->
-                <div class="col-12 col-md">
-                    <label class="search-field-label" for="toField">To</label>
+                <!-- Destination -->
+                <div class="col-12 col-md-3">
+                    <label class="search-field-label">To</label>
 
                     <select class="form-select" id="toField">
                         <option value="">Select destination</option>
                         <option>Singapore (SIN)</option>
-                        <option>Hong Kong (HKG))</option>
+                        <option>Hong Kong (HKG)</option>
                     </select>
 
+                    <small class="text-danger d-block search-error" id="toError"></small>
                 </div>
 
-                <!--Departure date picker-->
-                <div class="col-12 col-md">
-                    <label class="search-field-label" for="departDate">Depart</label>
-                    <input type="date" class="form-control" id="departDate" />
-                </div>
+                <!-- Dates -->
+                <div class="col-12 col-md-6">
 
-                <!--Return date picker-->
-                <div class="col-12 col-md" id="returnDateWrap">
-                    <label class="search-field-label" for="returnDate">Return</label>
-                    <input type="date" class="form-control" id="returnDate" />
-                </div>
+                    <div class="row g-2">
 
-                <!--Search button-->
-                <div class="col-12 col-md-auto">
-                    <button class="btn btn-primary w-100" id="searchBtn">
+                        <!-- Departure -->
+                        <div class="col-6">
+                            <label class="search-field-label">Depart</label>
+                            <input type="date" class="form-control" id="departDate">
+                        </div>
+
+                        <!-- Return -->
+                        <div class="col-6" id="returnDateWrap">
+                            <label class="search-field-label">Return</label>
+                            <input type="date" class="form-control" id="returnDate" disabled>
+                        </div>
+
+                    </div>
+
+                    <div class="col-12">
+                        <small class="text-danger d-block search-error" id="dateError"></small>
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- Button -->
+            <div class="row g-2">
+                <div class="col-12 d-flex justify-content-end">
+                    <button type="button" class="btn primary-btn" id="searchBtn">
                         <i class="bi bi-search me-1"></i> Search Flights
                     </button>
                 </div>
-
             </div>
 
         </div>
 
     </div>
+
 
     <!--Flight statistics-->
     <div class="container">
@@ -225,10 +308,10 @@
             <!--Available flights-->
             <div class="col-lg-4 col-md-6 mb-4">
 
-                <div class="card h-100">
+                <div class="card h-100 flight-stats">
                     <div class="card-body">
                         <div class="card-title">
-                            <h1 class="text-center mt-2">1</h1>
+                            <h1 class="text-center mt-2" id="statAvailableFlights">12</h1>
 
                         </div>
 
@@ -245,10 +328,10 @@
             <!--Active bookings-->
             <div class="col-lg-4 col-md-6 mb-4">
 
-                <div class="card h-100">
+                <div class="card h-100 flight-stats">
                     <div class="card-body">
                         <div class="card-title">
-                            <h1 class="text-center mt-2">1</h1>
+                            <h1 class="text-center mt-2" id="statActiveBookings">34</h1>
 
                         </div>
 
@@ -265,16 +348,15 @@
             <!--Popular destinations-->
             <div class="col-lg-4 col-md-6 mb-4">
 
-                <div class="card h-100">
+                <div class="card h-100 flight-stats">
                     <div class="card-body">
-                        <div class="card-title">
-                            <h1 class="text-center mt-2">1</h1>
 
+                        <div class="card-title">
+                            <h1 class="text-center mt-2" id="statPopularDestinations">56</h1>
                         </div>
 
                         <div class="card-title">
                             <h5 class="text-center mb-2">Popular destinations</h5>
-
                         </div>
                     </div>
 
@@ -282,31 +364,631 @@
 
             </div>
 
-
-
         </div>
-
 
     </div>
 
-    <!--Promotions carousel-->
+    <!-- Promotions Carousel -->
+    <div class="container">
+        <h2 class="text-start mt-5 mb-4">Promotions</h2>
 
+        <div id="promoCarousel" class="carousel slide" data-bs-ride="carousel" data-bs-interval="10000">
+
+            <div class="carousel-inner px-4">
+
+                <!-- Slide 1 -->
+                <div class="carousel-item active">
+
+                    <div class="row">
+
+                        <!--Promo-->
+                        <div class="col-md-4">
+
+                            <div class="card promo-card text-white">
+
+                                <!--Promo image-->
+                                <img src="https://picsum.photos/400/250?random=1" class="card-img" alt="Summer Escape">
+
+                                <!--Promo short description-->
+                                <div class="card-img-overlay d-flex flex-column">
+
+                                    <div class="d-flex flex-wrap justify-content-between align-items-center gap-2">
+
+                                        <div>
+                                            <h5>
+                                                <span class="badge bg-success promo-badge">
+                                                    Discount
+                                                </span>
+                                            </h5>
+
+                                        </div>
+
+                                        <div>
+                                            <h4>
+                                                <span class="fw-bold">
+                                                    20% OFF
+                                                </span>
+                                            </h4>
+
+                                        </div>
+
+                                    </div>
+
+                                    <div class="mt-auto">
+                                        <h5 class="card-title">Manila -> Tokyo</h5>
+
+                                        <p class="card-text">
+                                            Round-trip fares from ₱5,999. Book before June 30!
+                                        </p>
+
+                                        <div class="text-center">
+                                            <a href="search.html"
+                                                class="btn btn-outline-light btn-sm rounded-pill px-4">
+                                                Learn More
+                                            </a>
+                                        </div>
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                        <!--Promo-->
+                        <div class="col-md-4">
+
+                            <div class="card promo-card text-white">
+
+                                <!--Promo image-->
+                                <img src="https://picsum.photos/400/250?random=2" class="card-img" alt="Summer Escape">
+
+                                <!--Promo short description-->
+                                <div class="card-img-overlay d-flex flex-column">
+
+                                    <div class="d-flex flex-wrap justify-content-between align-items-center gap-2">
+
+                                        <div>
+                                            <h5>
+                                                <span class="badge bg-success promo-badge">
+                                                    Exclusive Offers
+                                                </span>
+                                            </h5>
+
+                                        </div>
+
+                                        <div>
+                                            <h4>
+                                                <span class="fw-bold">
+                                                    15% OFF
+                                                </span>
+                                            </h4>
+
+                                        </div>
+
+                                    </div>
+
+                                    <div class="mt-auto">
+                                        <h5 class="card-title">Manila -> Seoul</h5>
+
+                                        <p class="card-text">
+                                            Explore Korea with exclusive offers on all cabin classes.
+                                        </p>
+
+                                        <div class="text-center">
+                                            <a href="search.html"
+                                                class="btn btn-outline-light btn-sm rounded-pill px-4">
+                                                Learn More
+                                            </a>
+                                        </div>
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                        <!--Promo-->
+                        <div class="col-md-4">
+
+                            <div class="card promo-card text-white">
+
+                                <!--Promo image-->
+                                <img src="https://picsum.photos/400/250?random=3" class="card-img" alt="Summer Escape">
+
+                                <!--Promo short description-->
+                                <div class="card-img-overlay d-flex flex-column">
+
+                                    <div class="d-flex flex-wrap justify-content-between align-items-center gap-2">
+
+                                        <div>
+                                            <h5>
+                                                <span class="badge bg-success promo-badge">
+                                                    Travel Deals
+                                                </span>
+                                            </h5>
+
+                                        </div>
+
+                                        <div>
+                                            <h4>
+                                                <span class="fw-bold">
+                                                    Under ₱1,234
+                                                </span>
+                                            </h4>
+
+                                        </div>
+
+                                    </div>
+
+
+                                    <div class="mt-auto">
+                                        <h5 class="card-title">Travel Budget</h5>
+
+                                        <p class="card-text">
+                                            Cheap deals on selected routes this season.
+                                        </p>
+
+                                        <div class="text-center">
+                                            <a href="search.html"
+                                                class="btn btn-outline-light btn-sm rounded-pill px-4">
+                                                Learn More
+                                            </a>
+                                        </div>
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+                </div>
+
+                <!-- Slide 2 -->
+                <div class="carousel-item">
+
+                    <div class="row g-4">
+
+                        <!--Promo-->
+                        <div class="col-md-4">
+
+                            <div class="card promo-card text-white">
+
+                                <!--Promo image-->
+                                <img src="https://picsum.photos/400/250?random=4" class="card-img" alt="Summer Escape">
+
+                                <!--Promo short description-->
+                                <div class="card-img-overlay d-flex flex-column">
+
+                                    <div class="d-flex flex-wrap justify-content-between align-items-center gap-2">
+
+                                        <div>
+                                            <h5>
+                                                <span class="badge bg-success promo-badge">
+                                                    Discount
+                                                </span>
+                                            </h5>
+
+                                        </div>
+
+                                        <div>
+                                            <h4>
+                                                <span class="fw-bold">
+                                                    20% OFF
+                                                </span>
+                                            </h4>
+                                        </div>
+
+                                    </div>
+
+                                    <div class="mt-auto">
+                                        <h5 class="card-title">Summer Escape</h5>
+
+                                        <p class="card-text">
+                                            Save up to 20% on selected routes this season.
+                                        </p>
+
+                                        <div class="text-center">
+                                            <a href="search.html"
+                                                class="btn btn-outline-light btn-sm rounded-pill px-4">
+                                                Learn More
+                                            </a>
+                                        </div>
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                        <!--Promo-->
+                        <div class="col-md-4">
+
+                            <div class="card promo-card text-white">
+
+                                <!--Promo image-->
+                                <img src="https://picsum.photos/400/250?random=5" class="card-img" alt="Summer Escape">
+
+                                <!--Promo short description-->
+                                <div class="card-img-overlay d-flex flex-column">
+
+                                    <div class="d-flex flex-wrap justify-content-between align-items-center gap-2">
+
+                                        <div>
+                                            <h5>
+                                                <span class="badge bg-success promo-badge">
+                                                    Discount
+                                                </span>
+                                            </h5>
+
+                                        </div>
+
+                                        <div>
+                                            <h4>
+                                                <span class="fw-bold">
+                                                    20% OFF
+                                                </span>
+                                            </h4>
+                                        </div>
+
+                                    </div>
+
+                                    <div class="mt-auto">
+                                        <h5 class="card-title">Student Discount</h5>
+
+                                        <p class="card-text">
+                                            Attention students! Explore the world on a budget. Enjoy up to 50% off
+                                            flight tickets.
+                                        </p>
+
+                                        <div class="text-center">
+                                            <a href="search.html"
+                                                class="btn btn-outline-light btn-sm rounded-pill px-4">
+                                                Learn More
+                                            </a>
+                                        </div>
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                        <!--Promo-->
+                        <div class="col-md-4">
+
+                            <div class="card promo-card text-white">
+
+                                <!--Promo image-->
+                                <img src="https://picsum.photos/400/250?random=6" class="card-img" alt="Summer Escape">
+
+                                <!--Promo short description-->
+                                <div class="card-img-overlay d-flex flex-column">
+
+                                    <div class="d-flex flex-wrap justify-content-between align-items-center gap-2">
+
+                                        <div>
+                                            <h5>
+                                                <span class="badge bg-success promo-badge">
+                                                    Discount
+                                                </span>
+                                            </h5>
+
+                                        </div>
+
+                                        <div>
+                                            <h4>
+                                                <span class="fw-bold">
+                                                    20% OFF
+                                                </span>
+                                            </h4>
+
+                                        </div>
+
+                                    </div>
+
+                                    <div class="mt-auto">
+                                        <h5 class="card-title">Flight Sale</h5>
+
+                                        <p class="card-text">
+                                            Save up to 10% on selected routes this season.
+                                        </p>
+
+                                        <div class="text-center">
+                                            <a href="search.html"
+                                                class="btn btn-outline-light btn-sm rounded-pill px-4">
+                                                Learn More
+                                            </a>
+                                        </div>
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Prev arrow -->
+            <button class="carousel-control-prev promo-prev" type="button" data-bs-target="#promoCarousel"
+                data-bs-slide="prev">
+                <i class="bi bi-chevron-left"></i>
+            </button>
+
+            <!-- Next arrow -->
+            <button class="carousel-control-next promo-next" type="button" data-bs-target="#promoCarousel"
+                data-bs-slide="next">
+                <i class="bi bi-chevron-right"></i>
+            </button>
+
+        </div>
+    </div>
 
     <!--Recently viewed flights-->
+    <div class="container">
+
+        <h2 class="text-start mt-5 mb-4">Recently Viewed</h2>
+
+        <!--Flight 1-->
+        <div class="card flight-card text-center">
+
+            <!-- Top row: airline name and seats left -->
+            <div class="card-header">
+
+                <div class="d-flex flex-wrap justify-content-between align-items-center gap-2">
+
+                    <div class="mt-3">
+                        <img src="public/imgs/flights/pal-logo.png" alt="Philippine Airlines">
+                        <span class="flight-airline">
+                            Philippine Airlines
+                        </span>
+                    </div>
+
+                    <div class="mt-3">
+                        <span class="seats-left">
+                            32 seats left
+                        </span>
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- Middle row: times, route and price -->
+            <div class="card-body">
 
 
+                <div class="row align-items-center g-3">
 
+                    <!-- Departure -->
+                    <div class="col-6 col-md-2 flight-time-block">
+                        <div class="flight-date">June 15</div>
+                        <div class="flight-time">06:30AM</div>
+                        <div class="flight-country">MNL</div>
+                    </div>
+
+                    <!-- Route line -->
+                    <div class="col-12 col-md-6 flight-route-block">
+                        <div class="flight-route-label">Manila → Japan</div>
+                        <div class="flight-route-line">
+                            <hr />
+                        </div>
+                        <div class="flight-route-info">Direct | 2h 30m</div>
+                    </div>
+
+                    <!-- Arrival -->
+                    <div class="col-6 col-md-2 flight-time-block">
+                        <div class="flight-date">June 15</div>
+                        <div class="flight-time">10:30AM</div>
+                        <div class="flight-country">JPN</div>
+                    </div>
+
+                    <!-- Price and book button -->
+                    <div class="col-12 col-md-2 flight-price-block">
+                        <div class="flight-price">₱4,500</div>
+                        <a href="booking.html" class="btn primary-btn btn-sm px-4 mt-2">Book</a>
+                    </div>
+
+                </div>
+
+            </div>
+
+            <!-- Bottom row: View details toggle -->
+            <div class="card-footer text-end text-muted">
+
+                <button class="secondary-btn" id="detailsToggle1"
+                    onclick="toggleDetails('flightDetails1', 'detailsToggle1')">
+                    View Details <i class="bi bi-chevron-up"></i>
+                </button>
+
+            </div>
+
+            <!-- Expandable details panel -->
+            <div class="flight-details" id="flightDetails1">
+                <div class="flight-details-grid">
+
+                    <div class="detail-item">
+                        <div class="detail-label">Flight</div>
+                        <div class="detail-value">FL-123</div>
+                    </div>
+
+                    <div class="detail-item">
+                        <div class="detail-label">Trip type</div>
+                        <div class="detail-value">One-way</div>
+                    </div>
+
+                    <div class="detail-item">
+                        <div class="detail-label">Cabin class</div>
+                        <div class="detail-value">First Class</div>
+                    </div>
+
+                    <div class="detail-item">
+                        <div class="detail-label">Stops</div>
+                        <div class="detail-value">Direct</div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <!--Flight 2-->
+        <div class="card flight-card text-center">
+
+            <!-- Top row: airline name and seats left -->
+            <div class="card-header">
+
+                <div class="d-flex flex-wrap justify-content-between align-items-center gap-2">
+
+                    <div class="mt-3">
+                        <img src="public/imgs/flights/royal-air-logo.png" alt="Royal Air Philippines">
+                        <span class="flight-airline">
+                            Royal Air Philippines
+                        </span>
+                    </div>
+
+                    <div class="mt-3">
+                        <span class="seats-left">
+                            2 seats left
+                        </span>
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- Middle row: times, route, and price -->
+            <div class="card-body">
+
+
+                <div class="row align-items-center g-3">
+
+                    <!-- Departure -->
+                    <div class="col-6 col-md-2 flight-time-block">
+                        <div class="flight-date">June 15</div>
+                        <div class="flight-time">07:30AM</div>
+                        <div class="flight-country">MNL</div>
+                    </div>
+
+                    <!-- Route line -->
+                    <div class="col-12 col-md-6 flight-route-block">
+                        <div class="flight-route-label">Manila → Singapore</div>
+                        <div class="flight-route-line">
+                            <hr />
+                        </div>
+                        <div class="flight-route-info">Direct | 2h 30m</div>
+                    </div>
+
+                    <!-- Arrival -->
+                    <div class="col-6 col-md-2 flight-time-block">
+                        <div class="flight-date">June 15</div>
+                        <div class="flight-time">09:30AM</div>
+                        <div class="flight-country">SIN</div>
+                    </div>
+
+                    <!-- Price and book button -->
+                    <div class="col-12 col-md-2 flight-price-block">
+                    </div>
+
+
+                </div>
+
+                <div class="row align-items-center g-3">
+
+                    <!-- Departure -->
+                    <div class="col-6 col-md-2 flight-time-block">
+                        <div class="flight-date">June 26</div>
+                        <div class="flight-time">12:30AM</div>
+                        <div class="flight-country">SIN</div>
+                    </div>
+
+                    <!-- Route line -->
+                    <div class="col-12 col-md-6 flight-route-block">
+                        <div class="flight-route-label">Singapore → Manila</div>
+                        <div class="flight-route-line">
+                            <hr />
+                        </div>
+                        <div class="flight-route-info">Direct | 2h 30m</div>
+                    </div>
+
+                    <!-- Arrival -->
+                    <div class="col-6 col-md-2 flight-time-block">
+                        <div class="flight-date">June 26</div>
+                        <div class="flight-time">02:30AM</div>
+                        <div class="flight-country">MNL</div>
+                    </div>
+
+                    <!-- Price and book button -->
+                    <div class="col-12 col-md-2 flight-price-block">
+                        <div class="flight-price">₱6,500</div>
+                        <a href="booking.html" class="btn primary-btn btn-sm px-4 mt-2">Book</a>
+                    </div>
+
+
+                </div>
+
+            </div>
+
+            <!-- Bottom row: View details toggle -->
+            <div class="card-footer text-end text-muted">
+
+                <button class="secondary-btn" id="detailsToggle2"
+                    onclick="toggleDetails('flightDetails2', 'detailsToggle2')">
+                    View Details <i class="bi bi-chevron-up"></i>
+                </button>
+
+            </div>
+
+            <!-- Expandable details panel -->
+            <div class="flight-details" id="flightDetails2">
+                <div class="flight-details-grid">
+
+                    <div class="detail-item">
+                        <div class="detail-label">Flight</div>
+                        <div class="detail-value">FL-456</div>
+                    </div>
+
+                    <div class="detail-item">
+                        <div class="detail-label">Trip type</div>
+                        <div class="detail-value">Round-trip</div>
+                    </div>
+
+                    <div class="detail-item">
+                        <div class="detail-label">Cabin class</div>
+                        <div class="detail-value">First Class</div>
+                    </div>
+
+                    <div class="detail-item">
+                        <div class="detail-label">Stops</div>
+                        <div class="detail-value">Direct</div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+    </div>
 
     <!--Scripts-->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
     <script src="js/main.js"></script>
-
+    <script src="js/flight-info.js"></script>
+    <script src="js/search-flight.js"></script>
 
 </body>
 
 <footer>
-    footer goes here
+
+    <img id="logo" src="public/imgs/branding/travelbuddy-logo.png" alt="TravelBuddy Logo">
+    <span id="companyName">TravelBuddy</span>
+
 </footer>
 
 </html>
