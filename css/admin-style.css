@@ -74,6 +74,19 @@ body {
 color: white;
 }
 
+/* Polishing buttons */
+.edit-btn, .delete-btn {
+    border: none;
+    background: transparent;
+}
+
+/* Polishing dialog */
+dialog {
+    border: none;
+    border-radius: 12px;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.12);
+}
+
 /* Collapsed admin sidebar*/
 .collapsed~.main-content {
     margin-left: var(--sidebar-width-collapsed);
@@ -97,4 +110,3 @@ color: white;
     padding: 1rem;
     margin: 4px 8px;
 }
-
