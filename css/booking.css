@@ -1,3 +1,29 @@
+button {
+    cursor: pointer;
+    border: none;
+    border-radius: 7px;
+    padding: 8px 16px;
+    font-size: 14px;
+    transition: 0.3s;
+}
+
+button:disabled{
+    opacity: 0.8;
+}
+
+button:focus{
+    outline-color: #333;
+}
+button.next-btn{
+    background-color: #333;
+    color: white;
+}
+
+button[type="submit"]{
+    background-color: #333;
+    color: white;
+}
+
 /* form styles */
 
 .form-wizard {
@@ -10,13 +36,35 @@
 }
 
 .progress-container::before{
+    --step-size: 32px;
+    --steps: 3;
+    --progress-width: calc((var(--steps) - 1) / var(--steps) * 100%);
     content:"";
-    height: 2px;
-    width: 100%;
+    height: 4px;
+    width: var(--progress-width);
     background-color: #000000;
     position: absolute;
-    top: 16px;
-    translate: 0 -50;
+    top: calc(var(--step-size) / 2);
+    left: 51%;
+    translate: -50% -50%;
+}
+
+.progress-container .progress{
+    --step-size: 32px;
+    --steps: 3;
+    --progress-width: calc((var(--steps) - 1) / var(--steps) * 100%);
+    content:"";
+    height: 4px;
+    width: var(--progress-width);
+    background-color: #000000;
+    position: absolute;
+    top: calc(var(--step-size) / 2);
+    left: 51%;
+    translate: -50% -50%;
+    z-index: 2;
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: 0.3s;
 }
 
 .progress-container ol {
@@ -49,4 +97,48 @@
     justify-content: center;
     border-radius: 50%;
     color: #fff;
+    transition: .3s linear .3s;
+}
+
+.progress-container li:where(.done, .current){
+    color: #333;
+    font-weight: 500;
+}
+
+.progress-container li.done::before{
+    background-color: #6c757d;
+}
+
+.progress-container li.current::before{
+    background-color: #000000;
+    box-shadow: 0 0 0 3px rgb(167,21,84,0.25);
+}
+
+.steps-container{
+    display: flex;
+    overflow: hidden;
+}
+
+.step {
+    flex: 1 0 100%;
+    padding: 24px 8px;
+    opacity: 0;
+    transition: opacity 0.3s;
+}
+
+.step.current{
+    opacity: 1;
+}
+
+.controls{
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    margin-top: 16px;
+    padding-inline: 8px;
+}
+
+.controls button{
+    flex: 1;
 }
