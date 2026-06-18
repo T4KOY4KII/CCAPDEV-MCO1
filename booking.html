@@ -10,7 +10,6 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css">
     <link rel="stylesheet" href="css/style.css">
-    <link rel="stylesheet" href="css/booking.css">
 </head>
 
 <body>
@@ -21,7 +20,7 @@
         <div class="container-fluid">
 
             <a class="navbar-brand" href="index.html">
-                <img id="logo" src="/public/imgs/branding/travelbuddy-logo.png" alt="TravelBuddy Logo">
+                <img id="logo" src="/assets/imgs/travelbuddy-logo.png" alt="TravelBuddy Logo">
                 <span id="company-name">TravelBuddy</span>
             </a>
 
@@ -64,7 +63,7 @@
                 <div class="dropdown">
                     <button class="btn d-flex align-items-center gap-2 mb-lg-1" data-bs-toggle="dropdown">
                         
-                        <img src="public/imgs/branding/travelbuddy-logo.png" alt="Jose Rizal" class="profile-image">
+                        <img src="assets/imgs/travelbuddy-logo.png" alt="Jose Rizal" class="profile-image">
                         <div class="username">Jose Rizal</div>
 
                         <i class="bi bi-chevron-down"></i>
@@ -96,122 +95,13 @@
     </nav>
 
     <!--CONTENT GOES HERE-->
-    <form class="form-wizard">
-        <!-- progress container -->
-        <div class="progress-container">
-            <div class="progress"> </div>
+    <p>this is the booking page</p>
 
-            <ol>
-                <li class="current">Your Details</li>
-                <li>Packages</li>
-                <li>Check and Pay</li>
-            </ol>
-        </div>
-        <!-- steps container -->
-        <div class="steps-container">
-            <div class="step">
-                <h3>Passenger Information</h3>
-                
-                <div class="passenger-container">
-                    <div class="passenger-name">
-                        <label for="first-name">First Name</label>
-                        <input type="text" id="first-name" name="first-name" required />
-                    </div>
-                
-                    <div class="passenger-name">
-                        <label for="last-name">Last Name</label>
-                        <input type="text" id="last-name" name="last-name" required />
-                    </div>
-
-                    <div class="contact-number">
-                        <label for="contact-number">Contact Number</label>
-                        <select name="country-code" id="code-select">
-                            <option value=""></option>
-                            <option value="+63">+63</option>
-                            <option value="+1">+1</option>
-                            <option value="+44">+44</option>
-                            <option value="+61">+61</option>
-                            <option value="+55">+55</option>
-                        </select>
-                        <input type="text" id="contact-number" name="contact-number" required />
-                    </div>
-                
-                    <div class="email-address">
-                        <label for="first-name">Email</label>
-                        <input type="text" id="first-name" name="first-name" required />
-                    </div>
-
-                    <div class="passport-number">
-                        <label for="passport-number">Passport Number</label>
-                        <input type="text" id="first-name" name="first-name" required />
-                    </div>
-
-                    <div class="nationality">
-                        <label for="nationality">Nationality</label>
-                        <input type="text" id="first-name" name="first-name" required />
-                    </div>
-
-                    <div class="date-of-birth">
-                        <label for="date-of-birth">Date of Birth</label>
-                        <input type="text" id="first-name" name="first-name" required />
-                    </div>
-
-                    <div class="gender">
-                        <label for="gender">Gender</label>
-                        <input type="text" id="first-name" name="first-name" required />
-                    </div>
-
-                    <div class="emergency-contact">
-                        <label for="emergency-contact">Emergency Contact</label>
-                        <input type="text" id="first-name" name="first-name" required />
-                    </div>
-                </div>
-
-                <div class="booking-summary">
-                    <h3>Booking Summary</h3>
-                </div>
-            </div>
-
-            <div class="step">
-                <h3>Optional Packages</h3>
-                
-                <div class="meal-container">
-
-                </div>
-
-                <div class="seat-container"></div>
-
-                <div class="extra-services-container">
-
-                </div>
-
-                <div class="booking-summary">
-                    <h3>Booking Summary</h3>
-                </div>
-            </div>
-
-            <div class="step">
-                <h3>Your payment</h3>
-                
-                <div class="payment-container"></div>
-                <div class="booking-summary">
-                    <h3>Booking Summary</h3>
-                </div>
-            </div>
-        </div>
-        <!-- controls -->
-        <div class="controls">
-            <button type="button" class="back-btn">Back</button>
-            <button type="button" class="next-btn">Next</button>
-            <button type="submit" class="pay-btn">Pay Now</button>
-        </div>
-    </form>
 
     <!--Scripts-->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
     <script src="js/main.js"></script>
-    <script src="js/booking.js"></script>
 </body>
 
 </html>
