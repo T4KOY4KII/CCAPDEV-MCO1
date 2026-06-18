@@ -1,15 +1,6 @@
 /* Reusable stylings*/
 :root {
-    --primary-color: #4164C3;
-    --secondary-color: #A296DE;
-    --accent-color: #9168CF;
-
-    --dark: #090E1B;
-    --light: #EFF2FB;
-    --white: #edeff5;
-    --grey: #6c757d;
-    /*--font-title:*/
-
+    
     /* Admin navigation sidebar*/
     --sidebar-width: 280px;
     --sidebar-width-collapsed: 80px;
@@ -60,7 +51,7 @@ body {
     margin-left: var(--sidebar-width);
     background-color: var(--light);
     min-height: 100vh;
-    width: auto;
+    width: 100%;
     padding: 48px;
     transition: all 0.3s ease;
 }
@@ -77,6 +68,10 @@ body {
     z-index: 100;
     cursor: pointer;
     transition: transform 0.5s ease;
+}
+
+#sidebar-toggle::before,  #sidebar-toggle::after{
+color: white;
 }
 
 /* Collapsed admin sidebar*/
@@ -102,3 +97,4 @@ body {
     padding: 1rem;
     margin: 4px 8px;
 }
+
