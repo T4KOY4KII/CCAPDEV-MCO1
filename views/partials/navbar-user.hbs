@@ -1,0 +1,75 @@
+<!--Users - Navigation Bar-->
+<nav class="navbar navbar-expand-lg navbar-light bg-light sticky-top">
+
+    <div class="container-fluid">
+
+        <a class="navbar-brand" href="/dashboard">
+            <img id="logo" src="/imgs/branding/travelbuddy-logo.png" alt="TravelBuddy Logo">
+            <span id="company-name">TravelBuddy</span>
+        </a>
+
+        <!--Hamburger button-->
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navMenu"
+            aria-controls="navMenu" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <!--Navigation Links-->
+        <div class="collapse navbar-collapse" id="navMenu">
+
+            <ul class="navbar-nav mx-auto mb-lg-1">
+                <li class="nav-item">
+                    <a class="nav-link" href="/dashboard">Home</a>
+                </li>
+
+                <li class="nav-item">
+                    <a class="nav-link" href="/search">Search</a>
+                </li>
+
+                <li class="nav-item">
+                    <a class="nav-link" href="/booking">Book</a>
+                </li>
+
+                <li class="nav-item">
+                    <a class="nav-link" href="/reservations">Reservations</a>
+                </li>
+
+                <li class="nav-item">
+                    <a class="nav-link" href="/profile">Profile</a>
+                </li>
+            </ul>
+
+            <!--Dropdown user menu-->
+            <div class="dropdown">
+                <button class="btn d-flex align-items-center gap-2 mb-lg-1" data-bs-toggle="dropdown">
+
+                    <img src="{{profileIMG}}" alt="Profile Image" class="profile-image">
+                    <div class="username">{{firstName}} {{lastName}}</div>
+
+                    <i class="bi bi-chevron-down"></i>
+                </button>
+
+                <ul class="dropdown-menu dropdown-menu-end">
+                    <li>
+                        <a class="dropdown-item" href="/profile">Profile</a>
+                    </li>
+
+                    <li>
+                        <a class="dropdown-item" href="#">Settings</a>
+                    </li>
+
+                    <li>
+                        <hr class="dropdown-divider">
+                    </li>
+
+                    <li>
+                        <a class="dropdown-item text-danger" href="/">Logout</a>
+                    </li>
+                </ul>
+            </div>
+
+        </div>
+
+    </div>
+
+</nav>

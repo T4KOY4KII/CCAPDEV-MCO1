@@ -47,7 +47,7 @@ $('#searchBtn').on('click', function (e) {
     }
 
     if (!hasError) {
-        window.location.href = "search.html";
+        window.location.href = "/search";
     }
 });
 

@@ -1,0 +1,167 @@
+<!--USER RESERVATIONS PAGE -->
+
+<!-- Page Content -->
+<div class="container py-4">
+
+  <h4 class="fw-bold mb-1">Reservations</h4>
+  <p class="page-description mb-4">View and manage all your flight bookings in one place.</p>
+
+  <!-- Search, Sort, Filter controls -->
+  <div class="reservations-card mb-3">
+    <div class="row g-2 align-items-center">
+      <div class="col-md-5">
+        <div class="input-group">
+          <span class="input-group-text bg-white border-end-0">
+            <i class="bi bi-search text-muted"></i>
+          </span>
+          <input type="text" class="form-control border-start-0" id="reservationSearch" placeholder="Search flights">
+        </div>
+      </div>
+      <div class="col-md-4 ms-auto">
+        <select class="form-select" id="reservationSort">
+          <option value="newest">Sort: newest first</option>
+          <option value="oldest">Sort: oldest first</option>
+          <option value="price-asc">Sort: price (low to high)</option>
+          <option value="price-desc">Sort: price (high to low)</option>
+          <option value="route">Sort: route (A–Z)</option>
+        </select>
+      </div>
+      <div class="col-md-3">
+        <select class="form-select" id="reservationFilter">
+          <option value="all">Filter: all</option>
+          <option value="Paid">Filter: paid</option>
+          <option value="Pending">Filter: pending</option>
+          <option value="Cancelled">Filter: cancelled</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <!-- Reservations table -->
+  <div class="reservations-card">
+    <table class="table reservations-table mb-0">
+      <thead>
+        <tr>
+          <th>Reference</th>
+          <th>Name</th>
+          <th>Route</th>
+          <th>Seat</th>
+          <th>Status</th>
+          <th>Price</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody id="reservationsTableBody"></tbody>
+    </table>
+
+    <!-- Empty state -->
+    <div id="reservationsEmpty" class="text-center py-5 d-none">
+      <i class="bi bi-inbox text-muted" style="font-size: 2rem;"></i>
+      <p class="text-muted mt-2 mb-0">No reservations found.</p>
+    </div>
+
+    <!-- Pagination -->
+    <div class="d-flex justify-content-between align-items-center mt-3 px-2" id="reservationsPagination">
+      <button class="btn btn-outline-secondary btn-sm" id="resPrevBtn">
+        <i class="bi bi-chevron-left me-1"></i>Back
+      </button>
+      <span class="res-page-info" id="resPageInfo"></span>
+      <button class="btn btn-save btn-sm" id="resNextBtn">
+        Next<i class="bi bi-chevron-right ms-1"></i>
+      </button>
+    </div>
+  </div>
+
+</div>
+
+<!-- VIEW DETAILS MODAL -->
+
+<div class="modal fade" id="detailsModal" tabindex="-1" aria-labelledby="detailsModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content res-modal-content">
+
+      <div class="modal-body p-4">
+
+        <!-- Header -->
+        <h5 class="fw-bold mb-1">Details</h5>
+        <p class="res-modal-route mb-3" id="modalRoute"></p>
+
+        <!-- Timeline -->
+        <div class="res-timeline mb-4">
+          <div class="res-timeline-row">
+            <div class="res-timeline-time" id="modalDepTime"></div>
+            <div class="res-timeline-dot-col">
+              <div class="res-timeline-dot"></div>
+              <div class="res-timeline-line"></div>
+            </div>
+            <div class="res-timeline-info">
+              <div class="res-timeline-label">Departure</div>
+              <div class="res-timeline-value" id="modalDepAirport"></div>
+            </div>
+          </div>
+          <div class="res-timeline-row">
+            <div class="res-timeline-time" id="modalArrTime"></div>
+            <div class="res-timeline-dot-col">
+              <div class="res-timeline-dot"></div>
+            </div>
+            <div class="res-timeline-info">
+              <div class="res-timeline-label">Arrival</div>
+              <div class="res-timeline-value" id="modalArrAirport"></div>
+            </div>
+          </div>
+        </div>
+
+        <hr>
+
+        <!-- Seat -->
+        <p class="res-modal-section-title">Selected seat(s)</p>
+        <p class="res-modal-meta" id="modalSeat"></p>
+
+        <hr>
+
+        <!-- Extra services -->
+        <p class="res-modal-section-title">Extra services</p>
+        <div id="modalExtras"></div>
+
+        <hr>
+
+        <!-- Total -->
+        <div class="d-flex justify-content-between align-items-start">
+          <div>
+            <p class="res-modal-section-title mb-0">Total</p>
+            <p class="res-modal-meta mb-0">Includes taxes and fees</p>
+          </div>
+          <p class="res-modal-total" id="modalTotal"></p>
+        </div>
+
+      </div>
+
+      <!-- Footer -->
+      <div class="modal-footer res-modal-footer">
+        <button type="button" class="btn btn-outline-secondary btn-sm" data-bs-dismiss="modal">
+          <i class="bi bi-chevron-left me-1"></i>Return
+        </button>
+        <button type="button" class="btn btn-outline-secondary btn-sm" id="modalEditBtn">Edit</button>
+        <button type="button" class="btn btn-save btn-sm" id="modalCancelBtn">Cancel</button>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- CANCEL CONFIRMATION MODAL -->
+<div class="modal fade" id="cancelModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-sm">
+    <div class="modal-content res-modal-content">
+      <div class="modal-body p-4 text-center">
+        <i class="bi bi-exclamation-circle text-danger mb-3" style="font-size: 2rem;"></i>
+        <p class="fw-bold mb-1">Cancel this booking?</p>
+        <p class="text-muted" style="font-size:13px;" id="cancelModalRef"></p>
+      </div>
+      <div class="modal-footer res-modal-footer justify-content-center">
+        <button type="button" class="btn btn-outline-secondary btn-sm" id="cancelModalNoBtn">Keep it</button>
+        <button type="button" class="btn btn-danger btn-sm" id="cancelModalYesBtn">Yes, cancel</button>
+      </div>
+    </div>
+  </div>
+</div>

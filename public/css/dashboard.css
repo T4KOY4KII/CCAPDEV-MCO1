@@ -4,7 +4,7 @@
 .hero {
     /* Hero image*/
     height: 500px;
-    background-image: url("../public/imgs/branding/hero-banner-image.jpg"); /* CHANGED: link became a relative path to let it show when you double click the html file itself */
+    background-image: url("/imgs/branding/hero-banner-image.jpg"); 
     background-repeat: no-repeat;
     background-size: cover;
     background-position: center;

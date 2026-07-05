@@ -1,0 +1,126 @@
+<!--ADMIN USER MANAGEMENT PAGE -->
+
+
+<!-- Search and filters (role and status) -->
+<div class="container">
+  <div class="table-card mb-3">
+
+    <div class="row g-2 align-items-center">
+
+      <div class="col-md-5">
+
+        <div class="input-group">
+          <span class="input-group-text bg-white border-end-0">
+            <i class="bi bi-search text-muted"></i>
+          </span>
+          <input type="text" class="form-control border-start-0" id="userSearch" placeholder="Search user">
+        </div>
+
+      </div>
+
+      <div class="col-md-4 ms-auto">
+        <select class="form-select" id="roleSort">
+          <option value="all">Role: All</option>
+          <option value="customer">Role: Customer</option>
+          <option value="admin">Role: Admin</option>
+        </select>
+      </div>
+
+      <div class="col-md-3">
+        <select class="form-select" id="statusFilter">
+          <option value="all">Status: All</option>
+          <option value="customer">Status: Active</option>
+          <option value="admin">Status: Deactivated</option>
+        </select>
+      </div>
+
+    </div>
+
+
+
+  </div>
+</div>
+
+
+<!-- Users table -->
+<div class="container">
+  <div class="table-card">
+    <table class="table mb-0">
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Email</th>
+          <th>Number</th>
+          <th>Role</th>
+          <th>Date Registered</th>
+          <th>Status</th>
+          <th>Actions</th>
+        </tr>
+
+        <!--DUMMY DATA-->
+        <tr>
+          <td>Jose Rizal</td>
+          <td>jose.rizal@email.com</td>
+          <td>01234567890</td>
+          <td>Customer</td>
+          <td>18 June 2026</td>
+          <td><span class="badge badge-success">Active</span></td>
+          <td>
+            <button class="block-button" id="blockBtn" onclick="blockUser.showModal()">
+              <i class="bi bi-ban ms-4"></i>
+            </button>
+
+          </td>
+        </tr>
+
+        <tr>
+          <td>Jose Rizal</td>
+          <td>jose.rizal@email.com</td>
+          <td>01234567890</td>
+          <td>Customer</td>
+          <td>18 June 2026</td>
+          <td><span class="badge badge-danger">Deactivated</span></td>
+          <td>
+            <button class="block-button" id="blockBtn" onclick="blockUser.showModal()">
+              <i class="bi bi-ban ms-4"></i>
+            </button>
+          </td>
+        </tr>
+
+      </thead>
+      <tbody id="TableBody"></tbody>
+    </table>
+
+
+    <!-- Pagination -->
+    <div class="d-flex justify-content-between align-items-center mt-3 px-2" id="Pagination">
+      <button class="btn btn-outline-secondary btn-sm" id="resPrevBtn">
+        <i class="bi bi-chevron-left me-1"></i>Back
+      </button>
+      <span class="res-page-info" id="resPageInfo"></span>
+      <button class="btn btn-save btn-sm" id="resNextBtn">
+        Next<i class="bi bi-chevron-right ms-1"></i>
+      </button>
+    </div>
+  </div>
+</div>
+
+
+<!-- Deactivate user modal -->
+<dialog id="blockUser">
+  <div class="card">
+    <div class="card-header">
+      Deactivate Jose Rizal?
+    </div>
+    <div class="card-body">
+      This action is permanent.
+    </div>
+
+    <!--Add and close button-->
+    <div class="card-footer text-body-secondary text-end">
+      <a class="btn secondary-btn" onclick="blockUser.close()">Cancel</a>
+      <a class="btn danger-btn" onclick="blockUser.close()">Deactivate User</a>
+    </div>
+  </div>
+
+</dialog>

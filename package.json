@@ -1,0 +1,31 @@
+{
+  "name": "ccapdev-mco",
+  "version": "1.0.0",
+  "description": "Online Airline Ticketing System for CCAPDEV",
+  "homepage": "https://github.com/T4KOY4KII/CCAPDEV-MCO1#readme",
+  "bugs": {
+    "url": "https://github.com/T4KOY4KII/CCAPDEV-MCO1/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/T4KOY4KII/CCAPDEV-MCO1.git"
+  },
+  "license": "ISC",
+  "author": "",
+  "type": "commonjs",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node app.js",
+    "dev": "nodemon app.js"
+  },
+  "dependencies": {
+    "express": "^5.2.1",
+    "express-handlebars": "^9.0.1",
+    "mongodb": "^7.4.0",
+    "mongoose": "^9.7.3"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.14"
+  }
+}

@@ -1,0 +1,1122 @@
+<!--USER SEARCH PAGE -->
+
+<!--Quick flight search widget-->
+<div class="container">
+
+  <div class="search-widget">
+
+    <!-- Trip type, cabin class, and passenger-->
+    <div class="row g-3 mb-3">
+
+      <!--Trip type radio button-->
+      <div class="col-12 col-md-auto d-flex flex-column">
+        <label class="search-field-label">Trip Type</label>
+
+        <div class="d-flex gap-3">
+
+          <div class="form-check mt-0 mb-0">
+            <input class="form-check-input" type="radio" name="tripType" id="oneWay" value="oneway" checked
+              onchange="setTripType(this.value)" />
+            <label class="form-check-label" for="oneWay">One-way</label>
+          </div>
+
+          <div class="form-check mt-0 mb-0">
+            <input class="form-check-input" type="radio" name="tripType" id="roundTrip" value="round"
+              onchange="setTripType(this.value)" />
+            <label class="form-check-label" for="roundTrip">Round-trip</label>
+          </div>
+
+        </div>
+
+      </div>
+
+
+      <!--Passenger and cabin class-->
+      <div class="col-12 col-md-auto ms-md-auto d-flex justify-content-md-end">
+
+        <div class="dropdown">
+          <button class="btn secondary-btn dropdown-toggle" id="passengerCabinBtn" type="button"
+            data-bs-toggle="dropdown" data-bs-display="static" aria-expanded="false">
+            1 adult, Economy
+          </button>
+
+          <div class="dropdown-menu dropdown-search p-3">
+
+            <h6>Travelers</h6>
+
+            <!--Adult passenger-->
+            <div class="d-flex justify-content-between align-items-center mb-2">
+              <span>Adults 18+</span>
+              <div>
+                <button class="btn btn-sm btn-light" onclick="changeCount('adults', -1)"><i
+                    class="bi bi-dash-circle"></i></button>
+                <span id="adultsCount" class="mx-2">1</span>
+                <button class="btn btn-sm btn-light" onclick="changeCount('adults', 1)"><i
+                    class="bi bi-plus-circle"></i></button>
+              </div>
+            </div>
+
+            <!--Child passenger-->
+            <div class="d-flex justify-content-between align-items-center mb-2">
+              <span>Children 2–17</span>
+              <div>
+                <button class="btn btn-sm btn-light" onclick="changeCount('children', -1)"><i
+                    class="bi bi-dash-circle"></i></button>
+                <span id="childrenCount" class="mx-2">0</span>
+                <button class="btn btn-sm btn-light" onclick="changeCount('children', 1)"><i
+                    class="bi bi-plus-circle"></i></button>
+              </div>
+            </div>
+
+            <!--Infant passenger-->
+            <div class="d-flex justify-content-between align-items-center mb-3">
+              <span>Infants under 2</span>
+              <div>
+                <button class="btn btn-sm btn-light" onclick="changeCount('infants', -1)"><i
+                    class="bi bi-dash-circle"></i></button>
+                <span id="infantsCount" class="mx-2">0</span>
+                <button class="btn btn-sm btn-light" onclick="changeCount('infants', 1)"><i
+                    class="bi bi-plus-circle"></i></button>
+              </div>
+            </div>
+
+
+            <hr />
+
+            <h6>Cabin Class</h6>
+
+
+            <!--Cabin class dropdown-->
+            <div class="d-grid gap-2">
+
+              <select class="form-select form-select-sm w-auto" id="cabinClass" onchange="setCabin(this.value)">
+                <option value="Economy">Economy</option>
+                <option value="Premium Economy">Premium Economy</option>
+                <option value="Business">Business</option>
+                <option value="First Class">First Class</option>
+              </select>
+
+            </div>
+
+          </div>
+
+        </div>
+
+      </div>
+
+    </div>
+
+    <!--Search fields (orgin+destination and departure+arrival)-->
+    <div class="row g-2 align-items-end">
+
+      <!--Origin picker-->
+      <div class="col-12 col-md">
+        <label class="search-field-label" for="fromField">From</label>
+
+        <select class="form-select" id="fromField">
+          <option value="">Select origin</option>
+          <option>Manila (MNL)</option>
+          <option>Cebu (CEB)</option>
+        </select>
+
+      </div>
+
+      <!--Destination picker-->
+      <div class="col-12 col-md">
+        <label class="search-field-label" for="toField">To</label>
+
+        <select class="form-select" id="toField">
+          <option value="">Select destination</option>
+          <option>Singapore (SIN)</option>
+          <option>Hong Kong (HKG)</option>
+        </select>
+
+      </div>
+
+      <!--Departure date picker-->
+      <div class="col-12 col-md">
+        <label class="search-field-label" for="departDate">Depart</label>
+        <input type="date" class="form-control" id="departDate" />
+      </div>
+
+      <!--Return date picker-->
+      <div class="col-12 col-md" id="returnDateWrap">
+        <label class="search-field-label" for="returnDate">Return</label>
+        <input type="date" class="form-control" id="returnDate" disabled />
+      </div>
+    </div>
+
+    <div class="row g-2 mt-2 align-items-end">
+
+      <!--Search button-->
+      <div class="col-12 col-md-auto">
+        <button class="btn primary-btn" id="searchBtn">
+          <i class="bi bi-search me-1"></i> Search Flights
+        </button>
+      </div>
+
+      <!-- Advanced search dropdown -->
+      <div class="col-12 col-md-auto mt-2">
+
+        <!-- Advanced search button -->
+        <button class="btn dropdown-toggle border-0" id="advSearchBtn" data-bs-toggle="dropdown" aria-expanded="false"
+          data-bs-display="static">
+          Advanced Search
+        </button>
+
+        <!-- Advanced search form  -->
+        <div class="dropdown-menu col-12" id="advSearchDrpDwn">
+          <form class="px-4 py-3">
+            <h6>ADVANCED FILTER</h6>
+
+            <!-- Airline picker -->
+            <div class="mb-3">
+              <label class="search-field-label" for="airlineField">Airline</label>
+
+              <select class="form-select" id="airlineField">
+                <option value="">Select Airline</option>
+                <option>Philippine Airlines</option>
+                <option>Cebu Pacific</option>
+                <option>Royal Air Philippines</option>
+                <option>Philippines AirAsia</option>
+              </select>
+            </div>
+
+            <!-- Price range -->
+            <div class="col-12 col-md-auto d-flex flex-column">
+              <label for="priceRange" class="search-field-label">
+                Price Range: <span id="priceValue">₱10,000</span>
+              </label>
+
+              <input type="range" class="form-range w-50" id="priceRange" min="0" max="10000" step="100" value="10000">
+            </div>
+
+            <!-- flexible dates and direct flights radios -->
+            <div class="col-12 col-md-auto ms-md-auto d-flex justify-content-md-end">
+              <div class="d-flex gap-3">
+
+                <div class="form-check mt-0 mb-0">
+                  <input class="form-check-input" type="radio" id="flexiDates" value="flexiDates" />
+                  <label class="form-check-label" for="flexiDates">Flexible Dates</label>
+                </div>
+
+                <div class="form-check mt-0 mb-0">
+                  <input class="form-check-input" type="radio" id="dirFlight" value="round" />
+                  <label class="form-check-label" for="dirFlight">Direct Flights Only</label>
+                </div>
+              </div>
+            </div>
+
+          </form>
+        </div>
+
+      </div>
+
+    </div>
+
+  </div>
+
+</div>
+
+<!-- Page Content -->
+<div class="container d-flex">
+
+  <!-- Filter Sidebar -->
+
+  <div class="filter-sidebar p-3">
+
+    <div class="container-fluid flex-lg-column align-items-stretch">
+      <h6 class="pb-2 mb-2 border-bottom">Filter Results</h6>
+
+      <!-- Check Airlines -->
+
+      <p class="mb-1">Airlines</p>
+
+      <div class="p-2">
+        <div class="form-check">
+          <input class="form-check-input" type="checkbox" value="" id="phAir">
+          <label class="form-check-label" for="phAir">
+            Philippine Airlines
+          </label>
+        </div>
+
+        <div class="form-check">
+          <input class="form-check-input" type="checkbox" value="" id="cebPac">
+          <label class="form-check-label" for="cebPac">
+            Cebu Pacific
+          </label>
+        </div>
+
+        <div class="form-check">
+          <input class="form-check-input" type="checkbox" value="" id="royalAirPh">
+          <label class="form-check-label" for="royalAirPh">
+            Royal Air Philippines
+          </label>
+        </div>
+
+        <div class="form-check">
+          <input class="form-check-input" type="checkbox" value="" id="airAsia">
+          <label class="form-check-label" for="airAsia">
+            Philippine AirAsia
+          </label>
+        </div>
+      </div>
+
+      <!-- Check Stops -->
+
+      <p class="mb-1">Stops</p>
+
+      <div class="p-2">
+        <div class="form-check mt-0 mb-0">
+          <input class="form-check-input" type="radio" name="stopType" id="direct" value="direct" />
+          <label class="form-check-label" for="oneWay">Direct</label>
+        </div>
+
+        <div class="form-check mt-0 mb-0">
+          <input class="form-check-input" type="radio" name="stopType" id="onestop" value="oneStop" />
+          <label class="form-check-label" for="oneWay">1 Stop</label>
+        </div>
+
+        <div class="form-check mt-0 mb-0">
+          <input class="form-check-input" type="radio" name="stopType" id="twostops" value="twoStops" />
+          <label class="form-check-label" for="oneWay">2+ Stops</label>
+        </div>
+      </div>
+
+      <!-- Check Departure Schedules -->
+
+      <p class="mb-1">Departure Schedules</p>
+      <div class="col-12 col-md">
+        <label class="search-field-label" for="departSched"></label>
+        <input type="date" class="form-control" id="departSched" />
+      </div>
+
+      <!-- Price Ranges -->
+
+      <p class="mt-2 mb-0">
+        <label for="priceRange" class="search-field-label">
+          Price Range:
+          <span id="priceValue">₱10,000</span>
+        </label>
+
+        <input type="range" class="form-range" id="priceRange" min="0" max="10000" step="100" value="10000">
+      </p>
+
+      <!-- Reset button -->
+
+      <div class="col-12">
+        <button class="btn btn-primary w-100" id="resetFltrsBtn">Reset Filters</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Search Results -->
+
+  <div class="search-results pt-3 ps-3">
+
+    <!-- Search results heading and sort dropdown -->
+
+    <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+
+      <!-- Heading -->
+
+      <h6 class="mb-0">
+        Search Results
+        <span id="resultsCount" class="badge bg-secondary ms-2 fw-normal fs-6"></span>
+      </h6>
+
+      <!-- Sort Dropdown -->
+
+      <div class="d-flex align-items-center gap-2">
+        <label class="small mb-0" for="sortSelect">Sort by:</label>
+
+        <select class="form-select" id="sortSelect" style="width:auto">
+          <option value="price-asc">Price: Low to High</option>
+          <option value="price-desc">Price: High to Low</option>
+          <option value="depart-asc">Departure: Earliest</option>
+          <option value="depart-desc">Departure: Latest</option>
+          <option value="duration-asc">Duration: Shortest</option>
+        </select>
+
+      </div>
+    </div>
+
+    <!--Flight 1-->
+    <div class="card flight-card text-center">
+
+      <!-- Top row: airline name and seats left -->
+      <div class="card-header">
+
+        <div class="d-flex flex-wrap justify-content-between align-items-center gap-2">
+
+          <div class="mt-3">
+            <img src="public/imgs/flights/pal-logo.png" alt="Philippine Airlines">
+            <span class="flight-airline">
+              Philippine Airlines
+            </span>
+          </div>
+
+          <div class="mt-3">
+            <span class="seats-left">
+              32 seats left
+            </span>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- Middle row: times, route and price -->
+      <div class="card-body">
+
+
+        <div class="row align-items-center g-3">
+
+          <!-- Departure -->
+          <div class="col-6 col-md-2 flight-time-block">
+            <div class="flight-date">June 15</div>
+            <div class="flight-time">06:30AM</div>
+            <div class="flight-country">MNL</div>
+          </div>
+
+          <!-- Route line -->
+          <div class="col-12 col-md-6 flight-route-block">
+            <div class="flight-route-label">Manila → Japan</div>
+            <div class="flight-route-line">
+              <hr />
+            </div>
+            <div class="flight-route-info">Direct | 2h 30m</div>
+          </div>
+
+          <!-- Arrival -->
+          <div class="col-6 col-md-2 flight-time-block">
+            <div class="flight-date">June 15</div>
+            <div class="flight-time">10:30AM</div>
+            <div class="flight-country">JPN</div>
+          </div>
+
+          <!-- Price and book button -->
+          <div class="col-12 col-md-2 flight-price-block">
+            <div class="flight-price">₱4,500</div>
+            <a href="booking.html" class="btn primary-btn btn-sm px-4 mt-2">Book</a>
+          </div>
+
+        </div>
+
+      </div>
+
+      <!-- Bottom row: View details toggle -->
+      <div class="card-footer text-end text-muted">
+
+        <button class="secondary-btn" id="detailsToggle1" onclick="toggleDetails('flightDetails1', 'detailsToggle1')">
+          View Details <i class="bi bi-chevron-up"></i>
+        </button>
+
+      </div>
+
+      <!-- Expandable details panel -->
+      <div class="flight-details" id="flightDetails1">
+        <div class="flight-details-grid">
+
+          <div class="detail-item">
+            <div class="detail-label">Flight</div>
+            <div class="detail-value">FL-123</div>
+          </div>
+
+          <div class="detail-item">
+            <div class="detail-label">Trip type</div>
+            <div class="detail-value">One-way</div>
+          </div>
+
+          <div class="detail-item">
+            <div class="detail-label">Cabin class</div>
+            <div class="detail-value">First Class</div>
+          </div>
+
+          <div class="detail-item">
+            <div class="detail-label">Stops</div>
+            <div class="detail-value">Direct</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!--Flight 2-->
+    <div class="card flight-card text-center">
+
+      <!-- Top row: airline name and seats left -->
+      <div class="card-header">
+
+        <div class="d-flex flex-wrap justify-content-between align-items-center gap-2">
+
+          <div class="mt-3">
+            <img src="public/imgs/flights/royal-air-logo.png" alt="Royal Air Philippines">
+            <span class="flight-airline">
+              Royal Air Philippines
+            </span>
+          </div>
+
+          <div class="mt-3">
+            <span class="seats-left">
+              2 seats left
+            </span>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- Middle row: times, route, and price -->
+      <div class="card-body">
+
+
+        <div class="row align-items-center g-3">
+
+          <!-- Departure -->
+          <div class="col-6 col-md-2 flight-time-block">
+            <div class="flight-date">June 15</div>
+            <div class="flight-time">07:30AM</div>
+            <div class="flight-country">MNL</div>
+          </div>
+
+          <!-- Route line -->
+          <div class="col-12 col-md-6 flight-route-block">
+            <div class="flight-route-label">Manila → Singapore</div>
+            <div class="flight-route-line">
+              <hr />
+            </div>
+            <div class="flight-route-info">Direct | 2h 30m</div>
+          </div>
+
+          <!-- Arrival -->
+          <div class="col-6 col-md-2 flight-time-block">
+            <div class="flight-date">June 15</div>
+            <div class="flight-time">09:30AM</div>
+            <div class="flight-country">SIN</div>
+          </div>
+
+          <!-- Price and book button -->
+          <div class="col-12 col-md-2 flight-price-block">
+          </div>
+
+
+        </div>
+
+        <div class="row align-items-center g-3">
+
+          <!-- Departure -->
+          <div class="col-6 col-md-2 flight-time-block">
+            <div class="flight-date">June 26</div>
+            <div class="flight-time">12:30AM</div>
+            <div class="flight-country">SIN</div>
+          </div>
+
+          <!-- Route line -->
+          <div class="col-12 col-md-6 flight-route-block">
+            <div class="flight-route-label">Singapore → Manila</div>
+            <div class="flight-route-line">
+              <hr />
+            </div>
+            <div class="flight-route-info">Direct | 2h 30m</div>
+          </div>
+
+          <!-- Arrival -->
+          <div class="col-6 col-md-2 flight-time-block">
+            <div class="flight-date">June 26</div>
+            <div class="flight-time">02:30AM</div>
+            <div class="flight-country">MNL</div>
+          </div>
+
+          <!-- Price and book button -->
+          <div class="col-12 col-md-2 flight-price-block">
+            <div class="flight-price">₱6,500</div>
+            <a href="booking.html" class="btn primary-btn btn-sm px-4 mt-2">Book</a>
+          </div>
+
+        </div>
+
+      </div>
+
+      <!-- Bottom row: View details toggle -->
+      <div class="card-footer text-end text-muted">
+
+        <button class="secondary-btn" id="detailsToggle2" onclick="toggleDetails('flightDetails2', 'detailsToggle2')">
+          View Details <i class="bi bi-chevron-up"></i>
+        </button>
+
+      </div>
+
+      <!-- Expandable details panel -->
+      <div class="flight-details" id="flightDetails2">
+        <div class="flight-details-grid">
+
+          <div class="detail-item">
+            <div class="detail-label">Flight</div>
+            <div class="detail-value">FL-456</div>
+          </div>
+
+          <div class="detail-item">
+            <div class="detail-label">Trip type</div>
+            <div class="detail-value">Round-trip</div>
+          </div>
+
+          <div class="detail-item">
+            <div class="detail-label">Cabin class</div>
+            <div class="detail-value">First Class</div>
+          </div>
+
+          <div class="detail-item">
+            <div class="detail-label">Stops</div>
+            <div class="detail-value">Direct</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!--Flight 3-->
+    <div class="card flight-card text-center">
+
+      <!-- Top row: airline name and seats left -->
+      <div class="card-header">
+
+        <div class="d-flex flex-wrap justify-content-between align-items-center gap-2">
+
+          <div class="mt-3">
+            <img src="public/imgs/flights/royal-air-logo.png" alt="Royal Air Philippines">
+            <span class="flight-airline">
+              Royal Air Philippines
+            </span>
+          </div>
+
+          <div class="mt-3">
+            <span class="seats-left">
+              2 seats left
+            </span>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- Middle row: times, route, and price -->
+      <div class="card-body">
+
+
+        <div class="row align-items-center g-3">
+
+          <!-- Departure -->
+          <div class="col-6 col-md-2 flight-time-block">
+            <div class="flight-date">June 15</div>
+            <div class="flight-time">07:30AM</div>
+            <div class="flight-country">MNL</div>
+          </div>
+
+          <!-- Route line -->
+          <div class="col-12 col-md-6 flight-route-block">
+            <div class="flight-route-label">Manila → Singapore</div>
+            <div class="flight-route-line">
+              <hr />
+            </div>
+            <div class="flight-route-info">Direct | 2h 30m</div>
+          </div>
+
+          <!-- Arrival -->
+          <div class="col-6 col-md-2 flight-time-block">
+            <div class="flight-date">June 15</div>
+            <div class="flight-time">09:30AM</div>
+            <div class="flight-country">SIN</div>
+          </div>
+
+          <!-- Price and book button -->
+          <div class="col-12 col-md-2 flight-price-block">
+            <div class="flight-price">₱4,500</div>
+            <a href="booking.html" class="btn primary-btn btn-sm px-4 mt-2">Book</a>
+          </div>
+
+        </div>
+
+      </div>
+
+      <!-- Bottom row: View details toggle -->
+      <div class="card-footer text-end text-muted">
+
+        <button class="secondary-btn" id="detailsToggle3" onclick="toggleDetails('flightDetails3', 'detailsToggle3')">
+          View Details <i class="bi bi-chevron-up"></i>
+        </button>
+
+      </div>
+
+      <!-- Expandable details panel -->
+      <div class="flight-details" id="flightDetails3">
+        <div class="flight-details-grid">
+
+          <div class="detail-item">
+            <div class="detail-label">Flight</div>
+            <div class="detail-value">FL-789</div>
+          </div>
+
+          <div class="detail-item">
+            <div class="detail-label">Trip type</div>
+            <div class="detail-value">One-way</div>
+          </div>
+
+          <div class="detail-item">
+            <div class="detail-label">Cabin class</div>
+            <div class="detail-value">Economy</div>
+          </div>
+
+          <div class="detail-item">
+            <div class="detail-label">Stops</div>
+            <div class="detail-value">1 stop via MNL</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!--Flight 4-->
+    <div class="card flight-card text-center">
+      <div class="card-header">
+        <div class="d-flex flex-wrap justify-content-between align-items-center gap-2">
+          <div class="mt-3">
+            <img src="public/imgs/flights/cebu-pacific-logo.png" alt="Cebu Pacific">
+            <span class="flight-airline">Cebu Pacific</span>
+          </div>
+          <div class="mt-3"><span class="seats-left">14 seats left</span></div>
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="row align-items-center g-3">
+          <div class="col-6 col-md-2 flight-time-block">
+            <div class="flight-date">June 20</div>
+            <div class="flight-time">08:00AM</div>
+            <div class="flight-country">MNL</div>
+          </div>
+          <div class="col-12 col-md-6 flight-route-block">
+            <div class="flight-route-label">Manila → Singapore</div>
+            <div class="flight-route-line">
+              <hr />
+            </div>
+            <div class="flight-route-info">Direct | 3h 10m</div>
+          </div>
+          <div class="col-6 col-md-2 flight-time-block">
+            <div class="flight-date">June 20</div>
+            <div class="flight-time">11:10AM</div>
+            <div class="flight-country">SIN</div>
+          </div>
+          <div class="col-12 col-md-2 flight-price-block">
+            <div class="flight-price">₱3,800</div>
+            <a href="booking.html" class="btn primary-btn btn-sm px-4 mt-2">Book</a>
+          </div>
+        </div>
+      </div>
+      <div class="card-footer text-end text-muted">
+        <button class="secondary-btn" id="detailsToggle4" onclick="toggleDetails('flightDetails4', 'detailsToggle4')">
+          View Details <i class="bi bi-chevron-up"></i>
+        </button>
+      </div>
+      <div class="flight-details" id="flightDetails4">
+        <div class="flight-details-grid">
+          <div class="detail-item">
+            <div class="detail-label">Flight</div>
+            <div class="detail-value">5J-502</div>
+          </div>
+          <div class="detail-item">
+            <div class="detail-label">Trip type</div>
+            <div class="detail-value">One-way</div>
+          </div>
+          <div class="detail-item">
+            <div class="detail-label">Cabin class</div>
+            <div class="detail-value">Economy</div>
+          </div>
+          <div class="detail-item">
+            <div class="detail-label">Stops</div>
+            <div class="detail-value">Direct</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!--Flight 5-->
+    <div class="card flight-card text-center">
+      <div class="card-header">
+        <div class="d-flex flex-wrap justify-content-between align-items-center gap-2">
+          <div class="mt-3">
+            <img src="public/imgs/flights/air-asia-logo.png" alt="AirAsia">
+            <span class="flight-airline">AirAsia</span>
+          </div>
+          <div class="mt-3"><span class="seats-left">7 seats left</span></div>
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="row align-items-center g-3">
+          <div class="col-6 col-md-2 flight-time-block">
+            <div class="flight-date">June 22</div>
+            <div class="flight-time">03:45PM</div>
+            <div class="flight-country">MNL</div>
+          </div>
+          <div class="col-12 col-md-6 flight-route-block">
+            <div class="flight-route-label">Manila → Kuala Lumpur</div>
+            <div class="flight-route-line">
+              <hr />
+            </div>
+            <div class="flight-route-info">Direct | 3h 45m</div>
+          </div>
+          <div class="col-6 col-md-2 flight-time-block">
+            <div class="flight-date">June 22</div>
+            <div class="flight-time">07:30PM</div>
+            <div class="flight-country">KUL</div>
+          </div>
+          <div class="col-12 col-md-2 flight-price-block">
+            <div class="flight-price">₱2,990</div>
+            <a href="booking.html" class="btn primary-btn btn-sm px-4 mt-2">Book</a>
+          </div>
+        </div>
+      </div>
+      <div class="card-footer text-end text-muted">
+        <button class="secondary-btn" id="detailsToggle5" onclick="toggleDetails('flightDetails5', 'detailsToggle5')">
+          View Details <i class="bi bi-chevron-up"></i>
+        </button>
+      </div>
+      <div class="flight-details" id="flightDetails5">
+        <div class="flight-details-grid">
+          <div class="detail-item">
+            <div class="detail-label">Flight</div>
+            <div class="detail-value">AK-521</div>
+          </div>
+          <div class="detail-item">
+            <div class="detail-label">Trip type</div>
+            <div class="detail-value">One-way</div>
+          </div>
+          <div class="detail-item">
+            <div class="detail-label">Cabin class</div>
+            <div class="detail-value">Economy</div>
+          </div>
+          <div class="detail-item">
+            <div class="detail-label">Stops</div>
+            <div class="detail-value">Direct</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!--Flight 6-->
+    <div class="card flight-card text-center">
+      <div class="card-header">
+        <div class="d-flex flex-wrap justify-content-between align-items-center gap-2">
+          <div class="mt-3">
+            <img src="public/imgs/flights/pal-logo.png" alt="Philippine Airlines">
+            <span class="flight-airline">Philippine Airlines</span>
+          </div>
+          <div class="mt-3"><span class="seats-left">21 seats left</span></div>
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="row align-items-center g-3">
+          <div class="col-6 col-md-2 flight-time-block">
+            <div class="flight-date">June 25</div>
+            <div class="flight-time">07:20AM</div>
+            <div class="flight-country">MNL</div>
+          </div>
+          <div class="col-12 col-md-6 flight-route-block">
+            <div class="flight-route-label">Manila → Hong Kong</div>
+            <div class="flight-route-line">
+              <hr />
+            </div>
+            <div class="flight-route-info">Direct | 2h 10m</div>
+          </div>
+          <div class="col-6 col-md-2 flight-time-block">
+            <div class="flight-date">June 25</div>
+            <div class="flight-time">09:30AM</div>
+            <div class="flight-country">HKG</div>
+          </div>
+          <div class="col-12 col-md-2 flight-price-block">
+            <div class="flight-price">₱8,200</div>
+            <a href="booking.html" class="btn primary-btn btn-sm px-4 mt-2">Book</a>
+          </div>
+        </div>
+      </div>
+      <div class="card-footer text-end text-muted">
+        <button class="secondary-btn" id="detailsToggle6" onclick="toggleDetails('flightDetails6', 'detailsToggle6')">
+          View Details <i class="bi bi-chevron-up"></i>
+        </button>
+      </div>
+      <div class="flight-details" id="flightDetails6">
+        <div class="flight-details-grid">
+          <div class="detail-item">
+            <div class="detail-label">Flight</div>
+            <div class="detail-value">PR-300</div>
+          </div>
+          <div class="detail-item">
+            <div class="detail-label">Trip type</div>
+            <div class="detail-value">One-way</div>
+          </div>
+          <div class="detail-item">
+            <div class="detail-label">Cabin class</div>
+            <div class="detail-value">Business</div>
+          </div>
+          <div class="detail-item">
+            <div class="detail-label">Stops</div>
+            <div class="detail-value">Direct</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!--Flight 7-->
+    <div class="card flight-card text-center">
+      <div class="card-header">
+        <div class="d-flex flex-wrap justify-content-between align-items-center gap-2">
+          <div class="mt-3">
+            <img src="public/imgs/flights/cebu-pacific-logo.png" alt="Cebu Pacific">
+            <span class="flight-airline">Cebu Pacific</span>
+          </div>
+          <div class="mt-3"><span class="seats-left">5 seats left</span></div>
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="row align-items-center g-3">
+          <div class="col-6 col-md-2 flight-time-block">
+            <div class="flight-date">July 3</div>
+            <div class="flight-time">06:00AM</div>
+            <div class="flight-country">CRK</div>
+          </div>
+          <div class="col-12 col-md-6 flight-route-block">
+            <div class="flight-route-label">Clark → Hong Kong</div>
+            <div class="flight-route-line">
+              <hr />
+            </div>
+            <div class="flight-route-info">Direct | 2h 30m</div>
+          </div>
+          <div class="col-6 col-md-2 flight-time-block">
+            <div class="flight-date">July 3</div>
+            <div class="flight-time">08:30AM</div>
+            <div class="flight-country">HKG</div>
+          </div>
+          <div class="col-12 col-md-2 flight-price-block">
+            <div class="flight-price">₱5,100</div>
+            <a href="booking.html" class="btn primary-btn btn-sm px-4 mt-2">Book</a>
+          </div>
+        </div>
+      </div>
+      <div class="card-footer text-end text-muted">
+        <button class="secondary-btn" id="detailsToggle7" onclick="toggleDetails('flightDetails7', 'detailsToggle7')">
+          View Details <i class="bi bi-chevron-up"></i>
+        </button>
+      </div>
+      <div class="flight-details" id="flightDetails7">
+        <div class="flight-details-grid">
+          <div class="detail-item">
+            <div class="detail-label">Flight</div>
+            <div class="detail-value">5J-246</div>
+          </div>
+          <div class="detail-item">
+            <div class="detail-label">Trip type</div>
+            <div class="detail-value">One-way</div>
+          </div>
+          <div class="detail-item">
+            <div class="detail-label">Cabin class</div>
+            <div class="detail-value">Economy</div>
+          </div>
+          <div class="detail-item">
+            <div class="detail-label">Stops</div>
+            <div class="detail-value">Direct</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!--Flight 8-->
+    <div class="card flight-card text-center">
+      <div class="card-header">
+        <div class="d-flex flex-wrap justify-content-between align-items-center gap-2">
+          <div class="mt-3">
+            <img src="public/imgs/flights/air-asia-logo.png" alt="AirAsia">
+            <span class="flight-airline">AirAsia</span>
+          </div>
+          <div class="mt-3"><span class="seats-left">18 seats left</span></div>
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="row align-items-center g-3">
+          <div class="col-6 col-md-2 flight-time-block">
+            <div class="flight-date">July 10</div>
+            <div class="flight-time">01:15PM</div>
+            <div class="flight-country">MNL</div>
+          </div>
+          <div class="col-12 col-md-6 flight-route-block">
+            <div class="flight-route-label">Manila → Bangkok</div>
+            <div class="flight-route-line">
+              <hr />
+            </div>
+            <div class="flight-route-info">1 stop via KUL | 6h 20m</div>
+          </div>
+          <div class="col-6 col-md-2 flight-time-block">
+            <div class="flight-date">July 10</div>
+            <div class="flight-time">07:35PM</div>
+            <div class="flight-country">BKK</div>
+          </div>
+          <div class="col-12 col-md-2 flight-price-block">
+            <div class="flight-price">₱4,200</div>
+            <a href="booking.html" class="btn primary-btn btn-sm px-4 mt-2">Book</a>
+          </div>
+        </div>
+      </div>
+      <div class="card-footer text-end text-muted">
+        <button class="secondary-btn" id="detailsToggle8" onclick="toggleDetails('flightDetails8', 'detailsToggle8')">
+          View Details <i class="bi bi-chevron-up"></i>
+        </button>
+      </div>
+      <div class="flight-details" id="flightDetails8">
+        <div class="flight-details-grid">
+          <div class="detail-item">
+            <div class="detail-label">Flight</div>
+            <div class="detail-value">AK-884</div>
+          </div>
+          <div class="detail-item">
+            <div class="detail-label">Trip type</div>
+            <div class="detail-value">One-way</div>
+          </div>
+          <div class="detail-item">
+            <div class="detail-label">Cabin class</div>
+            <div class="detail-value">Economy</div>
+          </div>
+          <div class="detail-item">
+            <div class="detail-label">Stops</div>
+            <div class="detail-value">1 stop via KUL</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!--Flight 9-->
+    <div class="card flight-card text-center">
+      <div class="card-header">
+        <div class="d-flex flex-wrap justify-content-between align-items-center gap-2">
+          <div class="mt-3">
+            <img src="public/imgs/flights/pal-logo.png" alt="Philippine Airlines">
+            <span class="flight-airline">Philippine Airlines</span>
+          </div>
+          <div class="mt-3"><span class="seats-left">43 seats left</span></div>
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="row align-items-center g-3">
+          <div class="col-6 col-md-2 flight-time-block">
+            <div class="flight-date">July 15</div>
+            <div class="flight-time">10:00PM</div>
+            <div class="flight-country">MNL</div>
+          </div>
+          <div class="col-12 col-md-6 flight-route-block">
+            <div class="flight-route-label">Manila → Tokyo</div>
+            <div class="flight-route-line">
+              <hr />
+            </div>
+            <div class="flight-route-info">Direct | 4h 15m</div>
+          </div>
+          <div class="col-6 col-md-2 flight-time-block">
+            <div class="flight-date">July 16</div>
+            <div class="flight-time">02:15AM</div>
+            <div class="flight-country">TYO</div>
+          </div>
+          <div class="col-12 col-md-2 flight-price-block">
+            <div class="flight-price">₱12,500</div>
+            <a href="booking.html" class="btn primary-btn btn-sm px-4 mt-2">Book</a>
+          </div>
+        </div>
+      </div>
+      <div class="card-footer text-end text-muted">
+        <button class="secondary-btn" id="detailsToggle9" onclick="toggleDetails('flightDetails9', 'detailsToggle9')">
+          View Details <i class="bi bi-chevron-up"></i>
+        </button>
+      </div>
+      <div class="flight-details" id="flightDetails9">
+        <div class="flight-details-grid">
+          <div class="detail-item">
+            <div class="detail-label">Flight</div>
+            <div class="detail-value">PR-432</div>
+          </div>
+          <div class="detail-item">
+            <div class="detail-label">Trip type</div>
+            <div class="detail-value">One-way</div>
+          </div>
+          <div class="detail-item">
+            <div class="detail-label">Cabin class</div>
+            <div class="detail-value">Premium Economy</div>
+          </div>
+          <div class="detail-item">
+            <div class="detail-label">Stops</div>
+            <div class="detail-value">Direct</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!--Flight 10-->
+    <div class="card flight-card text-center">
+      <div class="card-header">
+        <div class="d-flex flex-wrap justify-content-between align-items-center gap-2">
+          <div class="mt-3">
+            <img src="public/imgs/flights/royal-air-logo.png" alt="Royal Air Philippines">
+            <span class="flight-airline">Royal Air Philippines</span>
+          </div>
+          <div class="mt-3"><span class="seats-left">9 seats left</span></div>
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="row align-items-center g-3">
+          <div class="col-6 col-md-2 flight-time-block">
+            <div class="flight-date">July 18</div>
+            <div class="flight-time">05:30AM</div>
+            <div class="flight-country">CEB</div>
+          </div>
+          <div class="col-12 col-md-6 flight-route-block">
+            <div class="flight-route-label">Cebu → Singapore</div>
+            <div class="flight-route-line">
+              <hr />
+            </div>
+            <div class="flight-route-info">1 stop via MNL | 5h 00m</div>
+          </div>
+          <div class="col-6 col-md-2 flight-time-block">
+            <div class="flight-date">July 18</div>
+            <div class="flight-time">10:30AM</div>
+            <div class="flight-country">SIN</div>
+          </div>
+          <div class="col-12 col-md-2 flight-price-block">
+            <div class="flight-price">₱7,800</div>
+            <a href="booking.html" class="btn primary-btn btn-sm px-4 mt-2">Book</a>
+          </div>
+        </div>
+      </div>
+      <div class="card-footer text-end text-muted">
+        <button class="secondary-btn" id="detailsToggle10"
+          onclick="toggleDetails('flightDetails10', 'detailsToggle10')">
+          View Details <i class="bi bi-chevron-up"></i>
+        </button>
+      </div>
+      <div class="flight-details" id="flightDetails10">
+        <div class="flight-details-grid">
+          <div class="detail-item">
+            <div class="detail-label">Flight</div>
+            <div class="detail-value">RW-310</div>
+          </div>
+          <div class="detail-item">
+            <div class="detail-label">Trip type</div>
+            <div class="detail-value">One-way</div>
+          </div>
+          <div class="detail-item">
+            <div class="detail-label">Cabin class</div>
+            <div class="detail-value">Economy</div>
+          </div>
+          <div class="detail-item">
+            <div class="detail-label">Stops</div>
+            <div class="detail-value">1 stop via MNL</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+
+  </div>
+
+
+</div>
