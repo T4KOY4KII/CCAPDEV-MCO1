@@ -1,3 +1,4 @@
+require('dotenv').config();
 const express = require('express');
 const exphbs = require('express-handlebars');
 const path = require('path');
@@ -7,8 +8,8 @@ const app = express();
 const User = require('./models/User');
 
 //Connection to the database
-mongoose.connect('mongodb://localhost:27017/ccdevapDB', {
-}).then(() => console.log("MongoDB Connected"))
+mongoose.connect(process.env.MONGO_URI)
+    .then(() => console.log("MongoDB Connected"))
     .catch(err => console.log("MongoDB Error: ", err));
 
 //Serves static files 
