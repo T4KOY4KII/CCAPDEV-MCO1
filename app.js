@@ -14,6 +14,10 @@ mongoose.connect('mongodb://TravelBuddyAdmin:ti4oAa77duhneNbm@ac-rjjnmom-shard-0
 //Serves static files 
 app.use(express.static('public'));
 
+
+app.use(express.urlencoded({ extended: true }));
+app.use(express.json());
+
 //Handlebars setup
 app.engine("hbs", exphbs.engine({ extname: 'hbs' }));
 app.set("view engine", "hbs");

@@ -1,16 +1,95 @@
-<!--Placeholder for now -->
-<div class="container mt-4">
-  <h1>Login page goes here</h1>
-</div>
+<section class="h-100 gradient-form">
 
-<a href="/dashboard" class="btn btn-primary">
-    Login as User
-</a>
+    <div class="container py-5 h-100">
 
-<a href="/adminDashboard" class="btn btn-secondary">
-    Login as Admin
-</a>
+        <div class="row d-flex justify-content-center align-items-center h-100">
 
-<a href="/register" class="btn btn-secondary">
-    Register
-</a>
+            <div class="col-xl-10">
+
+                <div class="card rounded-3 text-black">
+
+                    <div class="row g-0">
+
+                        <div class="col-lg-6">
+
+                            <div class="card-body p-md-5 mx-md-4">
+
+                                <div class="text-center">
+
+                                    <h2 class="mt-4 mb-5 pb-1">Welcome To TravelBuddy!</h2>
+                                </div>
+
+
+
+                                <form action="/login" method="POST">
+                                    <h5 class="mb-4">Log In </h5>
+
+                                    <!--Success message (after registration) -->
+                                    {{#if success}}
+                                    <div class="alert alert-success py-2">{{success}}</div>
+                                    {{/if}}
+
+                                    <!--Error alert -->
+                                    {{#if error}}
+                                    <div class="alert alert-danger py-2">{{error}}</div>
+                                    {{/if}}
+
+                                    <!--Email -->
+                                    <div class="mb-3">
+
+                                        <label class="form-label fw-semibold" for="email">Email Address</label>
+                                        <input type="email" class="form-control" id="email" name="email"
+                                            value="{{email}}" placeholder="Email">
+
+                                    </div>
+
+                                    <!--Password -->
+                                    <div class="mb-4">
+
+                                        <label class="form-label fw-semibold" for="password">Password</label>
+                                        <input type="password" class="form-control" id="password" name="password"
+                                            placeholder="Password">
+
+                                    </div>
+
+                                    <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                                        <button type="submit" class="btn primary-btn">
+                                            Log in
+                                        </button>
+                                    </div>
+                                </form>
+
+                                <hr class="my-4">
+
+                                <!--Redirects to register page -->
+                                <div class="d-flex align-items-center justify-content-center pb-4 mt-2">
+                                    <p class="mb-0 me-2 text-muted">Don't have an account?</p>
+                                    <a href="/register">
+                                        <button type="button" class="btn danger-btn">Create new</button>
+                                    </a>
+
+                                </div>
+
+
+
+                            </div>
+                        </div>
+
+                        <div class="col-lg-6 d-flex align-items-center auth-page">
+                            <div class="text-center px-3 py-4 p-md-5 mx-md-4">
+                                <img src="/imgs/branding/travelbuddy-logo.png" alt="TravelBuddy Logo">
+                                <h4 class="mt-2 mb-2">Every great adventure starts with a buddy!</h4>
+                            </div>
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</section>

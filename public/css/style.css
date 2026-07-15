@@ -41,6 +41,10 @@ footer {
     height: 48px;
 }
 
+.auth-page {
+    background-color: var(--secondary-color);
+}
+
 .nav-link {
     transition: all 0.2s ease;
 }
@@ -66,6 +70,7 @@ footer {
     color: var(--light);
     display: inline-flex;
     align-items: center;
+    text-align: center;
     gap: 6px;
     transition: background 0.15s;
 }
@@ -80,6 +85,7 @@ footer {
     color: var(--light);
     display: inline-flex;
     align-items: center;
+    text-align: center;
     gap: 6px;
     transition: background 0.15s;
 }
@@ -123,12 +129,14 @@ footer {
 .danger-btn:hover,
 .danger-btn:focus {
     background-color: var(--danger);
+    color: var(--light);
 
 }
 
 .success-btn:hover, 
 .success-btn:focus {
     background-color: var(--success);
+    color: var(--light);
 }
 
 /* Table */

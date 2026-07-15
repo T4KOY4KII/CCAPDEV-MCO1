@@ -5,8 +5,9 @@ const userSchema = new mongoose.Schema({
     lastName: { type: String, required: true },
     email: { type: String, required: true, unique: true },
     password: { type: String, required: true },
-    role: { type: String, enum: ['passenger', 'admin'], default: 'passenger', required: true},
-    status: {type: String, enum: ['active', 'deactivated'], default: 'active'}
-}, { timestamps: true }); // not the complete schema for users - just a placeholder for now
+    role: { type: String, enum: ['user', 'admin'], default: 'user', required: true},
+    status: {type: String, enum: ['active', 'deactivated'], default: 'active'},
+    profileIMG: {type: String, default: "/imgs/user/default-pfp.jpg"}
+}, { timestamps: true }); 
 
 module.exports = mongoose.model('User', userSchema);
