@@ -1,27 +1,22 @@
 <!--ADMIN USER MANAGEMENT PAGE -->
 
-
 <!-- Search and filters (role and status) -->
 <div class="container mt-4">
   <div class="table-card mb-3">
-
     <div class="row g-2 align-items-center">
-
       <div class="col-md-5">
-
         <div class="input-group">
           <span class="input-group-text bg-white border-end-0">
             <i class="bi bi-search text-muted"></i>
           </span>
-          <input type="text" class="form-control border-start-0" id="userSearch" placeholder="Search user">
+          <input type="text" class="form-control border-start-0" id="userSearch" placeholder="Search name, email, or number">
         </div>
-
       </div>
 
       <div class="col-md-4 ms-auto">
         <select class="form-select" id="roleSort">
           <option value="all">Role: All</option>
-          <option value="customer">Role: Customer</option>
+          <option value="user">Role: Customer</option>
           <option value="admin">Role: Admin</option>
         </select>
       </div>
@@ -29,18 +24,13 @@
       <div class="col-md-3">
         <select class="form-select" id="statusFilter">
           <option value="all">Status: All</option>
-          <option value="customer">Status: Active</option>
-          <option value="admin">Status: Deactivated</option>
+          <option value="active">Status: Active</option>
+          <option value="deactivated">Status: Deactivated</option>
         </select>
       </div>
-
     </div>
-
-
-
   </div>
 </div>
-
 
 <!-- Users table -->
 <div class="container">
@@ -56,41 +46,31 @@
           <th>Status</th>
           <th>Actions</th>
         </tr>
-
-        <!--DUMMY DATA-->
-        <tr>
-          <td>Jose Rizal</td>
-          <td>jose.rizal@email.com</td>
-          <td>01234567890</td>
-          <td>Customer</td>
-          <td>18 June 2026</td>
-          <td><span class="badge badge-success">Active</span></td>
-          <td>
-            <button class="block-button" id="blockBtn" onclick="blockUser.showModal()">
-              <i class="bi bi-ban ms-4"></i>
-            </button>
-
-          </td>
-        </tr>
-
-        <tr>
-          <td>Jose Rizal</td>
-          <td>jose.rizal@email.com</td>
-          <td>01234567890</td>
-          <td>Customer</td>
-          <td>18 June 2026</td>
-          <td><span class="badge badge-danger">Deactivated</span></td>
-          <td>
-            <button class="block-button" id="blockBtn" onclick="blockUser.showModal()">
-              <i class="bi bi-ban ms-4"></i>
-            </button>
-          </td>
-        </tr>
-
       </thead>
-      <tbody id="TableBody"></tbody>
+      <tbody id="TableBody">
+        {{#if users.length}}
+          {{#each users}}
+            <tr id="user-row-{{this._id}}" data-id="{{this._id}}" data-name="{{this.name}}" data-email="{{this.email}}" data-phone="{{this.phone}}" data-role="{{this.role}}" data-status="{{this.status}}" data-date="{{this.dateRegistered}}">
+              <td class="fw-bold">{{this.name}}</td>
+              <td>{{this.email}}</td>
+              <td>{{this.phone}}</td>
+              <td>{{this.roleCapitalized}}</td>
+              <td>{{this.dateRegistered}}</td>
+              <td><span class="badge badge-{{this.statusBadgeClass}}">{{this.statusCapitalized}}</span></td>
+              <td>
+                <button class="block-button {{#if this.isDeactivated}}text-success{{else}}text-danger{{/if}}" onclick="openToggleUserModal('{{this._id}}', '{{this.name}}', '{{this.status}}')">
+                  <i class="bi {{#if this.isDeactivated}}bi-check-circle{{else}}bi-ban{{/if}} ms-4"></i>
+                </button>
+              </td>
+            </tr>
+          {{/each}}
+        {{else}}
+          <tr id="noUsersRow">
+            <td colspan="7" class="text-center text-muted py-4">No users found in database.</td>
+          </tr>
+        {{/if}}
+      </tbody>
     </table>
-
 
     <!-- Pagination -->
     <div class="d-flex justify-content-between align-items-center mt-3 px-2" id="Pagination">
@@ -105,22 +85,21 @@
   </div>
 </div>
 
-
-<!-- Deactivate user modal -->
-<dialog id="blockUser">
+<!-- Deactivate / Activate user modal -->
+<dialog class="w-50" id="blockUser">
   <div class="card">
-    <div class="card-header">
-      Deactivate Jose Rizal?
+    <div class="card-header" id="blockUserHeader">
+      Deactivate User?
     </div>
     <div class="card-body">
-      This action is permanent.
+      <div id="blockUserError" class="alert alert-danger d-none py-2 mb-3"></div>
+      <p id="blockUserText">This action will change the user's account status.</p>
+      <input type="hidden" id="blockUserId" />
     </div>
 
-    <!--Add and close button-->
     <div class="card-footer text-body-secondary text-end">
-      <a class="btn secondary-btn" onclick="blockUser.close()">Cancel</a>
-      <a class="btn danger-btn" onclick="blockUser.close()">Deactivate User</a>
+      <a class="btn secondary-btn" onclick="document.getElementById('blockUser').close()">Cancel</a>
+      <a class="btn danger-btn" id="blockUserSubmitBtn" onclick="submitToggleUserStatus()">Deactivate User</a>
     </div>
   </div>
-
 </dialog>

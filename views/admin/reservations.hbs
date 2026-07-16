@@ -3,36 +3,26 @@
 <!-- Search and status filter-->
 <div class="container mt-4">
   <div class="table-card mb-3">
-
     <div class="row g-2 align-items-center">
-
       <div class="col-md-5">
-
         <div class="input-group">
           <span class="input-group-text bg-white border-end-0">
             <i class="bi bi-search text-muted"></i>
           </span>
-          <input type="text" class="form-control border-start-0" id="userSearch" placeholder="Search user">
+          <input type="text" class="form-control border-start-0" id="reservationSearch" placeholder="Search ID, passenger, email, or flight">
         </div>
-
       </div>
-
 
       <div class="col-md-7">
-        <select class="form-select" id="statusFilter">
+        <select class="form-select" id="reservationStatusFilter">
           <option value="all">Status: All</option>
-          <option value="customer">Status: Active</option>
-          <option value="admin">Status: Deactivated</option>
+          <option value="pending">Status: Pending</option>
+          <option value="confirmed">Status: Confirmed</option>
+          <option value="cancelled">Status: Cancelled</option>
         </select>
       </div>
-
     </div>
-
-
-
   </div>
-
-
 </div>
 
 <!-- Reservations table -->
@@ -46,91 +36,46 @@
           <th>Flight</th>
           <th>Route</th>
           <th>Departure</th>
-          <th>Booking</th>
+          <th>Booking Date</th>
           <th>Price</th>
           <th>Status</th>
           <th>Actions</th>
         </tr>
-
-        <!--DUMMY DATA-->
-        <tr>
-          <td>R-001</td>
-          <td>Jose Rizal</td>
-          <td>FL-123</td>
-          <td>MNL <i class="bi bi-arrow-right"></i> SIN</td>
-          <td>March 09 (9:00AM)</td>
-          <td>March 01</td>
-          <td>₱5,000</td>
-          <td><span class="badge badge-warning">Pending</span></td>
-          <td>
-            <div class="ms-1">
-              <button class="edit-btn" id="editBtn" onclick="viewReservation.showModal()">
-                <i class="bi bi-eye me-1"></i>
-              </button>
-
-
-              <button class="edit-btn" id="editBtn" onclick="editReservation.showModal()">
-                <i class="bi bi-pencil ms-1"></i>
-              </button>
-            </div>
-
-          </td>
-        </tr>
-
-        <tr>
-          <td>R-001</td>
-          <td>Jose Rizal</td>
-          <td>FL-123</td>
-          <td>MNL <i class="bi bi-arrow-right"></i> SIN</td>
-          <td>March 09 (9:00AM)</td>
-          <td>March 01</td>
-          <td>₱5,000</td>
-          <td><span class="badge badge-success">Confirmed</span></td>
-          <td>
-            <div class="ms-1">
-              <button class="edit-btn" id="editBtn" onclick="viewReservation.showModal()">
-                <i class="bi bi-eye me-1"></i>
-              </button>
-
-
-              <button class="edit-btn" id="editBtn" onclick="editReservation.showModal()">
-                <i class="bi bi-pencil ms-1"></i>
-              </button>
-            </div>
-
-          </td>
-        </tr>
-
-        <tr>
-          <td>R-001</td>
-          <td>Jose Rizal</td>
-          <td>FL-123</td>
-          <td>MNL <i class="bi bi-arrow-right"></i> SIN</td>
-          <td>March 09 (9:00AM)</td>
-          <td>March 01</td>
-          <td>₱5,000</td>
-          <td><span class="badge badge-danger">Cancelled</span></td>
-          <td>
-            <div class="ms-1">
-              <button class="edit-btn" id="editBtn" onclick="viewReservation.showModal()">
-                <i class="bi bi-eye me-1"></i>
-              </button>
-
-              <button class="edit-btn" id="editBtn" onclick="editReservation.showModal()">
-                <i class="bi bi-pencil ms-1"></i>
-              </button>
-            </div>
-
-          </td>
-        </tr>
-
-        
-
-
       </thead>
-      <tbody id="TableBody"></tbody>
+      <tbody id="TableBody">
+        {{#if reservations.length}}
+          {{#each reservations}}
+            <tr id="reservation-row-{{this._id}}" data-id="{{this._id}}" data-resnum="{{this.reservationNumber}}" data-status="{{this.status}}" data-passenger="{{this.passengerName}}" data-email="{{this.passengerEmail}}" data-flightcode="{{this.flightCode}}" data-origin="{{this.origin}}" data-destination="{{this.destination}}" data-departure="{{this.departureFormatted}}" data-arrival="{{this.arrivalFormatted}}" data-booking="{{this.bookingFormatted}}" data-seat="{{this.seat}}" data-price="{{this.priceFormatted}}">
+              <td class="fw-bold">{{this.reservationNumber}}</td>
+              <td>{{this.passengerName}}</td>
+              <td class="fw-bold">{{this.flightCode}}</td>
+              <td>{{this.origin}} <i class="bi bi-arrow-right"></i> {{this.destination}}</td>
+              <td>{{this.departureFormatted}}</td>
+              <td>{{this.bookingFormatted}}</td>
+              <td>₱{{this.priceFormatted}}</td>
+              <td><span class="badge badge-{{this.statusBadgeClass}}">{{this.statusCapitalized}}</span></td>
+              <td>
+                <div class="ms-1">
+                  <button class="edit-btn" onclick="openViewReservationModal('{{this._id}}')">
+                    <i class="bi bi-eye me-1"></i>
+                  </button>
+                  <button class="edit-btn" onclick="openEditReservationModal('{{this._id}}')">
+                    <i class="bi bi-pencil ms-1"></i>
+                  </button>
+                  <button class="delete-btn" onclick="openDeleteReservationModal('{{this._id}}', '{{this.reservationNumber}}')">
+                    <i class="bi bi-trash3 ms-1"></i>
+                  </button>
+                </div>
+              </td>
+            </tr>
+          {{/each}}
+        {{else}}
+          <tr id="noReservationsRow">
+            <td colspan="9" class="text-center text-muted py-4">No reservations found in database.</td>
+          </tr>
+        {{/if}}
+      </tbody>
     </table>
-
 
     <!-- Pagination -->
     <div class="d-flex justify-content-between align-items-center mt-3 px-2" id="Pagination">
@@ -145,8 +90,6 @@
   </div>
 </div>
 
-
-
 <!--View reservation modal-->
 <dialog class="w-50" id="viewReservation">
   <div class="card">
@@ -154,82 +97,79 @@
       Reservation Details
     </div>
     <div class="card-body">
-
       <div class="passengerInfo">
         <h5>Passenger Information</h5>
-        <p>Name: Jose Rizal </p>
-        <p>Email: jose.rizal@gmail.com </p>
-        <p>Contact Number: 09876543210 </p>
+        <p id="viewPassengerName">Name: -</p>
+        <p id="viewPassengerEmail">Email: -</p>
       </div>
 
       <hr />
 
       <div class="flightInfo">
         <h5>Flight Information</h5>
-        <p>Flight: Jose Rizal </p>
-        <p>Route: Manila <i class="bi bi-arrow-right"></i> Japan</p>
-        <p>Departure: Mar 14,2026 10:00AM </p>
-        <p>Arrival: Mar 15,2026 10:00AM</p>
+        <p id="viewFlightCode">Flight: -</p>
+        <p id="viewFlightRoute">Route: -</p>
+        <p id="viewFlightDeparture">Departure: -</p>
+        <p id="viewFlightArrival">Arrival: -</p>
       </div>
 
       <hr />
 
       <div class="bookingInfo">
         <h5>Booking Information</h5>
-        <p>Reservation ID: R-001 </p>
-        <p>Booking Date: March 01, 2026 </p>
-        <p>Seats: 2 (F01, F02) </p>
-        <p>Total Price: ₱1,000 </p>
+        <p id="viewReservationNumber">Reservation ID: -</p>
+        <p id="viewBookingDate">Booking Date: -</p>
+        <p id="viewSeat">Seat(s): -</p>
+        <p id="viewTotalPrice">Total Price: -</p>
       </div>
-
-      <hr />
-
-      <div class="passengerInfo">
-        <h5>Passenger Information</h5>
-        <p>Name: Jose Rizal </p>
-        <p>Email: jose.rizal@gmail.com </p>
-        <p>Contact Number: 09876543210 </p>
-      </div>
-
-
-
     </div>
 
-    <!--Add and close button-->
     <div class="card-footer text-body-secondary text-end">
-      <a class="btn secondary-btn" onclick="viewReservation.close()">Close</a>
-
+      <a class="btn secondary-btn" onclick="document.getElementById('viewReservation').close()">Close</a>
     </div>
   </div>
-
 </dialog>
 
-<!--Edit flight reservation -->
+<!--Edit flight reservation status modal-->
 <dialog class="w-50" id="editReservation">
   <div class="card">
     <div class="card-header">
       Update Reservation Status
     </div>
     <div class="card-body">
-      <p>Reservation R-001 by Jose Rizal</p>
+      <div id="editReservationError" class="alert alert-danger d-none py-2 mb-3"></div>
+      <p id="editReservationTitle" class="fw-bold mb-3">Reservation -</p>
+      <input type="hidden" id="editReservationId" />
 
-      <label class="form-control" for="reservationStatus">Assign new reservation status</label>
-
-      <select class="form-select form-select-sm" id="reservationStatus">
-
-        <option value="Pending" selected>Pending</option>
-        <option value="Confirmed">Confirmed</option>
-        <option value="Completed">Completed</option>
-        <option value="Deleted">Deleted</option>
-
+      <label class="form-label" for="editReservationStatus">Assign new reservation status</label>
+      <select class="form-select form-select-sm" id="editReservationStatus">
+        <option value="pending">Pending</option>
+        <option value="confirmed">Confirmed</option>
+        <option value="cancelled">Cancelled</option>
       </select>
     </div>
 
-    <!--Add and close button-->
     <div class="card-footer text-body-secondary text-end">
-      <a class="btn secondary-btn" onclick="editReservation.close()">Cancel</a>
-      <a class="btn success-btn" onclick="editReservation.close()">Save</a>
+      <a class="btn secondary-btn" onclick="document.getElementById('editReservation').close()">Cancel</a>
+      <a class="btn success-btn" onclick="submitEditReservation()">Save</a>
     </div>
   </div>
+</dialog>
 
+<!--Delete reservation confirmation modal-->
+<dialog class="w-50" id="deleteReservation">
+  <div class="card">
+    <div class="card-header">
+      Delete Reservation
+    </div>
+    <div class="card-body">
+      <div id="deleteReservationError" class="alert alert-danger d-none py-2 mb-3"></div>
+      <p id="deleteReservationConfirmText">Are you sure you want to delete this reservation? This action is permanent.</p>
+      <input type="hidden" id="deleteReservationId" />
+    </div>
+    <div class="card-footer text-body-secondary text-end">
+      <a class="btn secondary-btn" onclick="document.getElementById('deleteReservation').close()">Cancel</a>
+      <a class="btn delete-btn text-white bg-danger border-0 px-3 py-1 rounded" onclick="submitDeleteReservation()">Delete</a>
+    </div>
+  </div>
 </dialog>

@@ -428,18 +428,237 @@ exports.deleteFlight = async (req, res) => {
 };
 
 
-//Renders reservation management page
-exports.showReservationsMgmt = (req, res) => {
-    res.render('admin/reservations', {
-        ...reservationsMgmt
-    });
+/* --- format reservation info for table and modals --- */
+const formatReservation = (resObj) => {
+    const formatDateObj = (dateObj) => {
+        if (!dateObj) return 'N/A';
+        const dateInstance = new Date(dateObj);
+        const datePart = dateInstance.toLocaleDateString('en-US', { month: 'short', day: '2-digit', year: 'numeric' });
+        const timePart = dateInstance.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
+        return `${datePart} (${timePart})`;
+    };
+
+    const formatBookingDate = (dateObj) => {
+        if (!dateObj) return 'N/A';
+        const dateInstance = new Date(dateObj);
+        return dateInstance.toLocaleDateString('en-US', { month: 'short', day: '2-digit', year: 'numeric' });
+    };
+
+    const statusBadgeMap = {
+        'confirmed': 'success',
+        'pending': 'warning',
+        'cancelled': 'danger'
+    };
+
+    const userObj = resObj.user || {};
+    const flightObj = resObj.flight || {};
+    const passengerName = `${userObj.firstName || ''} ${userObj.lastName || ''}`.trim() || 'Unknown Passenger';
+    const priceVal = flightObj.isPromo ? Math.round((flightObj.price || 0) * (1 - (flightObj.discountPercent || 0) / 100)) : (flightObj.price || 0);
+
+    return {
+        _id: resObj._id,
+        reservationNumber: resObj.reservationNumber || 'N/A',
+        seat: resObj.seat || 'N/A',
+        status: resObj.status || 'pending',
+        statusCapitalized: resObj.status ? resObj.status.charAt(0).toUpperCase() + resObj.status.slice(1) : 'Pending',
+        statusBadgeClass: statusBadgeMap[resObj.status] || 'warning',
+        passengerName,
+        passengerEmail: userObj.email || 'N/A',
+        flightCode: flightObj.flightCode || 'N/A',
+        origin: flightObj.origin || 'N/A',
+        destination: flightObj.destination || 'N/A',
+        departureFormatted: formatDateObj(flightObj.departureDate),
+        arrivalFormatted: formatDateObj(flightObj.arrivalDate),
+        bookingFormatted: formatBookingDate(resObj.createdAt),
+        priceFormatted: Number(priceVal || 0).toLocaleString('en-PH')
+    };
 };
 
-//Reservations management logic goes here
+/* --- show reservations page --- */
+exports.showReservationsMgmt = async (req, res) => {
+    try {
+        const rawList = await Reservations.find().populate('user').populate('flight').sort({ createdAt: -1 }).lean();
+        const reservations = rawList.map(formatReservation);
+        res.render('admin/reservations', {
+            ...reservationsMgmt,
+            reservations
+        });
+    } catch (errorObj) {
+        console.error("Error loading reservations management:", errorObj);
+        res.status(500).send("Server Error loading reservations");
+    }
+};
 
-//Renders user management page
-exports.showUserMgmt = (req, res) => {
-    res.render('admin/users', {
-        ...userMgmt
-    });
-}
+/* --- get reservations dynamically --- */
+exports.getReservationsAPI = async (req, res) => {
+    try {
+        const allList = await Reservations.find().populate('user').populate('flight').sort({ createdAt: -1 }).lean();
+        const query = req.query.q ? req.query.q.trim().toLowerCase() : '';
+        const statusFilter = req.query.status ? req.query.status.trim().toLowerCase() : 'all';
+
+        let filteredList = allList;
+
+        if (query !== '') {
+            filteredList = filteredList.filter(item => {
+                const resNum = (item.reservationNumber || '').toLowerCase();
+                const userObj = item.user || {};
+                const name = `${userObj.firstName || ''} ${userObj.lastName || ''}`.toLowerCase();
+                const email = (userObj.email || '').toLowerCase();
+                const flightCode = item.flight ? (item.flight.flightCode || '').toLowerCase() : '';
+                return resNum.includes(query) || name.includes(query) || email.includes(query) || flightCode.includes(query);
+            });
+        }
+
+        if (statusFilter !== 'all' && statusFilter !== '') {
+            filteredList = filteredList.filter(item => (item.status || 'pending').toLowerCase() === statusFilter);
+        }
+
+        const reservations = filteredList.map(formatReservation);
+        res.json({ success: true, reservations });
+    } catch (errorObj) {
+        console.error("Error fetching reservations API:", errorObj);
+        res.status(500).json({ success: false, error: "Server error fetching reservations" });
+    }
+};
+
+/* --- update reservation status --- */
+exports.updateReservationStatus = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { status } = req.body;
+
+        if (!status) {
+            return res.status(400).json({ success: false, error: "Status is required." });
+        }
+
+        const validStatuses = ['confirmed', 'pending', 'cancelled'];
+        if (!validStatuses.includes(status.toLowerCase())) {
+            return res.status(400).json({ success: false, error: "Invalid status selected." });
+        }
+
+        const reservation = await Reservations.findById(id).populate('user').populate('flight');
+        if (!reservation) {
+            return res.status(404).json({ success: false, error: "Reservation not found." });
+        }
+
+        reservation.status = status.toLowerCase();
+        await reservation.save();
+
+        res.json({ success: true, reservation: formatReservation(reservation) });
+    } catch (errorObj) {
+        console.error("Error updating reservation status:", errorObj);
+        res.status(500).json({ success: false, error: errorObj.message || "Server error updating reservation." });
+    }
+};
+
+/* --- delete reservation --- */
+exports.deleteReservation = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const reservation = await Reservations.findById(id);
+        if (!reservation) {
+            return res.status(404).json({ success: false, error: "Reservation not found." });
+        }
+
+        await Reservations.findByIdAndDelete(id);
+        res.json({ success: true, id });
+    } catch (errorObj) {
+        console.error("Error deleting reservation:", errorObj);
+        res.status(500).json({ success: false, error: "Server error deleting reservation." });
+    }
+};
+
+/* --- format user info for table --- */
+const formatUser = (userObj) => {
+    const formatDateObj = (dateObj) => {
+        if (!dateObj) return 'N/A';
+        const dateInstance = new Date(dateObj);
+        return dateInstance.toLocaleDateString('en-US', { day: 'numeric', month: 'short', year: 'numeric' });
+    };
+
+    const statusVal = userObj.status || 'active';
+    const isDeactivated = statusVal === 'deactivated';
+
+    return {
+        _id: userObj._id,
+        name: `${userObj.firstName || ''} ${userObj.lastName || ''}`.trim() || 'Unknown User',
+        email: userObj.email || 'N/A',
+        phone: userObj.phone || userObj.contactNumber || 'N/A',
+        role: userObj.role || 'user',
+        roleCapitalized: (userObj.role === 'admin') ? 'Admin' : 'Customer',
+        dateRegistered: formatDateObj(userObj.createdAt),
+        status: statusVal,
+        statusCapitalized: isDeactivated ? 'Deactivated' : 'Active',
+        statusBadgeClass: isDeactivated ? 'danger' : 'success',
+        isDeactivated
+    };
+};
+
+/* --- show users page --- */
+exports.showUserMgmt = async (req, res) => {
+    try {
+        const rawList = await User.find().sort({ createdAt: -1 }).lean();
+        const users = rawList.map(formatUser);
+        res.render('admin/users', {
+            ...userMgmt,
+            users
+        });
+    } catch (errorObj) {
+        console.error("Error loading users management:", errorObj);
+        res.status(500).send("Server Error loading users");
+    }
+};
+
+/* --- get users dynamically --- */
+exports.getUsersAPI = async (req, res) => {
+    try {
+        const allList = await User.find().sort({ createdAt: -1 }).lean();
+        const query = req.query.q ? req.query.q.trim().toLowerCase() : '';
+        const roleFilter = req.query.role ? req.query.role.trim().toLowerCase() : 'all';
+        const statusFilter = req.query.status ? req.query.status.trim().toLowerCase() : 'all';
+
+        let filteredList = allList;
+
+        if (query !== '') {
+            filteredList = filteredList.filter(item => {
+                const fullName = `${item.firstName || ''} ${item.lastName || ''}`.toLowerCase();
+                const email = (item.email || '').toLowerCase();
+                const phone = (item.phone || item.contactNumber || '').toLowerCase();
+                return fullName.includes(query) || email.includes(query) || phone.includes(query);
+            });
+        }
+
+        if (roleFilter !== 'all' && roleFilter !== '') {
+            filteredList = filteredList.filter(item => (item.role || 'user').toLowerCase() === roleFilter);
+        }
+
+        if (statusFilter !== 'all' && statusFilter !== '') {
+            filteredList = filteredList.filter(item => (item.status || 'active').toLowerCase() === statusFilter);
+        }
+
+        const users = filteredList.map(formatUser);
+        res.json({ success: true, users });
+    } catch (errorObj) {
+        console.error("Error fetching users API:", errorObj);
+        res.status(500).json({ success: false, error: "Server error fetching users" });
+    }
+};
+
+/* --- toggle active or deactivated --- */
+exports.toggleUserStatus = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const user = await User.findById(id);
+        if (!user) {
+            return res.status(404).json({ success: false, error: "User not found." });
+        }
+
+        user.status = (user.status === 'active') ? 'deactivated' : 'active';
+        await user.save();
+
+        res.json({ success: true, user: formatUser(user) });
+    } catch (errorObj) {
+        console.error("Error toggling user status:", errorObj);
+        res.status(500).json({ success: false, error: errorObj.message || "Server error updating user." });
+    }
+};
