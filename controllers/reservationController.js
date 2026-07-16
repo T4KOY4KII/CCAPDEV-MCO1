@@ -61,7 +61,8 @@ exports.showReservations = async (req, res) => {
                 flightNumber: flight ? flight.flightCode : 'N/A',
                 passengerName: r.passengerName,
                 seat: r.seat,
-                status: r.status
+                status: r.status,
+                createdAt: r.createdAt
             });
         }
 
@@ -81,7 +82,7 @@ exports.updateSeat = async (req, res) => {
         const reservation = await Reservations.findOneAndUpdate(
             { _id: req.params.id, user: req.session.userId },
             { seat },
-            { new: true }
+            { returnDocument: 'after' }
         );
 
         if (!reservation) return res.status(404).json({ error: 'Reservation not found.' });
@@ -99,7 +100,7 @@ exports.cancelReservation = async (req, res) => {
         const reservation = await Reservations.findOneAndUpdate(
             { _id: req.params.id, user: req.session.userId },
             { status: 'cancelled' },
-            { new: true }
+            { returnDocument: 'after' }
         );
 
         if (!reservation) return res.status(404).json({ error: 'Reservation not found.' });

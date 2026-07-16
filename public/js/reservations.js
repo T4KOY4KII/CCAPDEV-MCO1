@@ -4,8 +4,9 @@ $(document).ready(function () {
 
     if ($('#reservationsTableBody').length) {
 
-        var reservations = JSON.parse($('#reservationsData').text() || '[]');
-        var activeResIdx = null; // tracks which reservation is open in the modal
+        var reservations = JSON.parse($('#reservationsData').text() || '[]'); // master list, source of truth
+        var filteredReservations = reservations.slice(); // what's actually shown after search/sort/filter
+        var activeResIdx = null; // index into filteredReservations
 
         // helper: returns a colored badge based on status
         function statusBadge(status) {
@@ -13,9 +14,32 @@ $(document).ready(function () {
             return '<span class="res-badge ' + cls + '">' + status + '</span>';
         }
 
-        // builds the table rows from the reservations array and injects them into the page
+        // rebuilds filteredReservations based on the current search/sort/filter controls, then re-renders
+        function applyFiltersAndRender() {
+            var searchText = $('#reservationSearch').val().trim().toLowerCase();
+            var statusValue = $('#reservationFilter').val();
+            var sortValue = $('#reservationSort').val();
+
+            filteredReservations = reservations.filter(function (r) {
+                var matchesSearch = !searchText ||
+                    r.reservationNumber.toLowerCase().includes(searchText) ||
+                    r.passengerName.toLowerCase().includes(searchText) ||
+                    r.flightNumber.toLowerCase().includes(searchText);
+                var matchesStatus = statusValue === 'all' || r.status === statusValue;
+                return matchesSearch && matchesStatus;
+            });
+
+            filteredReservations.sort(function (a, b) {
+                if (sortValue === 'oldest') return new Date(a.createdAt) - new Date(b.createdAt);
+                return new Date(b.createdAt) - new Date(a.createdAt); // newest first, default
+            });
+
+            renderReservations();
+        }
+
+        // builds the table rows from filteredReservations and injects them into the page
         function renderReservations() {
-            if (reservations.length === 0) {
+            if (filteredReservations.length === 0) {
                 $('#reservationsEmpty').removeClass('d-none');
                 $('#reservationsTableBody').html('');
                 return;
@@ -23,7 +47,7 @@ $(document).ready(function () {
             $('#reservationsEmpty').addClass('d-none');
 
             var html = '';
-            reservations.forEach(function (r, idx) {
+            filteredReservations.forEach(function (r, idx) {
                 html += '<tr>' +
                     '<td class="fw-semibold">' + r.reservationNumber + '</td>' +
                     '<td>' + r.passengerName + '</td>' +
@@ -39,7 +63,7 @@ $(document).ready(function () {
         // fills the modal with the clicked reservation's details and opens it
         function openDetailsModal(idx) {
             activeResIdx = idx;
-            var r = reservations[idx];
+            var r = filteredReservations[idx];
 
             $('#modalResNumber').text(r.reservationNumber);
             $('#modalFlightNumber').text(r.flightNumber);
@@ -60,7 +84,12 @@ $(document).ready(function () {
             modal.show();
         }
 
-        renderReservations();
+        applyFiltersAndRender(); // initial render on page load
+
+        // re-filter/sort whenever the controls change
+        $('#reservationSearch').on('input', applyFiltersAndRender);
+        $('#reservationFilter').on('change', applyFiltersAndRender);
+        $('#reservationSort').on('change', applyFiltersAndRender);
 
         // delegated event — buttons are created dynamically by renderReservations()
         $('#reservationsTableBody').on('click', '.res-open-modal', function () {
@@ -79,7 +108,7 @@ $(document).ready(function () {
         // save the new seat number to the server
         $('#modalSaveSeatBtn').on('click', function () {
             if (activeResIdx === null) return;
-            var r = reservations[activeResIdx];
+            var r = filteredReservations[activeResIdx];
             var newSeat = $('#modalSeatInput').val().trim();
 
             if (!newSeat) {
@@ -95,9 +124,14 @@ $(document).ready(function () {
                 .then(function (response) { return response.json(); })
                 .then(function (result) {
                     if (result.success) {
-                        r.seat = result.reservation.seat;
-                        renderReservations();
-                        openDetailsModal(activeResIdx);
+                        var masterIdx = reservations.findIndex(function (res) { return res._id === r._id; });
+                        if (masterIdx !== -1) reservations[masterIdx].seat = result.reservation.seat;
+
+                        applyFiltersAndRender();
+
+                        var newIdx = filteredReservations.findIndex(function (res) { return res._id === r._id; });
+                        if (newIdx !== -1) openDetailsModal(newIdx);
+                        else bootstrap.Modal.getInstance(document.getElementById('detailsModal')).hide();
                     } else {
                         alert(result.error || 'Something went wrong.');
                     }
@@ -111,7 +145,7 @@ $(document).ready(function () {
         // cancel booking — hide details modal, show confirmation modal
         $('#modalCancelBtn').on('click', function () {
             if (activeResIdx === null) return;
-            var r = reservations[activeResIdx];
+            var r = filteredReservations[activeResIdx];
             $('#cancelModalRef').text('Booking ' + r.reservationNumber);
             bootstrap.Modal.getInstance(document.getElementById('detailsModal')).hide();
             var cancelModal = new bootstrap.Modal(document.getElementById('cancelModal'));
@@ -121,14 +155,16 @@ $(document).ready(function () {
         // confirmed cancel — call the server, no page refresh
         $('#cancelModalYesBtn').on('click', function () {
             if (activeResIdx === null) return;
-            var r = reservations[activeResIdx];
+            var r = filteredReservations[activeResIdx];
 
             fetch('/reservations/' + r._id + '/cancel', { method: 'PUT' })
                 .then(function (response) { return response.json(); })
                 .then(function (result) {
                     if (result.success) {
-                        r.status = result.reservation.status;
-                        renderReservations();
+                        var masterIdx = reservations.findIndex(function (res) { return res._id === r._id; });
+                        if (masterIdx !== -1) reservations[masterIdx].status = result.reservation.status;
+
+                        applyFiltersAndRender();
                         bootstrap.Modal.getInstance(document.getElementById('cancelModal')).hide();
                         activeResIdx = null;
                     } else {

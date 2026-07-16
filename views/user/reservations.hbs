@@ -21,17 +21,14 @@
         <select class="form-select" id="reservationSort">
           <option value="newest">Sort: newest first</option>
           <option value="oldest">Sort: oldest first</option>
-          <option value="price-asc">Sort: price (low to high)</option>
-          <option value="price-desc">Sort: price (high to low)</option>
-          <option value="route">Sort: route (A–Z)</option>
         </select>
       </div>
       <div class="col-md-3">
         <select class="form-select" id="reservationFilter">
           <option value="all">Filter: all</option>
-          <option value="Paid">Filter: paid</option>
-          <option value="Pending">Filter: pending</option>
-          <option value="Cancelled">Filter: cancelled</option>
+          <option value="confirmed">Filter: confirmed</option>
+          <option value="pending">Filter: pending</option>
+          <option value="cancelled">Filter: cancelled</option>
         </select>
       </div>
     </div>
@@ -81,68 +78,34 @@
     <div class="modal-content res-modal-content">
 
       <div class="modal-body p-4">
+        <h5 class="fw-bold mb-3">Reservation Details</h5>
 
-        <!-- Header -->
-        <h5 class="fw-bold mb-1">Details</h5>
-        <p class="res-modal-route mb-3" id="modalRoute"></p>
+        <p class="res-modal-meta mb-1">Reservation Number</p>
+        <p class="fw-semibold mb-3" id="modalResNumber"></p>
 
-        <!-- Timeline -->
-        <div class="res-timeline mb-4">
-          <div class="res-timeline-row">
-            <div class="res-timeline-time" id="modalDepTime"></div>
-            <div class="res-timeline-dot-col">
-              <div class="res-timeline-dot"></div>
-              <div class="res-timeline-line"></div>
-            </div>
-            <div class="res-timeline-info">
-              <div class="res-timeline-label">Departure</div>
-              <div class="res-timeline-value" id="modalDepAirport"></div>
-            </div>
-          </div>
-          <div class="res-timeline-row">
-            <div class="res-timeline-time" id="modalArrTime"></div>
-            <div class="res-timeline-dot-col">
-              <div class="res-timeline-dot"></div>
-            </div>
-            <div class="res-timeline-info">
-              <div class="res-timeline-label">Arrival</div>
-              <div class="res-timeline-value" id="modalArrAirport"></div>
-            </div>
-          </div>
+        <p class="res-modal-meta mb-1">Flight Number</p>
+        <p class="fw-semibold mb-3" id="modalFlightNumber"></p>
+
+        <p class="res-modal-meta mb-1">Passenger Name</p>
+        <p class="fw-semibold mb-3" id="modalPassengerName"></p>
+
+        <p class="res-modal-meta mb-1">Status</p>
+        <p class="fw-semibold mb-3" id="modalStatus"></p>
+
+        <p class="res-modal-meta mb-1">Seat</p>
+        <div class="d-flex align-items-center gap-2 mb-3">
+          <span id="modalSeatDisplay" class="fw-semibold"></span>
+          <input type="text" class="form-control form-control-sm d-none" id="modalSeatInput" style="max-width: 100px;">
         </div>
-
-        <hr>
-
-        <!-- Seat -->
-        <p class="res-modal-section-title">Selected seat(s)</p>
-        <p class="res-modal-meta" id="modalSeat"></p>
-
-        <hr>
-
-        <!-- Extra services -->
-        <p class="res-modal-section-title">Extra services</p>
-        <div id="modalExtras"></div>
-
-        <hr>
-
-        <!-- Total -->
-        <div class="d-flex justify-content-between align-items-start">
-          <div>
-            <p class="res-modal-section-title mb-0">Total</p>
-            <p class="res-modal-meta mb-0">Includes taxes and fees</p>
-          </div>
-          <p class="res-modal-total" id="modalTotal"></p>
-        </div>
-
       </div>
 
-      <!-- Footer -->
       <div class="modal-footer res-modal-footer">
         <button type="button" class="btn btn-outline-secondary btn-sm" data-bs-dismiss="modal">
           <i class="bi bi-chevron-left me-1"></i>Return
         </button>
-        <button type="button" class="btn btn-outline-secondary btn-sm" id="modalEditBtn">Edit</button>
-        <button type="button" class="btn btn-save btn-sm" id="modalCancelBtn">Cancel</button>
+        <button type="button" class="btn btn-outline-secondary btn-sm" id="modalEditBtn">Edit Seat</button>
+        <button type="button" class="btn btn-save btn-sm d-none" id="modalSaveSeatBtn">Save Seat</button>
+        <button type="button" class="btn btn-save btn-sm" id="modalCancelBtn">Cancel Booking</button>
       </div>
 
     </div>
