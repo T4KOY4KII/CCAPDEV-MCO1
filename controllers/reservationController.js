@@ -25,13 +25,30 @@ const bookingView = {
     ]
 };
 
+// Helper functions to format date and time
+function formatDate(date) {
+    return new Date(date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+}
+
+function formatTime(date) {
+    return new Date(date).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+}
+
 //Renders booking page
 exports.showBooking = async (req, res) => {
     try {
         const flight = await Flight.findById(req.params.flightId).lean();
         if (!flight) return res.status(404).send('Flight not found.');
 
-        res.render('user/booking', { ...bookingView, flight });
+        const formattedFlight = {
+            ...flight,
+            departureDateFormatted: formatDate(flight.departureDate),
+            departureTimeFormatted: formatTime(flight.departureDate),
+            arrivalDateFormatted: formatDate(flight.arrivalDate),
+            arrivalTimeFormatted: formatTime(flight.arrivalDate)
+        };
+
+        res.render('user/booking', { ...bookingView, flight: formattedFlight });
     } catch (err) {
         console.error('Show booking error:', err);
         res.status(500).send('Something went wrong.');

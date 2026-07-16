@@ -125,33 +125,33 @@
           <!-- Flight details -->
           <div class="summary-section mb-3">
             <div class="d-flex justify-content-between align-items-center">
-              <span class="summary-route fw-bold">CRK – HKG</span>
+              <span class="summary-route fw-bold">{{flight.origin}} – {{flight.destination}}</span>
               <button type="button" class="btn btn-link btn-sm p-0" onclick="toggleSummarySection('flightDetails')">
                 Show flight details <i class="bi bi-chevron-down" id="flightDetailsIcon"></i>
               </button>
             </div>
-            <div class="text-muted small">15 Jun 2026 · 07:30 PM - 09:50 PM</div>
+            <div class="text-muted small">{{flight.departureDateFormatted}} · {{flight.departureTimeFormatted}} - {{flight.arrivalTimeFormatted}}</div>
             <div id="flightDetails" class="summary-expandable d-none mt-2">
               <div class="summary-timeline">
                 <div class="timeline-row">
-                  <div class="timeline-time">15 Jun 2026<br>07:30 PM</div>
+                  <div class="timeline-time">{{flight.departureDateFormatted}}<br>{{flight.departureTimeFormatted}}</div>
                   <div class="timeline-dot-col">
                     <div class="timeline-dot"></div>
                     <div class="timeline-line"></div>
                   </div>
                   <div class="timeline-info">
                     <div class="timeline-label">Departure</div>
-                    <div class="timeline-value">Clark International Airport</div>
+                    <div class="timeline-value">{{flight.origin}}</div>
                   </div>
                 </div>
                 <div class="timeline-row">
-                  <div class="timeline-time">15 Jun 2026<br>09:50 PM</div>
+                  <div class="timeline-time">{{flight.arrivalDateFormatted}}<br>{{flight.arrivalTimeFormatted}}</div>
                   <div class="timeline-dot-col">
                     <div class="timeline-dot"></div>
                   </div>
                   <div class="timeline-info">
                     <div class="timeline-label">Arrival</div>
-                    <div class="timeline-value">Hong Kong International Airport</div>
+                    <div class="timeline-value">{{flight.destination}}</div>
                   </div>
                 </div>
               </div>
@@ -509,8 +509,8 @@
         <div class="booking-summary-sidebar">
           <h5 class="mb-3">Booking Summary</h5>
           <div class="summary-section mb-3">
-            <div class="fw-bold">CRK – HKG</div>
-            <div class="text-muted small">15 Jun 2026 · 07:30 PM - 09:50 PM</div>
+            <div class="fw-bold">{{flight.origin}} – {{flight.destination}}</div>
+            <div class="text-muted small">{{flight.departureDateFormatted}} · {{flight.departureTimeFormatted}} - {{flight.arrivalTimeFormatted}}</div>
           </div>
           <hr>
           <div class="d-flex justify-content-between small mb-2"><span>Base fare</span><span>PHP 16,703.00</span></div>
@@ -593,8 +593,8 @@
         <div class="booking-summary-sidebar">
           <h5 class="mb-3">Booking Summary</h5>
           <div class="summary-section mb-3">
-            <div class="fw-bold">CRK – HKG</div>
-            <div class="text-muted small">15 Jun 2026 · 07:30 PM - 09:50 PM</div>
+            <div class="fw-bold">{{flight.origin}} – {{flight.destination}}</div>
+            <div class="text-muted small">{{flight.departureDateFormatted}} · {{flight.departureTimeFormatted}} - {{flight.arrivalTimeFormatted}}</div>
           </div>
           <hr>
           <div class="d-flex justify-content-between small mb-2"><span>Base fare</span><span>PHP 16,703.00</span></div>
