@@ -1,5 +1,3 @@
-import Reservation from '../models/Reservation';
-
 const User = require('../models/User');
 const Reservations = require('../models/Reservation');
 const Flight = require('../models/Flight');
@@ -45,7 +43,7 @@ exports.showBooking = (req, res) => {
 
 //Booking logic goes here
 // Create a new booking 
-xports.createBooking = async (req, res) => {
+exports.createBooking = async (req, res) => {
     const { firstName, lastName, contactCode, contactNumber, 
         email, passport, nationality, dobMonth, dobDay, dobYear, gender
     } = req.body;
