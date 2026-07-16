@@ -26,24 +26,54 @@ const bookingView = {
 };
 
 //Renders booking page
-exports.showBooking = (req, res) => {
-    res.render('user/booking', {
-        ...bookingView
-    });
+exports.showBooking = async (req, res) => {
+    try {
+        const flight = await Flight.findById(req.params.flightId).lean();
+        if (!flight) return res.status(404).send('Flight not found.');
+
+        res.render('user/booking', { ...bookingView, flight });
+    } catch (err) {
+        console.error('Show booking error:', err);
+        res.status(500).send('Something went wrong.');
+    }
 };
 
-//Booking logic goes here
-// Create a new booking 
+//Creates a new booking
 exports.createBooking = async (req, res) => {
-    const { firstName, lastName, contactCode, contactNumber, 
-        email, passport, nationality, dobMonth, dobDay, dobYear, gender
-    } = req.body;
+    try {
+        if (!req.session.userId) return res.status(401).json({ success: false, error: 'You must be logged in to book.' });
 
-    // check if all fields are filled out
-    if (!firstName || !lastName ||  !passport || seats == undefined) {
-            return res.status(400).json({ success: false, error: "All fields are required." });
+        const { firstName, lastName, email, passportNumber, seat } = req.body;
+
+        if (!firstName || !lastName || !email || !passportNumber || !seat) {
+            return res.status(400).json({ success: false, error: 'All fields are required.' });
+        }
+
+        const flight = await Flight.findById(req.params.flightId);
+        if (!flight) return res.status(404).json({ success: false, error: 'Flight not found.' });
+        if (flight.availableSeats <= 0) return res.status(400).json({ success: false, error: 'This flight has no available seats.' });
+
+        const reservationNumber = 'RES-' + Date.now();
+
+        const newReservation = new Reservations({
+            reservationNumber,
+            user: req.session.userId,
+            flight: flight._id,
+            seat,
+            status: 'confirmed',
+            passengerName: firstName + ' ' + lastName
+        });
+        await newReservation.save();
+
+        flight.availableSeats -= 1;
+        await flight.save();
+
+        res.json({ success: true, reservationNumber });
+    } catch (err) {
+        console.error('Create booking error:', err);
+        res.status(500).json({ success: false, error: 'Something went wrong.' });
     }
-}
+};
 
 //Renders user reservations page
 exports.showReservations = async (req, res) => {

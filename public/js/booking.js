@@ -111,3 +111,35 @@ function toggleExtras(show) {
 
 // Update total (simplified)
 function updateTotal() { }
+
+// Submit the booking to the server
+document.querySelector('.pay-btn').addEventListener('click', function (e) {
+    e.preventDefault();
+
+    var payload = {
+        firstName: document.getElementById('firstName').value.trim(),
+        lastName: document.getElementById('lastName').value.trim(),
+        email: document.getElementById('email').value.trim(),
+        passportNumber: document.getElementById('passportNumber').value.trim(),
+        seat: selectedSeat
+    };
+
+    fetch(window.location.pathname, {
+        method: 'POST',
+        headers: { 'Content-type': 'application/json; charset=UTF-8' },
+        body: JSON.stringify(payload)
+    })
+        .then(function (response) { return response.json(); })
+        .then(function (result) {
+            if (result.success) {
+                alert('Booking confirmed! Reservation number: ' + result.reservationNumber);
+                window.location.href = '/reservations';
+            } else {
+                alert(result.error || 'Something went wrong.');
+            }
+        })
+        .catch(function (err) {
+            console.error('Booking error:', err);
+            alert('Something went wrong. Please try again.');
+        });
+});
