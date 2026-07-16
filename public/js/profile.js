@@ -75,16 +75,15 @@ $(document).ready(function () {
 
             var hasError = false;
 
-            if (!titleVal)     { showFieldError('#title', 'Title is required.'); hasError = true; }
-            if (!firstNameVal) { showFieldError('#firstName', 'First name is required.'); hasError = true; }
-            if (!lastNameVal)  { showFieldError('#lastName', 'Last name is required.'); hasError = true; }
-            if (!genderVal)    { showFieldError('#gender', 'Gender is required.'); hasError = true; }
-
+            if (!firstNameVal) { showFieldError('#pFirstName', 'First name is required.'); hasError = true; }
+            if (!lastNameVal)  { showFieldError('#pLastName', 'Last name is required.'); hasError = true; }
+            if (!passportVal)  { showFieldError('#pPassport', 'Passport number is required.'); hasError = true; }
+                
             if (!emailVal) {
-                showFieldError('#email', 'Email is required.');
+                showFieldError('#pEmail', 'Email is required.');
                 hasError = true;
-            } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailVal)) {
-                showFieldError('#email', 'Please enter a valid email address.');
+            } else if (!isValidEmail(emailVal)) {
+                showFieldError('#pEmail', 'Please enter a valid email address.');
                 hasError = true;
             }
         
@@ -182,7 +181,7 @@ $(document).ready(function () {
 
         var passengers = JSON.parse($('#savedPassengersData').text() || '[]');
 
-        // works out Adult / Child / Infant from a birthdate, using the same categories as the booking passenger selector
+        // works out Adult / Child / Infant from a birthdate using the same categories as the booking passenger selector
         function getPassengerAgeCategory(dobMonth, dobDay, dobYear) {
             var today = new Date();
             var birthDate = new Date(parseInt(dobYear, 10), parseInt(dobMonth, 10) - 1, parseInt(dobDay, 10));
@@ -270,7 +269,7 @@ $(document).ready(function () {
         clearPassengerForm();
         lockPassengerForm();
 
-        // delegated event — edit buttons are created dynamically by renderPassengerList()
+        // delegated event - edit buttons are created dynamically by renderPassengerList()
         $('#passengerList').on('click', '.edit-passenger-btn', function () {
             var index = parseInt($(this).data('index'));
             loadPassengerIntoForm(index);
@@ -303,19 +302,19 @@ $(document).ready(function () {
             }
         });
 
-        // add new passenger — clear and unlock the form
+        // add new passenger - clear and unlock the form
         $('#addPassengerBtn').on('click', function () {
             clearPassengerForm();
             unlockPassengerForm();
         });
 
-        // cancel — clear and lock the form
+        // cancel - clear and lock the form
         $('#cancelPassengerBtn').on('click', function () {
             clearPassengerForm();
             lockPassengerForm();
         });
 
-        // save passenger — update existing or add new to array
+        // save passenger - update existing or add new to array
         $('#passengerForm').on('submit', function (e) {
             e.preventDefault();
 
@@ -357,7 +356,7 @@ $(document).ready(function () {
             if (!emailVal) {
                 showFieldError('#pEmail', 'Email is required.');
                 hasError = true;
-            } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailVal)) {
+            } else if (!isValidEmail(emailVal)) {
                 showFieldError('#pEmail', 'Please enter a valid email address.');
                 hasError = true;
             }
@@ -440,7 +439,7 @@ $(document).ready(function () {
             this.setSelectionRange(pos, pos);
         });
 
-        // passport — force uppercase as you type
+        // passport - force uppercase as you type
         $('#pPassport').on('input', function () {
             var pos = this.selectionStart;
             $(this).val($(this).val().toUpperCase());
@@ -557,7 +556,7 @@ $(document).ready(function () {
             $('#paymentFormCard').removeClass('active');
         });
 
-        // save a new credit/debit card (no validation — just grab the values)
+        // save a new credit/debit card (no validation - just grab the values)
         $('#savePaymentBtn').on('click', function () {
             var type = $('input[name="paymentType"]:checked').val();
             if (type === 'ewallet') return; // e-wallet is handled by the login button above
@@ -695,7 +694,7 @@ $(document).ready(function () {
 
         renderTravelHistory();
 
-        // delegated event — view details buttons are created dynamically by renderTravelHistory()
+        // delegated event - view details buttons are created dynamically by renderTravelHistory()
         $('#travelHistoryList').on('click', '.view-details-btn', function () {
             var idx = parseInt($(this).data('index'));
             showTravelDetail(idx);
