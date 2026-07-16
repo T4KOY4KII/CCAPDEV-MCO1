@@ -30,6 +30,15 @@ function validatePassengerFields({ title, firstName, lastName, gender, passport,
     return null;
 }
 
+//Helper to validate profile fields
+function validateProfileFields({ title, firstName, lastName, gender, email }) {
+    if (!title || !firstName || !lastName || !gender || !email) {
+        return 'Title, first name, last name, gender, and email are required.';
+    }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return 'Please enter a valid email address.';
+    return null;
+}
+
 //Renders profile page
 exports.showProfile = async (req, res) => {
     try {
@@ -52,6 +61,9 @@ exports.showProfile = async (req, res) => {
 exports.updateProfile = async (req, res) => {
     try {
         const { title, firstName, lastName, contactCode, contactNumber, gender, dobMonth, dobDay, dobYear, email, address, city, country } = req.body;
+
+        const validationError = validateProfileFields(req.body);
+        if (validationError) return res.status(400).json({ error: validationError });
 
         const updatedUser = await User.findOneAndUpdate(
             { _id: req.params.id },
@@ -116,6 +128,7 @@ exports.updatePassenger = async (req, res) => {
         passenger.address = address;
         passenger.city = city;
         passenger.country = country;
+        passenger.nationality = nationality;
 
         await user.save();
 

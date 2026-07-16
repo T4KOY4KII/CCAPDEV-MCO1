@@ -64,18 +64,44 @@ $(document).ready(function () {
         $('#personalInfoForm').on('submit', function (e) {
             e.preventDefault();
                 
+            $('#personalInfoForm .is-invalid').removeClass('is-invalid');
+            $('#personalInfoForm .invalid-feedback').remove();
+                
+            var titleVal = $('#title').val();
+            var firstNameVal = $('#firstName').val().trim();
+            var lastNameVal = $('#lastName').val().trim();
+            var genderVal = $('#gender').val();
+            var emailVal = $('#email').val().trim();
+                
+            var hasError = false;
+                
+            if (!titleVal)     { showFieldError('#title', 'Title is required.'); hasError = true; }
+            if (!firstNameVal) { showFieldError('#firstName', 'First name is required.'); hasError = true; }
+            if (!lastNameVal)  { showFieldError('#lastName', 'Last name is required.'); hasError = true; }
+            if (!genderVal)    { showFieldError('#gender', 'Gender is required.'); hasError = true; }
+                
+            if (!emailVal) {
+                showFieldError('#email', 'Email is required.');
+                hasError = true;
+            } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailVal)) {
+                showFieldError('#email', 'Please enter a valid email address.');
+                hasError = true;
+            }
+        
+            if (hasError) return;
+        
             var userId = $('#profileUserId').val();
             var payload = {
-                title: $('#title').val(),
-                firstName: $('#firstName').val(),
-                lastName: $('#lastName').val(),
+                title: titleVal,
+                firstName: firstNameVal,
+                lastName: lastNameVal,
                 contactCode: $('#contactCode').val(),
                 contactNumber: $('#contactNumber').val(),
-                gender: $('#gender').val(),
+                gender: genderVal,
                 dobMonth: $('#dobMonth').val(),
                 dobDay: $('#dobDay').val(),
                 dobYear: $('#dobYear').val(),
-                email: $('#email').val(),
+                email: emailVal,
                 address: $('#address').val(),
                 city: $('#city').val(),
                 country: $('#country').val()
