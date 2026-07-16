@@ -21,7 +21,7 @@ function renderFlightsTable(flights) {
     if (!flights || flights.length === 0) {
         tableBody.innerHTML = `
             <tr id="noFlightsRow">
-                <td colspan="9" class="text-center text-muted py-4">No flights found in database. Click 'Add Flight' above to create one.</td>
+                <td colspan="10" class="text-center text-muted py-4">No flights found in database. Click 'Add Flight' above to create one.</td>
             </tr>
         `;
         return;
@@ -29,13 +29,23 @@ function renderFlightsTable(flights) {
 
     // loop thru all flights and put them into rows inside tbody
     tableBody.innerHTML = flights.map(flightItem => `
-        <tr id="flight-row-${flightItem._id}" data-id="${flightItem._id}" data-flightcode="${flightItem.flightCode}" data-triptype="${flightItem.tripType}" data-status="${flightItem.status}" data-airline="${flightItem.airline}" data-origin="${flightItem.origin}" data-destination="${flightItem.destination}" data-departure="${flightItem.departureDateISO}" data-arrival="${flightItem.arrivalDateISO}" data-price="${flightItem.price}" data-seats="${flightItem.availableSeats}">
+        <tr id="flight-row-${flightItem._id}" data-id="${flightItem._id}" data-flightcode="${flightItem.flightCode}" data-triptype="${flightItem.tripType}" data-status="${flightItem.status}" data-airline="${flightItem.airline}" data-origin="${flightItem.origin}" data-destination="${flightItem.destination}" data-departure="${flightItem.departureDateISO}" data-arrival="${flightItem.arrivalDateISO}" data-price="${flightItem.price}" data-seats="${flightItem.availableSeats}" 
+        data-ispromo="${flightItem.isPromo}" data-discountpercent="${flightItem.discountPercent}" data-promotitle="${flightItem.promoLabel}" data-promostartdate="${flightItem.promoStartDateISO}" data-promoenddate="${flightItem.promoEndDateISO}">
             <td class="col-flightCode fw-bold">${flightItem.flightCode}</td>
             <td class="col-airline">${flightItem.airline}</td>
             <td class="col-route">${flightItem.origin} <i class="bi bi-arrow-right"></i> ${flightItem.destination}</td>
             <td class="col-departure">${flightItem.departureFormatted}</td>
             <td class="col-arrival">${flightItem.arrivalFormatted}</td>
             <td class="col-price">₱${flightItem.priceFormatted}</td>
+            <td class="col-promo">
+                ${flightItem.isPromo
+            ? `<button class="btn btn-sm secondary-btn"
+                            onclick="openPromoModal('${flightItem._id}')">
+                            View
+                        </button>`
+            : `<span class="text-muted">—</span>`
+        }
+            </td>
             <td class="col-seats">${flightItem.availableSeats}</td>
             <td class="col-status">
                 <span class="badge badge-${flightItem.statusBadgeClass}">${flightItem.statusCapitalized}</span>
@@ -69,6 +79,37 @@ async function fetchFlightsAJAX(query = '') {
     }
 }
 
+/* --- render the promo section of a modal--- */
+function readPromoFields(prefix) {
+
+    const idFor = (base) => prefix ? `${prefix}${base.charAt(0).toUpperCase()}${base.slice(1)}` : base;
+    return {
+        isPromo: document.getElementById(idFor('isPromo')).checked,
+        promoLabel: document.getElementById(idFor('promoLabel')).value.trim(),
+        discountPercent: document.getElementById(idFor('discountPercent')).value,
+        promoStartDate: document.getElementById(idFor('promoStartDate')).value,
+        promoEndDate: document.getElementById(idFor('promoEndDate')).value
+    };
+}
+
+function validatePromoFieldsClient(promo, errorId) {
+    if (!promo.isPromo) return true;
+    const pct = Number(promo.discountPercent);
+    if (isNaN(pct) || pct <= 0 || pct > 100) {
+        showModalError(errorId, 'Discount must be a number between 1 and 100 when marked as promotional.');
+        return false;
+    }
+    if (!promo.promoEndDate) {
+        showModalError(errorId, 'Promotion End date is required when marked as promotional.');
+        return false;
+    }
+    if (promo.promoStartDate && new Date(promo.promoEndDate) <= new Date(promo.promoStartDate)) {
+        showModalError(errorId, 'Promotion End must be after Promotion Start.');
+        return false;
+    }
+    return true;
+}
+
 /* --- add flight modal submit --- */
 function submitAddFlight() {
     const errorBox = document.getElementById('addFlightError');
@@ -86,6 +127,7 @@ function submitAddFlight() {
     const arrivalDate = document.getElementById('arrivalDate').value;
     const price = document.getElementById('price').value.trim();
     const seats = document.getElementById('seats').value.trim();
+    const promo = readPromoFields('');
 
     // check if inputs are missing
     if (!flightNum || !airline || !fromField || !toField || !departDate || !arrivalDate || price === '' || seats === '') {
@@ -133,7 +175,14 @@ function submitAddFlight() {
             departDate,
             arrivalDate,
             price: priceNum,
-            seats: seatsNum
+            seats: seatsNum,
+
+            //for promo flights
+            isPromo: promo.isPromo,
+            promoLabel: promo.promoLabel,
+            discountPercent: promo.discountPercent,
+            promoStartDate: promo.promoStartDate,
+            promoEndDate: promo.promoEndDate
         })
     })
         .then(response => response.json())
@@ -148,6 +197,14 @@ function submitAddFlight() {
                 document.getElementById('arrivalDate').value = '';
                 document.getElementById('price').value = '';
                 document.getElementById('seats').value = '';
+
+                //for promo flights
+                document.getElementById('isPromo').checked = false;
+                document.getElementById('promoLabel').value = '';
+                document.getElementById('discountPercent').value = '';
+                document.getElementById('promoStartDate').value = '';
+                document.getElementById('promoEndDate').value = '';
+                document.getElementById('promoFields').style.display = 'none';
                 fetchFlightsAJAX();
             } else {
                 showModalError('addFlightError', dataObj.error || 'Failed to add flight.');
@@ -192,6 +249,14 @@ function openEditFlightModal(id) {
         document.getElementById('editOneWay').checked = true;
     }
 
+    const isPromo = row.getAttribute('data-ispromo') === 'true';
+    document.getElementById('editIsPromo').checked = isPromo;
+    document.getElementById('editPromoLabel').value = row.getAttribute('data-promotitle') || '';
+    document.getElementById('editDiscountPercent').value = row.getAttribute('data-discountpercent') || '';
+    document.getElementById('editPromoStartDate').value = row.getAttribute('data-promostartdate') || '';
+    document.getElementById('editPromoEndDate').value = row.getAttribute('data-promoenddate') || '';
+    document.getElementById('editPromoFields').style.display = isPromo ? 'block' : 'none';
+
     const errorBox = document.getElementById('editFlightError');
     errorBox.classList.add('d-none');
     errorBox.textContent = '';
@@ -217,6 +282,7 @@ function submitEditFlight() {
     const arrivalDate = document.getElementById('editArrivalDate').value;
     const price = document.getElementById('editPrice').value.trim();
     const seats = document.getElementById('editSeats').value.trim();
+    const promo = readPromoFields('edit');
 
     if (!flightNum || !airline || !fromField || !toField || !departDate || !arrivalDate || price === '' || seats === '') {
         showModalError('editFlightError', 'All fields are required.');
@@ -246,6 +312,11 @@ function submitEditFlight() {
         return;
     }
 
+
+    if (!validatePromoFieldsClient(promo, 'editFlightError')) {
+        return;
+    }
+
     // send update request
     fetch(`/api/admin/flights/${id}`, {
         method: 'PUT',
@@ -262,7 +333,15 @@ function submitEditFlight() {
             departDate,
             arrivalDate,
             price: priceNum,
-            seats: seatsNum
+            seats: seatsNum,
+
+            //for promo flights
+
+            isPromo: promo.isPromo,
+            promoLabel: promo.promoLabel,
+            discountPercent: promo.discountPercent,
+            promoStartDate: promo.promoStartDate,
+            promoEndDate: promo.promoEndDate
         })
     })
         .then(response => response.json())
@@ -322,4 +401,75 @@ function showModalError(errorId, msg) {
         errorBox.textContent = msg;
         errorBox.classList.remove('d-none');
     }
+}
+
+//Flight promotions
+const promoCheckbox = document.getElementById("isPromo");
+const promoFields = document.getElementById("promoFields");
+
+promoCheckbox.addEventListener("change", () => {
+    promoFields.style.display = promoCheckbox.checked ? "block" : "none";
+
+    if (!promoCheckbox.checked) {
+        document.getElementById("promoLabel").value = "";
+        document.getElementById("discountPercent").value = "";
+        document.getElementById("promoStart").value = "";
+        document.getElementById("promoEndDate").value = "";
+    }
+});
+
+const editPromoCheckbox = document.getElementById("editIsPromo");
+const editPromoFields = document.getElementById("editPromoFields");
+
+editPromoCheckbox.addEventListener("change", () => {
+    editPromoFields.style.display =
+        editPromoCheckbox.checked ? "block" : "none";
+
+    if (!editPromoCheckbox.checked) {
+        document.getElementById("editPromoLabel").value = "";
+        document.getElementById("editDiscountPercent").value = "";
+        document.getElementById("editPromoStart").value = "";
+        document.getElementById("editPromoEndDate").value = "";
+    }
+});
+
+function openPromoModal(id) {
+    const row = document.getElementById(`flight-row-${id}`);
+    if (!row) return;
+
+    document.getElementById("promoLabelText").textContent =
+        row.dataset.promotitle || "-";
+
+    document.getElementById("promoDiscountText").textContent =
+        row.dataset.discountpercent
+            ? `${row.dataset.discountpercent}%`
+            : "-";
+
+    document.getElementById("promoStartText").textContent =
+        formatPromoDate(row.dataset.promostartdate);
+
+    document.getElementById("promoEndText").textContent =
+        formatPromoDate(row.dataset.promoenddate);
+
+    document.getElementById("promoDetailsDialog").showModal();
+}
+
+function formatPromoDate(dateString) {
+    if (!dateString) return "-";
+
+    const dateInstance = new Date(dateString);
+
+    const date = dateInstance.toLocaleDateString("en-US", {
+        month: "short",
+        day: "2-digit",
+        year: "numeric"
+    });
+
+    const time = dateInstance.toLocaleTimeString("en-US", {
+        hour: "numeric",
+        minute: "2-digit",
+        hour12: true
+    });
+
+    return `${date} ${time}`;
 }
