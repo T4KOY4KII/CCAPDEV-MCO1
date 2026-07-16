@@ -11,6 +11,12 @@ router.get('/adminDashboard', adminController.showAdminDashboard);
 //Flights management page route
 router.get('/adminFlights', adminController.showFlightsMgmt);
 
+//Flights AJAX CRUD API routes
+router.get('/api/admin/flights', adminController.getFlightsAPI);
+router.post('/api/admin/flights', adminController.createFlight);
+router.put('/api/admin/flights/:id', adminController.updateFlight);
+router.delete('/api/admin/flights/:id', adminController.deleteFlight);
+
 //Reservations management page route
 router.get('/adminReservations', adminController.showReservationsMgmt);
 
