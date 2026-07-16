@@ -20,8 +20,10 @@ router.get('/flight/:id', flightController.showFlightDetails);
 //Booking page route
 router.get('/booking', reservationController.showBooking);
 
-//Reservations page route
+//Reservations page routes
 router.get('/reservations', reservationController.showReservations);
+router.put('/reservations/:id/seat', reservationController.updateSeat);
+router.put('/reservations/:id/cancel', reservationController.cancelReservation);
 
 //Profile page route
 router.get('/profile/:id', userController.showProfile);
