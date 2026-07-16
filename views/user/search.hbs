@@ -337,49 +337,174 @@
             </div>
 
             {{#each flights}}
-            <div class="card flight-card text-center"
-                data-airline="{{this.airline}}" data-stops="{{this.stops}}"
-                data-trip-type="{{this.tripType}}" data-price="{{this.discountedPrice}}"
-                data-depart-date="{{this.departureDate}}" data-depart-time="{{this.departureTime}}"
-                data-duration="{{this.flightDuration}}" data-origin="{{this.origin}}"
-                data-destination="{{this.destination}}" data-seats="{{this.availableSeats}}">
-                <div class="card-header">
-                    <div class="d-flex flex-wrap justify-content-between align-items-center gap-2">
-                    <span class="flight-airline">{{this.airline}}</span>
-                    <span class="seats-left">{{this.availableSeats}} seats left</span>
+              <div class="card flight-card text-center"
+                  data-airline="{{this.airline}}" data-stops="{{this.stops}}"
+                  data-trip-type="{{this.tripType}}" data-price="{{this.discountedPrice}}"
+                  data-depart-date="{{this.departureDate}}" data-depart-time="{{this.departureTime}}"
+                  data-duration="{{this.flightDuration}}" data-origin="{{this.origin}}"
+                  data-destination="{{this.destination}}" data-seats="{{this.availableSeats}}">
+                  <div class="card-header">
+                      <div class="d-flex flex-wrap justify-content-between align-items-center gap-2">
+                      <span class="flight-airline">{{this.airline}}</span>
+                      <span class="badge bg-secondary">{{flightCode}}</span>
+
+                      <!-- Status badge -->
+                      {{#if (eq status 'delayed')}}
+                      <span class="badge bg-warning text-dark">
+                          <i class="bi bi-clock me-1"></i>Delayed
+                      </span>
+                      {{else if (eq status 'cancelled')}}
+                      <span class="badge bg-danger">
+                          <i class="bi bi-x-circle me-1"></i>Cancelled
+                      </span>
+                      {{else}}
+                      <span class="badge bg-success">
+                          <i class="bi bi-check-circle me-1"></i>On Time
+                      </span>
+                      {{/if}}
+
+                  </div>
+
+                  <div class="mt-3">
+                      {{#if this.availableSeats}}
+                      <span class="seats-left">
+                          <i class="bi bi-person-fill me-1"></i>{{this.availableSeats}} seats left
+                      </span>
+                      {{else}}
+                      <span class="badge bg-danger">Sold Out</span>
+                      {{/if}}
+                  </div>
+
+                      
                 </div>
               </div>
+
+              <!-- Middle row: times, route, price -->
               <div class="card-body">
-                <div class="row align-items-center g-3">
-                    <div class="col-6 col-md-2 flight-time-block">
-                        <div class="flight-date">{{this.departureDate}}</div>
-                        <div class="flight-time">{{this.departureTime}}</div>
-                        <div class="flight-country">{{this.origin}}</div>
+                  <div class="row align-items-center g-3">
+
+                      <!-- Departure -->
+                      <div class="col-6 col-md-2 flight-time-block">
+                          <div class="flight-date">{{this.departureDate}}</div>
+                          <div class="flight-time">{{this.departureTime}}</div>
+                          <div class="flight-country">{{this.origin}}</div>
+                      </div>
+
+                      <!-- Route line -->
+                      <div class="col-12 col-md-6 flight-route-block">
+                          <div class="flight-route-label">
+                              {{this.origin}} <i class="bi bi-arrow-right"></i> {{this.destination}}
+                          </div>
+                          <div class="flight-route-line">
+                              <hr />
+                          </div>
+                          <div class="flight-route-info">
+                              Direct | {{this.flightDuration}}
+                          </div>
+                      </div>
+
+                      <!-- Arrival -->
+                      <div class="col-6 col-md-2 flight-time-block">
+                          <div class="flight-date">{{this.arrivalDate}}</div>
+                          <div class="flight-time">{{this.arrivalTime}}</div>
+                          <div class="flight-country">{{this.destination}}</div>
+                      </div>
+
+                      <!-- Price -->
+                      <div class="col-12 col-md-2 flight-price-block text-center">
+
+                          {{#if this.discountPercent}}
+                          <!-- Show original and discounted price -->
+                          <div class="text-muted text-decoration-line-through small">
+                              ₱{{this.price}}
+                          </div>
+                          <div class="flight-price text-danger fw-bold">
+                              ₱{{this.discountedPrice}}
+                          </div>
+                          <span class="badge bg-danger mb-1">-{{this.discountPercent}}%</span>
+                          {{else}}
+                          <div class="flight-price">₱{{this.price}}</div>
+                          {{/if}}
+
+                          {{#if this.availableSeats}}
+                          <a href="/flight/{{_id}}" class="btn primary-btn btn-sm px-4 mt-2">
+                              Book
+                          </a>
+                          {{else}}
+                          <button class="btn btn-secondary btn-sm px-4 mt-2" disabled>
+                              Sold Out
+                          </button>
+                          {{/if}}
+
+                      </div>
+
                   </div>
-                  <div class="col-12 col-md-6 flight-route-block">
-                        <div class="flight-route-label">{{this.origin}} → {{this.destination}}</div>
-                        <div class="flight-route-line"><hr /></div>
-                        <div class="flight-route-info">{{this.flightDuration}}</div>
-                  </div>
-                  <div class="col-6 col-md-2 flight-time-block">
-                        <div class="flight-date">{{this.arrivalDate}}</div>
-                        <div class="flight-time">{{this.arrivalTime}}</div>
-                        <div class="flight-country">{{this.destination}}</div>
-                  </div>
-                  <div class="col-12 col-md-2 flight-price-block">
-                        <div class="flight-price">₱{{this.discountedPrice}}</div>
-                        <a href="/flight/{{this._id}}" class="btn primary-btn btn-sm px-4 mt-2">Book</a>
-                  </div>
-                </div>
               </div>
-            </div>
+
+              <!-- Footer: toggle details -->
+              <div class="card-footer text-end">
+                  <button class="secondary-btn" id="detailsToggle{{_id}}"
+                      onclick="toggleDetails('flightDetails{{_id}}', 'detailsToggle{{_id}}')">
+                      View Details <i class="bi bi-chevron-down"></i>
+                  </button>
+              </div>
+
+              <!-- Expandable details panel -->
+              <div class="flight-details d-none" id="flightDetails{{_id}}">
+                  <div class="flight-details-grid">
+
+                      <div class="detail-item">
+                          <div class="detail-label">Flight Code</div>
+                          <div class="detail-value">{{this.flightCode}}</div>
+                      </div>
+
+                      <div class="detail-item">
+                          <div class="detail-label">Airline</div>
+                          <div class="detail-value">{{this.airline}}</div>
+                      </div>
+
+                      <div class="detail-item">
+                          <div class="detail-label">Trip Type</div>
+                          <div class="detail-value text-capitalize">{{this.tripType}}</div>
+                      </div>
+
+                      <div class="detail-item">
+                          <div class="detail-label">Duration</div>
+                          <div class="detail-value">{{this.flightDuration}}</div>
+                      </div>
+
+                      <div class="detail-item">
+                          <div class="detail-label">Status</div>
+                          <div class="detail-value text-capitalize">{{this.status}}</div>
+                      </div>
+
+                      <div class="detail-item">
+                          <div class="detail-label">Seats Available</div>
+                          <div class="detail-value">{{this.availableSeats}}</div>
+                      </div>
+
+                      {{#if this.discountPercent}}
+                      <div class="detail-item">
+                          <div class="detail-label">Promo</div>
+                          <div class="detail-value text-danger">
+                              {{this.discountPercent}}% OFF — ends {{this.promoEndFormatted}}
+                          </div>
+                      </div>
+                      {{/if}}
+
+                  </div>
+              </div>
+
+          </div>
           {{/each}}
 
-          <!-- No results message (hidden by default) -->
-          <div id="noResultsMsg" class="text-center text-muted mt-5 {{#unless hasFlights}}{{else}}d-none{{/unless}}">
-            <i class="bi bi-emoji-frown fs-3 d-block mb-1"></i>
-            No flights found. Try adjusting or resetting your filters.
-          </div>
+              <!-- No results message -->
+              <div id="noResultsMsg" class="text-center text-muted mt-5 {{#unless hasFlights}}{{else}}d-none{{/unless}}">
+                <i class="bi bi-emoji-frown fs-3 d-block mb-1"></i>
+                No flights found. Try adjusting or resetting your filters.
+              </div>
+
+            </div>
           
         </div>
      
