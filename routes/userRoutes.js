@@ -28,6 +28,9 @@ router.post('/profile/:id/passengers', userController.addPassenger);
 router.put('/profile/:id/passengers/:passengerId', userController.updatePassenger);
 router.delete('/profile/:id/passengers/:passengerId', userController.deletePassenger);
 
+//Notification preferences route
+router.put('/profile/:id/notifications', userController.updateNotifications);
+
 module.exports = router;
 
 

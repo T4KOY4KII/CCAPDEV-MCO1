@@ -46,6 +46,7 @@ exports.showProfile = async (req, res) => {
         if (!user) return res.status(404).send('User not found');
 
         user.savedPassengers = user.savedPassengers || [];
+        user.notificationPrefs = user.notificationPrefs || { booking: true, schedule: false, checkin: true, travel: true, promo: true, sms: false };
 
         const initials = (user.firstName.charAt(0) + user.lastName.charAt(0)).toUpperCase();
 
@@ -68,7 +69,7 @@ exports.updateProfile = async (req, res) => {
         const updatedUser = await User.findOneAndUpdate(
             { _id: req.params.id },
             { title, firstName, lastName, contactCode, contactNumber, gender, dobMonth, dobDay, dobYear, email, address, city, country },
-            { returnDocument: 'after', runValidators: true }
+            { new: true, runValidators: true }
         );
 
         if (!updatedUser) return res.status(404).json({ error: 'User not found' });
@@ -150,6 +151,26 @@ exports.deletePassenger = async (req, res) => {
         res.json({ success: true, savedPassengers: user.savedPassengers });
     } catch (err) {
         console.error('Delete passenger error:', err);
+        res.status(500).json({ error: 'Something went wrong.' });
+    }
+};
+
+//Updates the user's notification preferences
+exports.updateNotifications = async (req, res) => {
+    try {
+        const { booking, schedule, checkin, travel, promo, sms } = req.body;
+
+        const updatedUser = await User.findOneAndUpdate(
+            { _id: req.params.id },
+            { notificationPrefs: { booking: !!booking, schedule: !!schedule, checkin: !!checkin, travel: !!travel, promo: !!promo, sms: !!sms } },
+            { new: true, runValidators: true }
+        );
+
+        if (!updatedUser) return res.status(404).json({ error: 'User not found' });
+
+        res.json({ success: true, notificationPrefs: updatedUser.notificationPrefs });
+    } catch (err) {
+        console.error('Update notifications error:', err);
         res.status(500).json({ error: 'Something went wrong.' });
     }
 };

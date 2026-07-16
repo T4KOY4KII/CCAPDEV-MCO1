@@ -132,13 +132,13 @@
                 <label class="form-label">Date of Birth (MM/DD/YYYY)</label>
                 <div class="d-flex align-items-center gap-2">
                   <input type="text" class="form-control text-center" id="dobMonth" name="dobMonth" placeholder="MM"
-                    maxlength="2">
+                    maxlength="2" value="{{user.dobMonth}}">
                   <span class="text-muted">/</span>
                   <input type="text" class="form-control text-center" id="dobDay" name="dobDay" placeholder="DD"
-                    maxlength="2">
+                    maxlength="2" value="{{user.dobDay}}">
                   <span class="text-muted">/</span>
                   <input type="text" class="form-control text-center" id="dobYear" name="dobYear" placeholder="YYYY"
-                    maxlength="4">
+                    maxlength="4" value="{{user.dobYear}}">
                 </div>
               </div>
             </div>
@@ -203,7 +203,7 @@
           </div>
 
           <!-- Passenger list from JS -->
-          <script id="savedPassengersData" type="application/json">{{{savedPassengersJSON}}}</script> <!-- Triple braces to avoid escaping -->
+          <script id="savedPassengersData" type="application/json">{{{savedPassengersJSON}}}</script>
           <div id="passengerList"></div>
 
           <!-- Pagination -->
@@ -393,8 +393,8 @@
                 <span class="payment-type-sub">Your Flight, Your Bank, One Easy Payment.</span>
               </div>
               <div class="payment-type-logos">
-                <img src="/public/imgs/payments/visa-logo.png" alt="Visa" class="payment-logo">
-                <img src="/public/imgs/payments/mastercard-logo.png" alt="Mastercard" class="payment-logo">
+                <img src="/imgs/payments/visa-logo.png" alt="Visa" class="payment-logo">
+                <img src="/imgs/payments/mastercard-logo.png" alt="Mastercard" class="payment-logo">
               </div>
             </label>
           </div>
@@ -414,13 +414,11 @@
                 <div class="col-md-7">
                   <label class="form-label">Card Expiry (MM/DD/YYYY)</label>
                   <div class="d-flex align-items-center gap-2">
-                    <input type="text" class="form-control text-center" id="cardExpMonth" placeholder="MM"
-                      maxlength="2">
+                    <input type="text" class="form-control text-center" id="cardExpMonth" placeholder="MM" maxlength="2">
                     <span class="text-muted">/</span>
                     <input type="text" class="form-control text-center" id="cardExpDay" placeholder="DD" maxlength="2">
                     <span class="text-muted">/</span>
-                    <input type="text" class="form-control text-center" id="cardExpYear" placeholder="YYYY"
-                      maxlength="4">
+                    <input type="text" class="form-control text-center" id="cardExpYear" placeholder="YYYY" maxlength="4">
                   </div>
                 </div>
                 <div class="col-md-5">
@@ -440,8 +438,8 @@
                 <span class="payment-type-sub">Travel Made Easy with E-Wallet Payments.</span>
               </div>
               <div class="payment-type-logos">
-                <img src="/public/imgs/payments/paypal-logo.png" alt="PayPal" class="payment-logo">
-                <img src="/public/imgs/payments/googlepay-logo.png" alt="Google Pay" class="payment-logo"
+                <img src="/imgs/payments/paypal-logo.png" alt="PayPal" class="payment-logo">
+                <img src="/imgs/payments/googlepay-logo.png" alt="Google Pay" class="payment-logo"
                   style="width:20px;">
               </div>
             </label>
@@ -452,7 +450,7 @@
             <div class="ewallet-options">
               <label class="ewallet-card" id="paypalCard">
                 <input type="radio" name="ewalletProvider" value="PayPal">
-                <img src="/public/imgs/payments/paypal-logo.png" alt="PayPal" class="ewallet-logo">
+                <img src="/imgs/payments/paypal-logo.png" alt="PayPal" class="ewallet-logo">
               </label>
               <label class="ewallet-card" id="gpayCard">
                 <input type="radio" name="ewalletProvider" value="Google Pay">
@@ -481,28 +479,28 @@
           <div class="notif-row">
             <span class="notif-label">Booking Confirmation Emails</span>
             <div class="form-check form-switch">
-              <input class="form-check-input notif-toggle" type="checkbox" id="notifBooking" checked>
+              <input class="form-check-input notif-toggle" type="checkbox" id="notifBooking" {{#if user.notificationPrefs.booking}}checked{{/if}}>
             </div>
           </div>
           <hr class="notif-divider">
           <div class="notif-row">
             <span class="notif-label">Flight Schedule Changes</span>
             <div class="form-check form-switch">
-              <input class="form-check-input notif-toggle" type="checkbox" id="notifSchedule">
+              <input class="form-check-input notif-toggle" type="checkbox" id="notifSchedule" {{#if user.notificationPrefs.schedule}}checked{{/if}}>
             </div>
           </div>
           <hr class="notif-divider">
           <div class="notif-row">
             <span class="notif-label">Check-In Reminders</span>
             <div class="form-check form-switch">
-              <input class="form-check-input notif-toggle" type="checkbox" id="notifCheckin" checked>
+              <input class="form-check-input notif-toggle" type="checkbox" id="notifCheckin" {{#if user.notificationPrefs.checkin}}checked{{/if}}>
             </div>
           </div>
           <hr class="notif-divider">
           <div class="notif-row">
             <span class="notif-label">Travel Alerts</span>
             <div class="form-check form-switch">
-              <input class="form-check-input notif-toggle" type="checkbox" id="notifTravel" checked>
+              <input class="form-check-input notif-toggle" type="checkbox" id="notifTravel" {{#if user.notificationPrefs.travel}}checked{{/if}}>
             </div>
           </div>
         </div>
@@ -512,14 +510,14 @@
           <div class="notif-row">
             <span class="notif-label">Promotional Offers</span>
             <div class="form-check form-switch">
-              <input class="form-check-input notif-toggle" type="checkbox" id="notifPromo" checked>
+              <input class="form-check-input notif-toggle" type="checkbox" id="notifPromo" {{#if user.notificationPrefs.promo}}checked{{/if}}>
             </div>
           </div>
           <hr class="notif-divider">
           <div class="notif-row">
             <span class="notif-label">SMS Notifications</span>
             <div class="form-check form-switch">
-              <input class="form-check-input notif-toggle" type="checkbox" id="notifSms">
+              <input class="form-check-input notif-toggle" type="checkbox" id="notifSms" {{#if user.notificationPrefs.sms}}checked{{/if}}>
             </div>
           </div>
         </div>
