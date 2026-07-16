@@ -136,27 +136,27 @@ function submitAddFlight() {
             seats: seatsNum
         })
     })
-    .then(response => response.json())
-    .then(dataObj => {
-        if (dataObj.success) {
-            document.getElementById('addFlight').close();
-            document.getElementById('flightNum').value = '';
-            document.getElementById('airline').value = '';
-            document.getElementById('fromField').value = '';
-            document.getElementById('toField').value = '';
-            document.getElementById('departDate').value = '';
-            document.getElementById('arrivalDate').value = '';
-            document.getElementById('price').value = '';
-            document.getElementById('seats').value = '';
-            fetchFlightsAJAX();
-        } else {
-            showModalError('addFlightError', dataObj.error || 'Failed to add flight.');
-        }
-    })
-    .catch(errorObj => {
-        console.error("Add Flight Error:", errorObj);
-        showModalError('addFlightError', 'Network or server error occurred.');
-    });
+        .then(response => response.json())
+        .then(dataObj => {
+            if (dataObj.success) {
+                document.getElementById('addFlight').close();
+                document.getElementById('flightNum').value = '';
+                document.getElementById('airline').value = '';
+                document.getElementById('fromField').value = '';
+                document.getElementById('toField').value = '';
+                document.getElementById('departDate').value = '';
+                document.getElementById('arrivalDate').value = '';
+                document.getElementById('price').value = '';
+                document.getElementById('seats').value = '';
+                fetchFlightsAJAX();
+            } else {
+                showModalError('addFlightError', dataObj.error || 'Failed to add flight.');
+            }
+        })
+        .catch(errorObj => {
+            console.error("Add Flight Error:", errorObj);
+            showModalError('addFlightError', 'Network or server error occurred.');
+        });
 }
 
 /* --- open edit modal and load data --- */
@@ -265,26 +265,26 @@ function submitEditFlight() {
             seats: seatsNum
         })
     })
-    .then(response => response.json())
-    .then(dataObj => {
-        if (dataObj.success) {
-            document.getElementById('editFlight').close();
-            fetchFlightsAJAX();
-        } else {
-            showModalError('editFlightError', dataObj.error || 'Failed to update flight.');
-        }
-    })
-    .catch(errorObj => {
-        console.error("Edit Flight Error:", errorObj);
-        showModalError('editFlightError', 'Network or server error occurred.');
-    });
+        .then(response => response.json())
+        .then(dataObj => {
+            if (dataObj.success) {
+                document.getElementById('editFlight').close();
+                fetchFlightsAJAX();
+            } else {
+                showModalError('editFlightError', dataObj.error || 'Failed to update flight.');
+            }
+        })
+        .catch(errorObj => {
+            console.error("Edit Flight Error:", errorObj);
+            showModalError('editFlightError', 'Network or server error occurred.');
+        });
 }
 
 /* --- delete modal --- */
 function openDeleteFlightModal(id, flightCode) {
     document.getElementById('deleteFlightId').value = id;
     document.getElementById('deleteFlightConfirmText').textContent = `Are you sure you want to delete flight ${flightCode}? This action is permanent.`;
-    
+
     const errorBox = document.getElementById('deleteFlightError');
     errorBox.classList.add('d-none');
     errorBox.textContent = '';
@@ -301,19 +301,19 @@ function submitDeleteFlight() {
     fetch(`/api/admin/flights/${id}`, {
         method: 'DELETE'
     })
-    .then(response => response.json())
-    .then(dataObj => {
-        if (dataObj.success) {
-            document.getElementById('deleteFlight').close();
-            fetchFlightsAJAX();
-        } else {
-            showModalError('deleteFlightError', dataObj.error || 'Failed to delete flight.');
-        }
-    })
-    .catch(errorObj => {
-        console.error("Delete Flight Error:", errorObj);
-        showModalError('deleteFlightError', 'Network or server error occurred.');
-    });
+        .then(response => response.json())
+        .then(dataObj => {
+            if (dataObj.success) {
+                document.getElementById('deleteFlight').close();
+                fetchFlightsAJAX();
+            } else {
+                showModalError('deleteFlightError', dataObj.error || 'Failed to delete flight.');
+            }
+        })
+        .catch(errorObj => {
+            console.error("Delete Flight Error:", errorObj);
+            showModalError('deleteFlightError', 'Network or server error occurred.');
+        });
 }
 
 function showModalError(errorId, msg) {
