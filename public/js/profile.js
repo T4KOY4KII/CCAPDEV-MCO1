@@ -63,23 +63,23 @@ $(document).ready(function () {
 
         $('#personalInfoForm').on('submit', function (e) {
             e.preventDefault();
-                
+
             $('#personalInfoForm .is-invalid').removeClass('is-invalid');
             $('#personalInfoForm .invalid-feedback').remove();
-                
+
             var titleVal = $('#title').val();
             var firstNameVal = $('#firstName').val().trim();
             var lastNameVal = $('#lastName').val().trim();
             var genderVal = $('#gender').val();
             var emailVal = $('#email').val().trim();
-                
+
             var hasError = false;
-                
+
             if (!titleVal)     { showFieldError('#title', 'Title is required.'); hasError = true; }
             if (!firstNameVal) { showFieldError('#firstName', 'First name is required.'); hasError = true; }
             if (!lastNameVal)  { showFieldError('#lastName', 'Last name is required.'); hasError = true; }
             if (!genderVal)    { showFieldError('#gender', 'Gender is required.'); hasError = true; }
-                
+
             if (!emailVal) {
                 showFieldError('#email', 'Email is required.');
                 hasError = true;
@@ -451,9 +451,9 @@ $(document).ready(function () {
         /* PAYMENT METHODS */
 
         var paymentMethods = [
-            { id: 1, type: 'card',    name: 'BDO Titanium',  subtype: 'Mastercard', ending: '4747', isDefault: false, icon: '/imgs/payments/mastercard-logo.png' },
-            { id: 2, type: 'ewallet', name: 'Google Pay',    subtype: 'E-Wallet',   ending: '2373', isDefault: true,  icon: '/imgs/payments/googlepay-logo.png'  },
-            { id: 3, type: 'ewallet', name: 'PayPal',        subtype: 'E-Wallet',   ending: '4209', isDefault: false, icon: '/imgs/payments/paypal-logo.png'     }
+            { id: 1, type: 'card',    name: 'BDO Titanium',  subtype: 'Mastercard', ending: '4747', isDefault: false, icon: '/public/imgs/payments/mastercard-logo.png' },
+            { id: 2, type: 'ewallet', name: 'Google Pay',    subtype: 'E-Wallet',   ending: '2373', isDefault: true,  icon: '/public/imgs/payments/googlepay-logo.png'  },
+            { id: 3, type: 'ewallet', name: 'PayPal',        subtype: 'E-Wallet',   ending: '4209', isDefault: false, icon: '/public/imgs/payments/paypal-logo.png'     }
         ];
 
         var nextPaymentId = 4;
@@ -550,8 +550,8 @@ $(document).ready(function () {
             }
             var ending = Math.floor(1000 + Math.random() * 9000).toString();
             var icon = provider === 'PayPal'
-                ? '/imgs/payments/paypal-logo.png'
-                : '/imgs/payments/googlepay-logo.png';
+                ? '/public/imgs/payments/paypal-logo.png'
+                : '/public/imgs/payments/googlepay-logo.png';
             paymentMethods.push({ id: nextPaymentId++, type: 'ewallet', name: provider, subtype: 'E-Wallet', ending: ending, isDefault: false, icon: icon });
             renderPaymentMethods();
             $('#paymentFormCard').removeClass('active');
@@ -573,7 +573,7 @@ $(document).ready(function () {
                 subtype: 'Credit/Debit Card',
                 ending: cvv.slice(-4).padStart(4, '0'),
                 isDefault: false,
-                icon: '/imgs/payments/mastercard-logo.png'
+                icon: '/public/imgs/payments/mastercard-logo.png'
             });
 
             renderPaymentMethods();
@@ -620,15 +620,15 @@ $(document).ready(function () {
         /* TRAVEL HISTORY */
 
         var travelHistory = [
-            { route: 'CGY-BCD', airline: 'Philippine Airlines', flightNum: 'PR4923', date: 'March 13, 2025',      status: 'past',     bookingNum: 'V9ABCD', logo: '/imgs/flights/pal-logo.png',          name: 'Jose Rizal', gender: 'Adult', nationality: 'Filipino', contact: '+63 9674206967', email: 'joserizal@gmail.com', gate: '3B',  seat: '14A', boarding: '2:30PM'  },
-            { route: 'DVO-BXU', airline: 'AirAsia',             flightNum: 'Z2842',  date: 'December 5, 2025',    status: 'past',     bookingNum: 'K3LMNO', logo: '/imgs/flights/air-asia-logo.png',     name: 'Jose Rizal', gender: 'Adult', nationality: 'Filipino', contact: '+63 9674206967', email: 'joserizal@gmail.com', gate: '7C',  seat: '22F', boarding: '10:00AM' },
-            { route: 'CRK-ILO', airline: 'Royal Air',           flightNum: 'RW804',  date: 'April 1, 2026',       status: 'past',     bookingNum: 'P7QRST', logo: '/imgs/flights/royal-air-logo.png',    name: 'Jose Rizal', gender: 'Adult', nationality: 'Filipino', contact: '+63 9674206967', email: 'joserizal@gmail.com', gate: '1A',  seat: '8C',  boarding: '6:45AM'  },
-            { route: 'MNL-CEB', airline: 'Cebu Pacific',        flightNum: '5J557',  date: 'May 4, 2026',         status: 'past',     bookingNum: 'V9EVSM', logo: '/imgs/flights/cebu-pacific-logo.png', name: 'Jose Rizal', gender: 'Adult', nationality: 'Filipino', contact: '+63 9674206967', email: 'joserizal@gmail.com', gate: '5A',  seat: '27B', boarding: '4:30PM'  },
-            { route: 'MNL-SIN', airline: 'Philippine Airlines', flightNum: 'PR502',  date: 'June 20, 2026',       status: 'upcoming', bookingNum: 'A1BCDE', logo: '/imgs/flights/pal-logo.png',          name: 'Jose Rizal', gender: 'Adult', nationality: 'Filipino', contact: '+63 9674206967', email: 'joserizal@gmail.com', gate: '9D',  seat: '12A', boarding: '8:00AM'  },
-            { route: 'CEB-MNL', airline: 'Cebu Pacific',        flightNum: '5J102',  date: 'July 3, 2026',        status: 'upcoming', bookingNum: 'B2CDEF', logo: '/imgs/flights/cebu-pacific-logo.png', name: 'Jose Rizal', gender: 'Adult', nationality: 'Filipino', contact: '+63 9674206967', email: 'joserizal@gmail.com', gate: '2B',  seat: '33C', boarding: '1:15PM'  },
-            { route: 'MNL-KUL', airline: 'AirAsia',             flightNum: 'AK521',  date: 'July 18, 2026',       status: 'upcoming', bookingNum: 'C3DEFG', logo: '/imgs/flights/air-asia-logo.png',     name: 'Jose Rizal', gender: 'Adult', nationality: 'Filipino', contact: '+63 9674206967', email: 'joserizal@gmail.com', gate: '6E',  seat: '18D', boarding: '3:45PM'  },
-            { route: 'ILO-MNL', airline: 'Royal Air',           flightNum: 'RW210',  date: 'August 5, 2026',      status: 'upcoming', bookingNum: 'D4EFGH', logo: '/imgs/flights/royal-air-logo.png',    name: 'Jose Rizal', gender: 'Adult', nationality: 'Filipino', contact: '+63 9674206967', email: 'joserizal@gmail.com', gate: '4F',  seat: '5B',  boarding: '11:30AM' },
-            { route: 'MNL-HKG', airline: 'Philippine Airlines', flightNum: 'PR300',  date: 'September 12, 2026',  status: 'upcoming', bookingNum: 'E5FGHI', logo: '/imgs/flights/pal-logo.png',          name: 'Jose Rizal', gender: 'Adult', nationality: 'Filipino', contact: '+63 9674206967', email: 'joserizal@gmail.com', gate: '11A', seat: '7C',  boarding: '7:20AM'  }
+            { route: 'CGY-BCD', airline: 'Philippine Airlines', flightNum: 'PR4923', date: 'March 13, 2025',      status: 'past',     bookingNum: 'V9ABCD', logo: '/public/imgs/flights/pal-logo.png',          name: 'Jose Rizal', gender: 'Adult', nationality: 'Filipino', contact: '+63 9674206967', email: 'joserizal@gmail.com', gate: '3B',  seat: '14A', boarding: '2:30PM'  },
+            { route: 'DVO-BXU', airline: 'AirAsia',             flightNum: 'Z2842',  date: 'December 5, 2025',    status: 'past',     bookingNum: 'K3LMNO', logo: '/public/imgs/flights/air-asia-logo.png',     name: 'Jose Rizal', gender: 'Adult', nationality: 'Filipino', contact: '+63 9674206967', email: 'joserizal@gmail.com', gate: '7C',  seat: '22F', boarding: '10:00AM' },
+            { route: 'CRK-ILO', airline: 'Royal Air',           flightNum: 'RW804',  date: 'April 1, 2026',       status: 'past',     bookingNum: 'P7QRST', logo: '/public/imgs/flights/royal-air-logo.png',    name: 'Jose Rizal', gender: 'Adult', nationality: 'Filipino', contact: '+63 9674206967', email: 'joserizal@gmail.com', gate: '1A',  seat: '8C',  boarding: '6:45AM'  },
+            { route: 'MNL-CEB', airline: 'Cebu Pacific',        flightNum: '5J557',  date: 'May 4, 2026',         status: 'past',     bookingNum: 'V9EVSM', logo: '/public/imgs/flights/cebu-pacific-logo.png', name: 'Jose Rizal', gender: 'Adult', nationality: 'Filipino', contact: '+63 9674206967', email: 'joserizal@gmail.com', gate: '5A',  seat: '27B', boarding: '4:30PM'  },
+            { route: 'MNL-SIN', airline: 'Philippine Airlines', flightNum: 'PR502',  date: 'June 20, 2026',       status: 'upcoming', bookingNum: 'A1BCDE', logo: '/public/imgs/flights/pal-logo.png',          name: 'Jose Rizal', gender: 'Adult', nationality: 'Filipino', contact: '+63 9674206967', email: 'joserizal@gmail.com', gate: '9D',  seat: '12A', boarding: '8:00AM'  },
+            { route: 'CEB-MNL', airline: 'Cebu Pacific',        flightNum: '5J102',  date: 'July 3, 2026',        status: 'upcoming', bookingNum: 'B2CDEF', logo: '/public/imgs/flights/cebu-pacific-logo.png', name: 'Jose Rizal', gender: 'Adult', nationality: 'Filipino', contact: '+63 9674206967', email: 'joserizal@gmail.com', gate: '2B',  seat: '33C', boarding: '1:15PM'  },
+            { route: 'MNL-KUL', airline: 'AirAsia',             flightNum: 'AK521',  date: 'July 18, 2026',       status: 'upcoming', bookingNum: 'C3DEFG', logo: '/public/imgs/flights/air-asia-logo.png',     name: 'Jose Rizal', gender: 'Adult', nationality: 'Filipino', contact: '+63 9674206967', email: 'joserizal@gmail.com', gate: '6E',  seat: '18D', boarding: '3:45PM'  },
+            { route: 'ILO-MNL', airline: 'Royal Air',           flightNum: 'RW210',  date: 'August 5, 2026',      status: 'upcoming', bookingNum: 'D4EFGH', logo: '/public/imgs/flights/royal-air-logo.png',    name: 'Jose Rizal', gender: 'Adult', nationality: 'Filipino', contact: '+63 9674206967', email: 'joserizal@gmail.com', gate: '4F',  seat: '5B',  boarding: '11:30AM' },
+            { route: 'MNL-HKG', airline: 'Philippine Airlines', flightNum: 'PR300',  date: 'September 12, 2026',  status: 'upcoming', bookingNum: 'E5FGHI', logo: '/public/imgs/flights/pal-logo.png',          name: 'Jose Rizal', gender: 'Adult', nationality: 'Filipino', contact: '+63 9674206967', email: 'joserizal@gmail.com', gate: '11A', seat: '7C',  boarding: '7:20AM'  }
         ];
 
         // builds and injects the travel history list (all items, no pagination)
