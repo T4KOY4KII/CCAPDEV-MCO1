@@ -2,7 +2,7 @@
 
 
 <!-- Search and add flight button -->
-<div class="container">
+<div class="container mt-4">
   <div class="table-card mb-3">
 
     <div class="row g-1 align-items-center">
@@ -42,6 +42,7 @@
           <th>Departure</th>
           <th>Arrival</th>
           <th>Price</th>
+          <th>Promo</th>
           <th>Seats</th>
           <th>Status</th>
           <th>Actions</th>
@@ -50,34 +51,50 @@
       </thead>
       <tbody id="TableBody">
         {{#if flights.length}}
-          {{#each flights}}
-          <tr id="flight-row-{{this._id}}" data-id="{{this._id}}" data-flightcode="{{this.flightCode}}" data-triptype="{{this.tripType}}" data-status="{{this.status}}" data-airline="{{this.airline}}" data-origin="{{this.origin}}" data-destination="{{this.destination}}" data-departure="{{this.departureDateISO}}" data-arrival="{{this.arrivalDateISO}}" data-price="{{this.price}}" data-seats="{{this.availableSeats}}">
-            <td class="col-flightCode fw-bold">{{this.flightCode}}</td>
-            <td class="col-airline">{{this.airline}}</td>
-            <td class="col-route">{{this.origin}} <i class="bi bi-arrow-right"></i> {{this.destination}}</td>
-            <td class="col-departure">{{this.departureFormatted}}</td>
-            <td class="col-arrival">{{this.arrivalFormatted}}</td>
-            <td class="col-price">₱{{this.priceFormatted}}</td>
-            <td class="col-seats">{{this.availableSeats}}</td>
-            <td class="col-status">
-              <span class="badge badge-{{this.statusBadgeClass}}">{{this.statusCapitalized}}</span>
-            </td>
-            <td>
-              <div>
-                <button class="edit-btn" onclick="openEditFlightModal('{{this._id}}')">
-                  <i class="bi bi-pencil me-1"></i>
-                </button>
-                <button class="delete-btn" onclick="openDeleteFlightModal('{{this._id}}', '{{this.flightCode}}')">
-                  <i class="bi bi-trash3 ms-1"></i>
-                </button>
-              </div>
-            </td>
-          </tr>
-          {{/each}}
+        {{#each flights}}
+        <tr id="flight-row-{{this._id}}" data-id="{{this._id}}" data-flightcode="{{this.flightCode}}"
+          data-triptype="{{this.tripType}}" data-status="{{this.status}}" data-airline="{{this.airline}}"
+          data-origin="{{this.origin}}" data-destination="{{this.destination}}"
+          data-departure="{{this.departureDateISO}}" data-arrival="{{this.arrivalDateISO}}" data-price="{{this.price}}"
+          data-seats="{{this.availableSeats}}" data-ispromo="{{this.isPromo}}"
+          data-discountpercent="{{this.discountPercent}}" data-promotitle="{{this.promoLabel}}"
+          data-promostartdate="{{this.promoStartDateISO}}" data-promoenddate="{{this.promoEndDateISO}}">
+          <td class="col-flightCode fw-bold">{{this.flightCode}}</td>
+          <td class="col-airline">{{this.airline}}</td>
+          <td class="col-route">{{this.origin}} <i class="bi bi-arrow-right"></i> {{this.destination}}</td>
+          <td class="col-departure">{{this.departureFormatted}}</td>
+          <td class="col-arrival">{{this.arrivalFormatted}}</td>
+          <td class="col-price">₱{{this.priceFormatted}}</td>
+          <td class="col-promo">
+            {{#if this.isPromo}}
+            <button class="btn btn-sm secondary-btn" onclick="openPromoModal('{{this._id}}')">
+              View
+            </button>
+            {{else}}
+            <span class="text-muted">—</span>
+            {{/if}}
+          </td>
+          <td class="col-seats">{{this.availableSeats}}</td>
+          <td class="col-status">
+            <span class="badge badge-{{this.statusBadgeClass}}">{{this.statusCapitalized}}</span>
+          </td>
+          <td>
+            <div>
+              <button class="edit-btn" onclick="openEditFlightModal('{{this._id}}')">
+                <i class="bi bi-pencil me-1"></i>
+              </button>
+              <button class="delete-btn" onclick="openDeleteFlightModal('{{this._id}}', '{{this.flightCode}}')">
+                <i class="bi bi-trash3 ms-1"></i>
+              </button>
+            </div>
+          </td>
+        </tr>
+        {{/each}}
         {{else}}
-          <tr id="noFlightsRow">
-            <td colspan="9" class="text-center text-muted py-4">No flights found in database. Click 'Add Flight' above to create one.</td>
-          </tr>
+        <tr id="noFlightsRow">
+          <td colspan="10" class="text-center text-muted py-4">No flights found in database. Click 'Add Flight' above to
+            create one.</td>
+        </tr>
         {{/if}}
       </tbody>
     </table>
@@ -96,6 +113,45 @@
   </div>
 
 </div>
+
+<!-- Promotion Details Modal -->
+<dialog id="promoDetailsDialog" class="w-25">
+  <div class="card">
+    <div class="card-header">
+      Promotion Details
+    </div>
+
+    <div class="card-body">
+
+      <div class="mb-3">
+        <label class="fw-semibold">Promotion Detail</label>
+        <p id="promoLabelText" class="mb-0"></p>
+      </div>
+
+      <div class="mb-3">
+        <label class="fw-semibold">Discount</label>
+        <p id="promoDiscountText" class="mb-0"></p>
+      </div>
+
+      <div class="mb-3">
+        <label class="fw-semibold">Promotion Starts</label>
+        <p id="promoStartText" class="mb-0"></p>
+      </div>
+
+      <div class="mb-3">
+        <label class="fw-semibold">Promotion Ends</label>
+        <p id="promoEndText" class="mb-0"></p>
+      </div>
+
+    </div>
+
+    <div class="card-footer text-end">
+      <button class="btn secondary-btn" onclick="document.getElementById('promoDetailsDialog').close()">
+        Close
+      </button>
+    </div>
+  </div>
+</dialog>
 
 
 <!--Add flight modal-->
@@ -155,13 +211,9 @@
           <label class="form-label" for="airline">Airline</label>
           <select class="form-select status-select" id="airline" name="airline">
             <option value="">Select Airline</option>
-            <option value="Philippine Airlines">Philippine Airlines</option>
-            <option value="Cebu Pacific">Cebu Pacific</option>
-            <option value="Royal Air Philippines">Royal Air Philippines</option>
-            <option value="Philippines AirAsia">Philippines AirAsia</option>
-            <option value="Singapore Airlines">Singapore Airlines</option>
-            <option value="Emirates">Emirates</option>
-            <option value="Cathay Pacific">Cathay Pacific</option>
+            {{#each airlines}}
+            <option value="{{this}}">{{this}}</option>
+            {{/each}}
           </select>
         </div>
       </div>
@@ -172,38 +224,20 @@
           <label class="form-label" for="fromField">Origin</label>
 
           <select class="form-select" id="fromField">
-            <option value="">Select origin</option>
-            <option value="Manila (MNL)">Manila (MNL)</option>
-            <option value="Cebu (CEB)">Cebu (CEB)</option>
-            <option value="Clark (CRK)">Clark (CRK)</option>
-            <option value="Davao (DVO)">Davao (DVO)</option>
-            <option value="Singapore (SIN)">Singapore (SIN)</option>
-            <option value="Tokyo (NRT)">Tokyo (NRT)</option>
-            <option value="Hong Kong (HKG)">Hong Kong (HKG)</option>
-            <option value="Seoul (ICN)">Seoul (ICN)</option>
-            <option value="Dubai (DXB)">Dubai (DXB)</option>
-            <option value="Kuala Lumpur (KUL)">Kuala Lumpur (KUL)</option>
-            <option value="Sydney (SYD)">Sydney (SYD)</option>
-            <option value="Bangkok (BKK)">Bangkok (BKK)</option>
+            <option value="">Select Origin</option>
+            {{#each airports}}
+            <option value="{{this}}">{{this}}</option>
+            {{/each}}
           </select>
         </div>
         <div class="col-md-6">
           <label class="form-label" for="toField">Destination</label>
 
           <select class="form-select" id="toField">
-            <option value="">Select destination</option>
-            <option value="Manila (MNL)">Manila (MNL)</option>
-            <option value="Cebu (CEB)">Cebu (CEB)</option>
-            <option value="Clark (CRK)">Clark (CRK)</option>
-            <option value="Davao (DVO)">Davao (DVO)</option>
-            <option value="Singapore (SIN)">Singapore (SIN)</option>
-            <option value="Tokyo (NRT)">Tokyo (NRT)</option>
-            <option value="Hong Kong (HKG)">Hong Kong (HKG)</option>
-            <option value="Seoul (ICN)">Seoul (ICN)</option>
-            <option value="Dubai (DXB)">Dubai (DXB)</option>
-            <option value="Kuala Lumpur (KUL)">Kuala Lumpur (KUL)</option>
-            <option value="Sydney (SYD)">Sydney (SYD)</option>
-            <option value="Bangkok (BKK)">Bangkok (BKK)</option>
+            <option value="">Select Destination</option>
+            {{#each airports}}
+            <option value="{{this}}">{{this}}</option>
+            {{/each}}
           </select>
         </div>
       </div>
@@ -240,6 +274,56 @@
         </div>
       </div>
 
+
+      <!-- Promotion -->
+      <div class="row g-3 mb-3">
+
+        <div class="col-md-12">
+
+          <div class="form-check">
+
+            <input class="form-check-input" type="checkbox" id="isPromo" name="isPromo">
+            <label class="form-check-label fw-semibold" for="isPromo">
+              Feature this flight as a promotional offer
+            </label>
+
+          </div>
+
+        </div>
+
+      </div>
+
+      <!-- Promotion Details -->
+      <div id="promoFields" style="display:none;">
+
+        <div class="mb-3">
+          <label class="form-label">Discount Value (%)</label>
+          <input type="number" class="form-control" id="discountPercent" name="discountPercent" min="0"
+            placeholder="e.g. 20">
+        </div>
+
+
+        <div class="row g-3 mb-3">
+
+          <div class="col-md-6">
+            <label class="form-label">Promotion Start</label>
+            <input type="datetime-local" class="form-control" id="promoStartDate" name="promoStartDate">
+          </div>
+
+          <div class="col-md-6">
+            <label class="form-label">Promotion End</label>
+            <input type="datetime-local" class="form-control" id="promoEndDate" name="promoEndDate">
+          </div>
+
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label">Promotion Banner Text</label>
+          <input type="text" class="form-control" id="promoLabel" name="promoLabel" placeholder="e.g. Summer Sale">
+        </div>
+
+      </div>
+
     </div>
 
     <!--Add and close button-->
@@ -263,7 +347,7 @@
 
       <div class="row g-3 mb-3 align-items-start">
 
-        <!--Trip Type -->
+        <!--Edit Trip Type -->
         <div class="col-md-12">
 
           <label class="form-label">Trip Type</label>
@@ -286,7 +370,7 @@
       </div>
 
 
-      <!-- Flight number and flight status-->
+      <!-- Edit Flight number and flight status-->
       <div class="row g-3 mb-3">
         <div class="col-md-6">
           <label class="form-label" for="editFlightNum">Flight Number</label>
@@ -302,67 +386,45 @@
         </div>
       </div>
 
-      <!--Airline-->
+      <!--Edit Airline-->
       <div class="row g-3 mb-3">
 
         <div class="col-md-12">
           <label class="form-label" for="editAirline">Airline</label>
           <select class="form-select status-select" id="editAirline" name="editAirline">
             <option value="">Select Airline</option>
-            <option value="Philippine Airlines">Philippine Airlines</option>
-            <option value="Cebu Pacific">Cebu Pacific</option>
-            <option value="Royal Air Philippines">Royal Air Philippines</option>
-            <option value="Philippines AirAsia">Philippines AirAsia</option>
-            <option value="Singapore Airlines">Singapore Airlines</option>
-            <option value="Emirates">Emirates</option>
-            <option value="Cathay Pacific">Cathay Pacific</option>
+            {{#each airlines}}
+            <option value="{{this}}">{{this}}</option>
+            {{/each}}
           </select>
         </div>
       </div>
 
-      <!-- Origin and Destination-->
+      <!-- Edit Origin and Destination-->
       <div class="row g-3 mb-3">
         <div class="col-md-6">
           <label class="form-label" for="editFromField">Origin</label>
 
           <select class="form-select" id="editFromField">
-            <option value="">Select origin</option>
-            <option value="Manila (MNL)">Manila (MNL)</option>
-            <option value="Cebu (CEB)">Cebu (CEB)</option>
-            <option value="Clark (CRK)">Clark (CRK)</option>
-            <option value="Davao (DVO)">Davao (DVO)</option>
-            <option value="Singapore (SIN)">Singapore (SIN)</option>
-            <option value="Tokyo (NRT)">Tokyo (NRT)</option>
-            <option value="Hong Kong (HKG)">Hong Kong (HKG)</option>
-            <option value="Seoul (ICN)">Seoul (ICN)</option>
-            <option value="Dubai (DXB)">Dubai (DXB)</option>
-            <option value="Kuala Lumpur (KUL)">Kuala Lumpur (KUL)</option>
-            <option value="Sydney (SYD)">Sydney (SYD)</option>
-            <option value="Bangkok (BKK)">Bangkok (BKK)</option>
+            <option value="">Select Origin</option>
+            {{#each airports}}
+            <option value="{{this}}">{{this}}</option>
+            {{/each}}
           </select>
         </div>
         <div class="col-md-6">
           <label class="form-label" for="editToField">Destination</label>
 
           <select class="form-select" id="editToField">
-            <option value="">Select destination</option>
-            <option value="Manila (MNL)">Manila (MNL)</option>
-            <option value="Cebu (CEB)">Cebu (CEB)</option>
-            <option value="Clark (CRK)">Clark (CRK)</option>
-            <option value="Davao (DVO)">Davao (DVO)</option>
-            <option value="Singapore (SIN)">Singapore (SIN)</option>
-            <option value="Tokyo (NRT)">Tokyo (NRT)</option>
-            <option value="Hong Kong (HKG)">Hong Kong (HKG)</option>
-            <option value="Seoul (ICN)">Seoul (ICN)</option>
-            <option value="Dubai (DXB)">Dubai (DXB)</option>
-            <option value="Kuala Lumpur (KUL)">Kuala Lumpur (KUL)</option>
-            <option value="Sydney (SYD)">Sydney (SYD)</option>
-            <option value="Bangkok (BKK)">Bangkok (BKK)</option>
+            <option value="">Select Destination</option>
+            {{#each airports}}
+            <option value="{{this}}">{{this}}</option>
+            {{/each}}
           </select>
         </div>
       </div>
 
-      <!-- Departure and Arrival-->
+      <!-- Edit Departure and Arrival-->
       <div class="row g-3 mb-3">
         <div class="col-md-6">
 
@@ -376,7 +438,7 @@
         </div>
       </div>
 
-      <!--Price-->
+      <!--Edit Price-->
       <div class="row g-3 mb-3">
 
         <div class="col-md-12">
@@ -385,13 +447,64 @@
         </div>
       </div>
 
-      <!--Seats-->
+      <!--Edit Seats-->
       <div class="row g-3 mb-3">
 
         <div class="col-md-12">
           <label class="form-label" for="editSeats">Available Seats</label>
           <input type="number" min="0" class="form-control" id="editSeats" name="editSeats">
         </div>
+      </div>
+
+
+      <!-- Edit Promotion -->
+      <div class="row g-3 mb-3">
+
+        <div class="col-md-12">
+
+          <div class="form-check">
+
+            <input class="form-check-input" type="checkbox" id="editIsPromo" name="editIsPromo">
+            <label class="form-check-label fw-semibold" for="editIsPromo">
+              Feature this flight as a promotional offer
+            </label>
+
+          </div>
+
+        </div>
+
+      </div>
+
+      <!-- Edit Promotion Details -->
+      <div id="editPromoFields" style="display:none;">
+
+
+        <div class="mb-3">
+          <label class="form-label">Discount Value (%)</label>
+          <input type="number" class="form-control" id="editDiscountPercent" name="editDiscountPercent" min="0"
+            placeholder="e.g. 20">
+        </div>
+
+        <div class="row g-3 mb-3">
+
+          <div class="col-md-6">
+            <label class="form-label">Promotion Start</label>
+            <input type="datetime-local" class="form-control" id="editPromoStartDate" name="editPromoStartDate">
+          </div>
+
+          <div class="col-md-6">
+            <label class="form-label">Promotion End</label>
+            <input type="datetime-local" class="form-control" id="editPromoEndDate" name="editpromoEndDate">
+          </div>
+
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label">Promotion Banner Text</label>
+          <input type="text" class="form-control" id="editPromoLabel" name="editPromoLabel"
+            placeholder="e.g. Summer Sale">
+        </div>
+
       </div>
 
     </div>
@@ -414,7 +527,8 @@
     <div class="card-body">
       <input type="hidden" id="deleteFlightId">
       <div id="deleteFlightError" class="alert alert-danger d-none mb-3"></div>
-      <p id="deleteFlightConfirmText" class="mb-0">Are you sure you want to delete this flight? This action is permanent.</p>
+      <p id="deleteFlightConfirmText" class="mb-0">Are you sure you want to delete this flight? This action is
+        permanent.</p>
     </div>
 
     <!--Add and close button-->

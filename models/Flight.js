@@ -10,7 +10,14 @@ const flightSchema = new mongoose.Schema({
     availableSeats: { type: Number, required: true, min: [0, 'Available seats cannot be negative'] },
     price: { type: Number, required: true, min: [0, 'Price cannot be negative'] },
     status: { type: String, enum: ['scheduled', 'delayed', 'cancelled'], default: 'scheduled' },
-    tripType: { type: String, enum: ['oneway', 'round'], default: 'oneway' }
+    tripType: { type: String, enum: ['oneway', 'round'], default: 'oneway' },
+
+    //For promo flights
+    isPromo: {type: Boolean, default: false},
+    discountPercent: { type: Number, default: 0, min: [0, 'Discount cannot be negative'], max: [100, 'Discount cannot exceed 100%'] },
+    promoLabel: {type: String, default: ""},
+    promoStartDate: Date,
+    promoEndDate: Date
 }, { timestamps: true });
 
 module.exports = mongoose.model('Flight', flightSchema);

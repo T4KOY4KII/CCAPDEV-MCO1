@@ -1,6 +1,7 @@
 const User = require('../models/User');
 const Flight = require('../models/Flight');
 const Reservations = require('../models/Reservation');
+const {airlines, airports} = require('../constants/flightOptions');
 
 //Admin views details
 const adminDashboardView = {
@@ -151,7 +152,21 @@ const formatFlight = (flightObj) => {
         arrivalDateISO: toISOInput(flightObj.arrivalDate),
         priceFormatted: Number(flightObj.price || 0).toLocaleString('en-PH'),
         statusCapitalized: flightObj.status ? flightObj.status.charAt(0).toUpperCase() + flightObj.status.slice(1) : 'Scheduled',
-        statusBadgeClass: statusBadgeMap[flightObj.status] || 'success'
+        statusBadgeClass: statusBadgeMap[flightObj.status] || 'success',
+
+        //Promo flight info
+        isPromo: !!flightObj.isPromo,
+        discountPercent: flightObj.isPromo ? Number(flightObj.discountPercent) || 0 : 0,
+        discountLabel: flightObj.isPromo ? `${flightObj.discountPercent}% OFF` : "",
+        promoLabel: flightObj.promoLabel || "",
+        discountPrice: flightObj.isPromo ? Math.round(flightObj.price * (1 - flightObj.discountPercent / 100)) : flightObj.price,
+        discountPriceFormatted: flightObj.isPromo
+            ? Math.round(flightObj.price * (1 - flightObj.discountPercent / 100)).toLocaleString('en-PH')
+            : '',
+        promoStartDateISO: toISOInput(flightObj.promoStartDate),
+        promoEndDateISO: toISOInput(flightObj.promoEndDate)
+
+
     };
 };
 
@@ -163,7 +178,9 @@ exports.showFlightsMgmt = async (req, res) => {
         const flights = rawFlights.map(formatFlight);
         res.render("admin/flights", {
             ...flightsMgmt,
-            flights
+            flights,
+            airlines, 
+            airports
         });
     } catch (errorObj) {
         console.error("Error loading flights management:", errorObj);
@@ -178,7 +195,7 @@ exports.getFlightsAPI = async (req, res) => {
         const allFlights = await Flight.find().sort({ departureDate: 1 }).lean();
         const query = req.query.q ? req.query.q.trim().toLowerCase() : '';
         let filteredFlights = allFlights;
-        
+
         if (query !== '') { // if user typed something in search bar check if it matches code or airline etc
             filteredFlights = allFlights.filter(flightItem => {
                 const code = (flightItem.flightCode || '').toLowerCase();
@@ -197,10 +214,30 @@ exports.getFlightsAPI = async (req, res) => {
     }
 };
 
+/* --- promo validation for create and update flights  --- */
+function validatePromoFields({ isPromo, discountPercent, promoStartDate, promoEndDate }) {
+    if (!isPromo) return null;
+
+    const pct = Number(discountPercent);
+    if (isNaN(pct) || pct <= 0 || pct > 100) {
+        return "Discount must be a number between 1 and 100 when a flight is marked as promotional.";
+    }
+    if (!promoEndDate) {
+        return "Promotion End date is required when a flight is marked as promotional.";
+    }
+    if (promoStartDate && new Date(promoEndDate) <= new Date(promoStartDate)) {
+        return "Promotion End must be after Promotion Start.";
+    }
+    return null;
+}
+
+
 /* --- add new flight --- */
 exports.createFlight = async (req, res) => {
     try {
-        const { tripType, flightNum, flightStatus, airline, fromField, toField, departDate, arrivalDate, price, seats } = req.body;
+        const { tripType, flightNum, flightStatus, airline, fromField, toField, departDate, arrivalDate, price, seats,
+            isPromo, promoLabel, discountPercent, promoStartDate, promoEndDate
+        } = req.body;
 
         // check if all fields are filled out
         if (!flightNum || !airline || !fromField || !toField || !departDate || !arrivalDate || price === undefined || seats === undefined) {
@@ -240,6 +277,12 @@ exports.createFlight = async (req, res) => {
             return res.status(400).json({ success: false, error: "A flight with this Flight Number already exists." });
         }
 
+
+        const promoError = validatePromoFields({ isPromo: Boolean(isPromo), discountPercent, promoStartDate, promoEndDate });
+        if (promoError) {
+            return res.status(400).json({ success: false, error: promoError });
+        }
+
         const newFlight = new Flight({
             flightCode: flightNum.trim(),
             airline: airline.trim(),
@@ -250,7 +293,14 @@ exports.createFlight = async (req, res) => {
             price: parsedPrice,
             availableSeats: parsedSeats,
             status: flightStatus || 'scheduled',
-            tripType: tripType || 'oneway'
+            tripType: tripType || 'oneway',
+
+            //for promo flights
+            isPromo: Boolean(isPromo),
+            promoLabel: promoLabel?.trim() || "",
+            discountPercent: Boolean(isPromo) ? Number(discountPercent) || 0 : 0,
+            promoStartDate: Boolean(isPromo) && promoStartDate ? promoStartDate : null,
+            promoEndDate: Boolean(isPromo) && promoEndDate ? promoEndDate : null
         });
 
         await newFlight.save();
@@ -265,7 +315,9 @@ exports.createFlight = async (req, res) => {
 exports.updateFlight = async (req, res) => {
     try {
         const { id } = req.params;
-        const { tripType, flightNum, flightStatus, airline, fromField, toField, departDate, arrivalDate, price, seats } = req.body;
+        const { tripType, flightNum, flightStatus, airline, fromField, toField, departDate, arrivalDate, price, seats,
+            isPromo, promoLabel, discountPercent, promoStartDate, promoEndDate
+        } = req.body;
 
         if (!flightNum || !airline || !fromField || !toField || !departDate || !arrivalDate || price === undefined || seats === undefined) {
             return res.status(400).json({ success: false, error: "All fields are required." });
@@ -319,6 +371,12 @@ exports.updateFlight = async (req, res) => {
             });
         }
 
+        const promoError = validatePromoFields({ isPromo: Boolean(isPromo), discountPercent, promoStartDate, promoEndDate });
+        if (promoError) {
+            return res.status(400).json({ success: false, error: promoError });
+        }
+        
+
         flight.flightCode = flightNum.trim();
         flight.airline = airline.trim();
         flight.origin = fromField.trim();
@@ -329,6 +387,11 @@ exports.updateFlight = async (req, res) => {
         flight.availableSeats = parsedSeats;
         flight.status = flightStatus || 'scheduled';
         flight.tripType = tripType || 'oneway';
+        flight.isPromo = Boolean(isPromo);
+        flight.promoLabel = Boolean(isPromo) ? promoLabel?.trim() || "" : "";
+        flight.discountPercent = Boolean(isPromo) ? Number(discountPercent) || 0 : 0;
+        flight.promoStartDate = Boolean(isPromo) && promoStartDate ? promoStartDate : null;
+        flight.promoEndDate = Boolean(isPromo) && promoEndDate ? promoEndDate : null;
 
         await flight.save();
         res.json({ success: true, flight: formatFlight(flight) });
