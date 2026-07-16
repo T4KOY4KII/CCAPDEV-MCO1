@@ -12,6 +12,10 @@ router.get('/dashboard', flightController.showDashboard);
 
 //Search page route
 router.get('/search', flightController.showSearch);
+router.get('/search/results', flightController.searchFlights); 
+
+// Flight details
+router.get('/flight/:id', flightController.showFlightDetails); 
 
 //Booking page route
 router.get('/booking', reservationController.showBooking);

@@ -1,5 +1,3 @@
-import Reservation from '../models/Reservation';
-
 const User = require('../models/User');
 const Reservations = require('../models/Reservation');
 const Flight = require('../models/Flight');

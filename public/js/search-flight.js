@@ -202,6 +202,101 @@ function updateLabel() {
 }
 
 
+function buildSearchURL() {
+    const origin      = $('#fromField').val();
+    const destination = $('#toField').val();
+    const departDate  = $('#departDate').val();
+    const returnDate  = $('#returnDate').val();
+    const totalPass   = passengers.adults + passengers.children + passengers.infants;
+
+    // Build the query string
+    const params = new URLSearchParams();
+
+    params.set('origin',      origin);
+    params.set('destination', destination);
+    params.set('departDate',  departDate);
+    params.set('tripType',    tripType);
+    params.set('passengers',  totalPass);
+    params.set('cabinClass',  cabin);
+
+    // Only add return date for round trips
+    if (tripType === 'round' && returnDate) {
+        params.set('returnDate', returnDate);
+    }
+
+    const url = `/search/results?${params.toString()}`;
+
+    return url;
+};
+
+$('#searchBtn').on('click', function (e) {
+    e.preventDefault();
+
+    const from    = $('#fromField').val();
+    const to      = $('#toField').val();
+    const departD = $('#departDate').val();
+    const returnD = $('#returnDate').val();
+    const isRound = tripType === 'round';
+
+    // Reset errors and styles
+    $('#fromError, #toError, #dateError, #passengerError').text('');
+    $('#fromField, #toField, #departDate, #returnDate').removeClass('is-error');
+
+    let hasError = false;
+
+    // Origin check
+    if (!from) {
+        $('#fromError').text('Please select an origin.');
+        $('#fromField').addClass('is-error');
+        hasError = true;
+    }
+
+    // Destination check
+    if (!to) {
+        $('#toError').text('Please select a destination.');
+        $('#toField').addClass('is-error');
+        hasError = true;
+    }
+
+    // Same origin and destination check
+    if (from && to && from === to) {
+        $('#toError').text('Origin and destination cannot be the same.');
+        $('#toField').addClass('is-error');
+        hasError = true;
+    }
+
+    // Departure date check
+    if (!departD) {
+        $('#dateError').text('Please select a departure date.');
+        $('#departDate').addClass('is-error');
+        hasError = true;
+    }
+
+    // Return date check (round trip only)
+    if (isRound && !returnD) {
+        $('#dateError').text('Please select a return date.');
+        $('#returnDate').addClass('is-error');
+        hasError = true;
+    }
+
+    // Return must be after depart
+    if (isRound && departD && returnD && returnD <= departD) {
+        $('#dateError').text('Return date must be after departure date.');
+        $('#returnDate').addClass('is-error');
+        hasError = true;
+    }
+
+    // At least 1 adult
+    if (passengers.adults < 1) {
+        $('#passengerError').text('At least 1 adult is required.');
+        hasError = true;
+    }
+
+    // Redirects if no errors, with all values in URL
+    if (!hasError) {
+        window.location.href = buildSearchURL();
+    }
+});
 
 
 
