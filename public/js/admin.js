@@ -11,6 +11,48 @@ document.addEventListener('DOMContentLoaded', () => {
             }, 250);
         });
     }
+
+    /* --- reservation search and filter --- */
+    const reservationSearchInput = document.getElementById('reservationSearch');
+    const reservationStatusFilter = document.getElementById('reservationStatusFilter');
+    if (reservationSearchInput) {
+        let resSearchTimeout;
+        reservationSearchInput.addEventListener('input', () => {
+            clearTimeout(resSearchTimeout);
+            resSearchTimeout = setTimeout(() => {
+                fetchReservationsAJAX();
+            }, 250);
+        });
+    }
+    if (reservationStatusFilter) {
+        reservationStatusFilter.addEventListener('change', () => {
+            fetchReservationsAJAX();
+        });
+    }
+
+    /* --- user search and filter --- */
+    const userSearchInput = document.getElementById('userSearch');
+    const userRoleSort = document.getElementById('roleSort');
+    const userStatusFilter = document.getElementById('statusFilter');
+    if (userSearchInput) {
+        let userSearchTimeout;
+        userSearchInput.addEventListener('input', () => {
+            clearTimeout(userSearchTimeout);
+            userSearchTimeout = setTimeout(() => {
+                fetchUsersAJAX();
+            }, 250);
+        });
+    }
+    if (userRoleSort) {
+        userRoleSort.addEventListener('change', () => {
+            fetchUsersAJAX();
+        });
+    }
+    if (userStatusFilter && userSearchInput) {
+        userStatusFilter.addEventListener('change', () => {
+            fetchUsersAJAX();
+        });
+    }
 });
 
 /* --- render table rows --- */
@@ -472,4 +514,313 @@ function formatPromoDate(dateString) {
     });
 
     return `${date} ${time}`;
+}
+
+/* --- render reservation rows --- */
+function renderReservationsTable(reservations) {
+    const tableBody = document.getElementById('TableBody');
+    if (!tableBody) return;
+
+    if (!reservations || reservations.length === 0) {
+        tableBody.innerHTML = `
+            <tr id="noReservationsRow">
+                <td colspan="9" class="text-center text-muted py-4">No reservations found in database.</td>
+            </tr>
+        `;
+        return;
+    }
+
+    tableBody.innerHTML = reservations.map(item => `
+        <tr id="reservation-row-${item._id}" data-id="${item._id}" data-resnum="${item.reservationNumber}" data-status="${item.status}" data-passenger="${item.passengerName}" data-email="${item.passengerEmail}" data-flightcode="${item.flightCode}" data-origin="${item.origin}" data-destination="${item.destination}" data-departure="${item.departureFormatted}" data-arrival="${item.arrivalFormatted}" data-booking="${item.bookingFormatted}" data-seat="${item.seat}" data-price="${item.priceFormatted}">
+            <td class="fw-bold">${item.reservationNumber}</td>
+            <td>${item.passengerName}</td>
+            <td class="fw-bold">${item.flightCode}</td>
+            <td>${item.origin} <i class="bi bi-arrow-right"></i> ${item.destination}</td>
+            <td>${item.departureFormatted}</td>
+            <td>${item.bookingFormatted}</td>
+            <td>₱${item.priceFormatted}</td>
+            <td><span class="badge badge-${item.statusBadgeClass}">${item.statusCapitalized}</span></td>
+            <td>
+                <div class="ms-1">
+                    <button class="edit-btn" onclick="openViewReservationModal('${item._id}')">
+                        <i class="bi bi-eye me-1"></i>
+                    </button>
+                    <button class="edit-btn" onclick="openEditReservationModal('${item._id}')">
+                        <i class="bi bi-pencil ms-1"></i>
+                    </button>
+                    <button class="delete-btn" onclick="openDeleteReservationModal('${item._id}', '${item.reservationNumber}')">
+                        <i class="bi bi-trash3 ms-1"></i>
+                    </button>
+                </div>
+            </td>
+        </tr>
+    `).join('');
+}
+
+/* --- get reservations from server without reloading --- */
+async function fetchReservationsAJAX() {
+    const searchInput = document.getElementById('reservationSearch');
+    const filterSelect = document.getElementById('reservationStatusFilter');
+    const query = searchInput ? searchInput.value.trim() : '';
+    const statusVal = filterSelect ? filterSelect.value : 'all';
+
+    try {
+        const response = await fetch(`/api/admin/reservations?q=${encodeURIComponent(query)}&status=${encodeURIComponent(statusVal)}`);
+        const dataObj = await response.json();
+        if (dataObj.success) {
+            renderReservationsTable(dataObj.reservations);
+        } else {
+            console.error("Error fetching reservations:", dataObj.error);
+        }
+    } catch (errorObj) {
+        console.error("AJAX Fetch Error:", errorObj);
+    }
+}
+
+/* --- open view reservation modal --- */
+function openViewReservationModal(id) {
+    const row = document.getElementById(`reservation-row-${id}`);
+    if (!row) return;
+
+    document.getElementById('viewPassengerName').textContent = `Name: ${row.getAttribute('data-passenger')}`;
+    document.getElementById('viewPassengerEmail').textContent = `Email: ${row.getAttribute('data-email')}`;
+    document.getElementById('viewFlightCode').textContent = `Flight: ${row.getAttribute('data-flightcode')}`;
+    document.getElementById('viewFlightRoute').textContent = `Route: ${row.getAttribute('data-origin')} -> ${row.getAttribute('data-destination')}`;
+    document.getElementById('viewFlightDeparture').textContent = `Departure: ${row.getAttribute('data-departure')}`;
+    document.getElementById('viewFlightArrival').textContent = `Arrival: ${row.getAttribute('data-arrival')}`;
+    document.getElementById('viewReservationNumber').textContent = `Reservation ID: ${row.getAttribute('data-resnum')}`;
+    document.getElementById('viewBookingDate').textContent = `Booking Date: ${row.getAttribute('data-booking')}`;
+    document.getElementById('viewSeat').textContent = `Seat(s): ${row.getAttribute('data-seat')}`;
+    document.getElementById('viewTotalPrice').textContent = `Total Price: ₱${row.getAttribute('data-price')}`;
+
+    document.getElementById('viewReservation').showModal();
+}
+
+/* --- open edit reservation modal --- */
+function openEditReservationModal(id) {
+    const row = document.getElementById(`reservation-row-${id}`);
+    if (!row) return;
+
+    const resNum = row.getAttribute('data-resnum');
+    const passenger = row.getAttribute('data-passenger');
+    const statusVal = row.getAttribute('data-status') || 'pending';
+
+    document.getElementById('editReservationId').value = id;
+    document.getElementById('editReservationTitle').textContent = `Reservation ${resNum} by ${passenger}`;
+    document.getElementById('editReservationStatus').value = statusVal;
+
+    const errorBox = document.getElementById('editReservationError');
+    if (errorBox) {
+        errorBox.classList.add('d-none');
+        errorBox.textContent = '';
+    }
+
+    document.getElementById('editReservation').showModal();
+}
+
+/* --- save edited reservation status --- */
+function submitEditReservation() {
+    const id = document.getElementById('editReservationId').value;
+    const statusVal = document.getElementById('editReservationStatus').value;
+    const errorBox = document.getElementById('editReservationError');
+
+    if (errorBox) {
+        errorBox.classList.add('d-none');
+        errorBox.textContent = '';
+    }
+
+    fetch(`/api/admin/reservations/${id}`, {
+        method: 'PUT',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ status: statusVal })
+    })
+        .then(response => response.json())
+        .then(dataObj => {
+            if (dataObj.success) {
+                document.getElementById('editReservation').close();
+                fetchReservationsAJAX();
+            } else {
+                if (errorBox) {
+                    errorBox.textContent = dataObj.error || 'Failed to update reservation.';
+                    errorBox.classList.remove('d-none');
+                }
+            }
+        })
+        .catch(errorObj => {
+            console.error("Edit Reservation Error:", errorObj);
+            if (errorBox) {
+                errorBox.textContent = 'Network or server error occurred.';
+                errorBox.classList.remove('d-none');
+            }
+        });
+}
+
+/* --- open delete reservation modal --- */
+function openDeleteReservationModal(id, resNum) {
+    document.getElementById('deleteReservationId').value = id;
+    document.getElementById('deleteReservationConfirmText').textContent = `Are you sure you want to delete reservation ${resNum}? This action is permanent.`;
+
+    const errorBox = document.getElementById('deleteReservationError');
+    if (errorBox) {
+        errorBox.classList.add('d-none');
+        errorBox.textContent = '';
+    }
+
+    document.getElementById('deleteReservation').showModal();
+}
+
+/* --- delete reservation submit --- */
+function submitDeleteReservation() {
+    const id = document.getElementById('deleteReservationId').value;
+    const errorBox = document.getElementById('deleteReservationError');
+
+    if (errorBox) {
+        errorBox.classList.add('d-none');
+        errorBox.textContent = '';
+    }
+
+    fetch(`/api/admin/reservations/${id}`, {
+        method: 'DELETE'
+    })
+        .then(response => response.json())
+        .then(dataObj => {
+            if (dataObj.success) {
+                document.getElementById('deleteReservation').close();
+                fetchReservationsAJAX();
+            } else {
+                if (errorBox) {
+                    errorBox.textContent = dataObj.error || 'Failed to delete reservation.';
+                    errorBox.classList.remove('d-none');
+                }
+            }
+        })
+        .catch(errorObj => {
+            console.error("Delete Reservation Error:", errorObj);
+            if (errorBox) {
+                errorBox.textContent = 'Network or server error occurred.';
+                errorBox.classList.remove('d-none');
+            }
+        });
+}
+
+/* --- render users table rows --- */
+function renderUsersTable(users) {
+    const tableBody = document.getElementById('TableBody');
+    if (!tableBody) return;
+
+    if (!users || users.length === 0) {
+        tableBody.innerHTML = `
+            <tr id="noUsersRow">
+                <td colspan="7" class="text-center text-muted py-4">No users found in database.</td>
+            </tr>
+        `;
+        return;
+    }
+
+    tableBody.innerHTML = users.map(item => `
+        <tr id="user-row-${item._id}" data-id="${item._id}" data-name="${item.name}" data-email="${item.email}" data-phone="${item.phone}" data-role="${item.role}" data-status="${item.status}" data-date="${item.dateRegistered}">
+            <td class="fw-bold">${item.name}</td>
+            <td>${item.email}</td>
+            <td>${item.phone}</td>
+            <td>${item.roleCapitalized}</td>
+            <td>${item.dateRegistered}</td>
+            <td><span class="badge badge-${item.statusBadgeClass}">${item.statusCapitalized}</span></td>
+            <td>
+                <button class="block-button ${item.isDeactivated ? 'text-success' : 'text-danger'}" onclick="openToggleUserModal('${item._id}', '${item.name}', '${item.status}')">
+                    <i class="bi ${item.isDeactivated ? 'bi-check-circle' : 'bi-ban'} ms-4"></i>
+                </button>
+            </td>
+        </tr>
+    `).join('');
+}
+
+/* --- get users from server without reloading --- */
+async function fetchUsersAJAX() {
+    const searchInput = document.getElementById('userSearch');
+    const roleSelect = document.getElementById('roleSort');
+    const statusSelect = document.getElementById('statusFilter');
+
+    const query = searchInput ? searchInput.value.trim() : '';
+    const roleVal = roleSelect ? roleSelect.value : 'all';
+    const statusVal = statusSelect ? statusSelect.value : 'all';
+
+    try {
+        const response = await fetch(`/api/admin/users?q=${encodeURIComponent(query)}&role=${encodeURIComponent(roleVal)}&status=${encodeURIComponent(statusVal)}`);
+        const dataObj = await response.json();
+        if (dataObj.success) {
+            renderUsersTable(dataObj.users);
+        } else {
+            console.error("Error fetching users:", dataObj.error);
+        }
+    } catch (errorObj) {
+        console.error("AJAX Fetch Error:", errorObj);
+    }
+}
+
+/* --- open toggle user status modal --- */
+function openToggleUserModal(id, userName, status) {
+    document.getElementById('blockUserId').value = id;
+    const headerEl = document.getElementById('blockUserHeader');
+    const textEl = document.getElementById('blockUserText');
+    const submitBtn = document.getElementById('blockUserSubmitBtn');
+    const errorBox = document.getElementById('blockUserError');
+
+    if (errorBox) {
+        errorBox.classList.add('d-none');
+        errorBox.textContent = '';
+    }
+
+    if (status === 'deactivated') {
+        if (headerEl) headerEl.textContent = `Activate ${userName}?`;
+        if (textEl) textEl.textContent = `Are you sure you want to activate ${userName}? Their account will be restored and they can log in.`;
+        if (submitBtn) {
+            submitBtn.textContent = 'Activate User';
+            submitBtn.className = 'btn success-btn bg-success text-white border-0 px-3 py-1 rounded';
+        }
+    } else {
+        if (headerEl) headerEl.textContent = `Deactivate ${userName}?`;
+        if (textEl) textEl.textContent = `Are you sure you want to deactivate ${userName}? They will not be able to log in.`;
+        if (submitBtn) {
+            submitBtn.textContent = 'Deactivate User';
+            submitBtn.className = 'btn danger-btn bg-danger text-white border-0 px-3 py-1 rounded';
+        }
+    }
+
+    document.getElementById('blockUser').showModal();
+}
+
+/* --- submit toggle user status --- */
+function submitToggleUserStatus() {
+    const id = document.getElementById('blockUserId').value;
+    const errorBox = document.getElementById('blockUserError');
+
+    if (errorBox) {
+        errorBox.classList.add('d-none');
+        errorBox.textContent = '';
+    }
+
+    fetch(`/api/admin/users/${id}/status`, {
+        method: 'PUT'
+    })
+        .then(response => response.json())
+        .then(dataObj => {
+            if (dataObj.success) {
+                document.getElementById('blockUser').close();
+                fetchUsersAJAX();
+            } else {
+                if (errorBox) {
+                    errorBox.textContent = dataObj.error || 'Failed to update user status.';
+                    errorBox.classList.remove('d-none');
+                }
+            }
+        })
+        .catch(errorObj => {
+            console.error("Toggle User Status Error:", errorObj);
+            if (errorBox) {
+                errorBox.textContent = 'Network or server error occurred.';
+                errorBox.classList.remove('d-none');
+            }
+        });
 }
