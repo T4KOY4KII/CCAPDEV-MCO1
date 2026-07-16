@@ -1,73 +1,12 @@
-//FLIGHT ROUTE AND DATE FIELDS
-
-//Handles input validation for route and date fields
-$('#searchBtn').on('click', function (e) {
-
-    var from = $('#fromField').val();
-    var to = $('#toField').val();
-    var departD = $('#departDate').val();
-    var returnD = $('#returnDate').val();
-    var isRound = $('input[name="tripType"]:checked').val() === "round";
-
-    //Reset errors
-    $('#fromError, #toError, #dateError').text('');
-
-    // Reset borders
-    $('#fromField, #toField, #departDate, #returnDate').removeClass('is-error');
-
-    let hasError = false;
-
-
-    if (!from) {
-        $('#fromError').text('Select origin');
-        $('#fromField').addClass('is-error');
-        hasError = true;
-    }
-
-    if (!to) {
-        $('#toError').text('Select destination');
-        $('#toField').addClass('is-error');
-        hasError = true;
-    }
-
-    if (!departD) {
-        $('#dateError').text('Select departure date');
-        $('#departDate').addClass('is-error');
-        hasError = true;
-    }
-
-    if (isRound && !returnD) {
-        $('#dateError').text('Select return date');
-        $('#returnDate').addClass('is-error');
-        hasError = true;
-    }
-
-    if (hasError) {
-        e.preventDefault();
-    }
-
-    if (!hasError) {
-        window.location.href = "/search";
-    }
-});
-
-//Set today as the default departure date 
-var today = new Date().toISOString().split('T')[0];
-$('#departDate').val(today).attr('min', today);
-$('#returnDate').attr('min', today);
-
-//Update return date min when depart changes 
-$('#departDate').on('change', function () {
-    $('#returnDate').attr('min', $(this).val());
-    if ($('#returnDate').val() && $('#returnDate').val() < $(this).val()) {
-        $('#returnDate').val('');
-    }
-});
-
-
-//TRIP TYPE TOGGLE
-
 let tripType = "oneway";
+
+let passengers = {
+    adults: 1,
+    children: 0,
+    infants: 0
+};
+
+let cabin = "Economy";
 
 /**
  * Sets trip type and toggles return date input
@@ -86,23 +25,6 @@ function setTripType(type) {
         returnInput.disabled = false;
     }
 }
-
-//FILTER FOR CABIN CLASS AND PASSENGER
-
-let passengers = {
-    adults: 1,    //Minimum 1 adult required
-    children: 0,  //Optional (0-6 max)
-    infants: 0    //Cannot exceed number of adults
-};
-
-let cabin = "Economy";
-
-/**
- * Keeps the passenger and cabin class dropdown from closing 
- */
-$('.dropdown-menu').on('click', function (e) {
-    e.stopPropagation();
-});
 
 
 /**
@@ -144,16 +66,6 @@ function changeCount(type, value) {
 }
 
 /**
- * Updates selected cabin class
- * 
- * @param {"Economy", "Premium Economy", "Business", "First Class"} value - cabin class
- */
-function setCabin(value) {
-    cabin = value;
-    updateLabel();
-}
-
-/**
  * Update UI display passenger values and refreshes label
  */
 function updatePassengerCount() {
@@ -164,6 +76,7 @@ function updatePassengerCount() {
 
     updateLabel();
 }
+
 
 /**
  * Checks if a passenger type can still be increased (for UI disabling).
@@ -177,6 +90,15 @@ function canIncrease(type) {
     if (type === "infants") return passengers.infants < passengers.adults;
 }
 
+/**
+ * Updates selected cabin class
+ * 
+ * @param {"Economy", "Premium Economy", "Business", "First Class"} value - cabin class
+ */
+function setCabin(value) {
+    cabin = value;
+    updateLabel();
+}
 
 /**
  * Update dropdown button label (summary of passenger count and cabin class)
@@ -185,6 +107,10 @@ function updateLabel() {
     const totalAdults = passengers.adults;
     const totalChildren = passengers.children;
     const totalInfants = passengers.infants;
+
+    $('#adultsCount').text(totalAdults);
+    $('#childrenCount').text(totalChildren);
+    $('#infantsCount').text(totalInfants);
 
     let textParts = [];
 
@@ -198,26 +124,36 @@ function updateLabel() {
 
     const summary = `${textParts.join(', ')}, ${cabin}`;
 
-    $('#passengerCabinBtn').text(summary);
+    const cabinVal = $('#cabinClass').val() || cabin;
+    $('#passengerCabinBtn').text(`${textParts.join(', ')}, ${cabinVal}`);
 }
 
 
+//Builds search URL with all query parameteres
 function buildSearchURL() {
-    const origin      = $('#fromField').val();
+    const origin = $('#fromField').val();
     const destination = $('#toField').val();
-    const departDate  = $('#departDate').val();
-    const returnDate  = $('#returnDate').val();
-    const totalPass   = passengers.adults + passengers.children + passengers.infants;
+    const departDate = $('#departDate').val();
+    const returnDate = $('#returnDate').val();
+
+    const adults = parseInt($('#adultsCount').text()) || 1;
+    const children = parseInt($('#childrenCount').text()) || 0;
+    const infants = parseInt($('#infantsCount').text()) || 0;
+    const totalPass = adults + children + infants;
+
+    const cabinVal = $('#cabinClass').val() || 'Economy';
+
+    const tripTypeVal = $('input[name="tripType"]:checked').val() || 'oneway';
 
     // Build the query string
     const params = new URLSearchParams();
 
-    params.set('origin',      origin);
+    params.set('origin', origin);
     params.set('destination', destination);
-    params.set('departDate',  departDate);
-    params.set('tripType',    tripType);
-    params.set('passengers',  totalPass);
-    params.set('cabinClass',  cabin);
+    params.set('departDate', departDate);
+    params.set('tripType', tripType);
+    params.set('passengers', totalPass);
+    params.set('cabinClass', cabin);
 
     // Only add return date for round trips
     if (tripType === 'round' && returnDate) {
@@ -229,52 +165,56 @@ function buildSearchURL() {
     return url;
 };
 
-$('#searchBtn').on('click', function (e) {
-    e.preventDefault();
 
-    const from    = $('#fromField').val();
-    const to      = $('#toField').val();
+
+//Handles input validation for route and date fields
+function validateSearch() {
+    const from = $('#fromField').val();
+    const to = $('#toField').val();
     const departD = $('#departDate').val();
     const returnD = $('#returnDate').val();
-    const isRound = tripType === 'round';
 
-    // Reset errors and styles
+    const adults = parseInt($('#adultsCount').text()) || 0;
+    const tripTypeVal = $('input[name="tripType"]:checked').val() || 'oneway';
+    const isRound = tripTypeVal === 'round';
+
+    // Reset all errors
     $('#fromError, #toError, #dateError, #passengerError').text('');
     $('#fromField, #toField, #departDate, #returnDate').removeClass('is-error');
 
     let hasError = false;
 
-    // Origin check
+    // Origin
     if (!from) {
         $('#fromError').text('Please select an origin.');
         $('#fromField').addClass('is-error');
         hasError = true;
     }
 
-    // Destination check
+    // Destination
     if (!to) {
         $('#toError').text('Please select a destination.');
         $('#toField').addClass('is-error');
         hasError = true;
     }
 
-    // Same origin and destination check
+    // Same origin and destination
     if (from && to && from === to) {
         $('#toError').text('Origin and destination cannot be the same.');
         $('#toField').addClass('is-error');
         hasError = true;
     }
 
-    // Departure date check
+    // Departure date
     if (!departD) {
         $('#dateError').text('Please select a departure date.');
         $('#departDate').addClass('is-error');
         hasError = true;
     }
 
-    // Return date check (round trip only)
+    // Return date (round trip only)
     if (isRound && !returnD) {
-        $('#dateError').text('Please select a return date.');
+        $('#dateError').text('Please select a return date for round trips.');
         $('#returnDate').addClass('is-error');
         hasError = true;
     }
@@ -286,17 +226,62 @@ $('#searchBtn').on('click', function (e) {
         hasError = true;
     }
 
-    // At least 1 adult
+    // At least 1 adult required
     if (passengers.adults < 1) {
         $('#passengerError').text('At least 1 adult is required.');
         hasError = true;
     }
 
-    // Redirects if no errors, with all values in URL
-    if (!hasError) {
-        window.location.href = buildSearchURL();
-    }
+    return !hasError;
+}
+
+$(document).ready(function () {
+
+    // Set today as default and minimum date
+    const today = new Date().toISOString().split('T')[0];
+    $('#departDate').val(today).attr('min', today);
+    $('#returnDate').attr('min', today);
+
+    // Update return min when depart changes
+    $('#departDate').on('change', function () {
+        const departVal = $(this).val();
+        $('#returnDate').attr('min', departVal);
+
+        if ($('#returnDate').val() && $('#returnDate').val() < departVal) {
+            $('#returnDate').val('');
+        }
+
+        $('#dateError').text('');
+        $('#departDate').removeClass('is-error');
+    });
+
+    $('#returnDate').on('change', function () {
+        $('#dateError').text('');
+        $('#returnDate').removeClass('is-error');
+    });
+
+    $('#fromField').on('change', function () {
+        $('#fromError').text('');
+        $(this).removeClass('is-error');
+    });
+
+    $('#toField').on('change', function () {
+        $('#toError').text('');
+        $(this).removeClass('is-error');
+    });
+
+    // Keep dropdown open on inside click
+    $('.dropdown-menu').on('click', function (e) {
+        e.stopPropagation();
+    });
+
+    // Search button 
+    $('#searchBtn').on('click', function (e) {
+        e.preventDefault();
+
+        if (validateSearch()) {
+            window.location.href = buildSearchURL();
+        }
+    });
+
 });
-
-
-
