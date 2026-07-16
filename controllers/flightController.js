@@ -1,5 +1,7 @@
 const User = require('../models/User');
 const Flight = require('../models/Flight');
+const Reservation = require('../models/Reservation');
+const { airlines, airports } = require('../constants/flightOptions');
 
 //Flight-related views details
 const dashboardView = {
@@ -27,22 +29,217 @@ const searchView = {
     ]
 };
 
+//Helper functions
+const getFlightDuration = (departure, arrival) => {
+    const diff = new Date(arrival) - new Date(departure);
+    const hours = Math.floor(diff / (1000 * 60 * 60));
+    const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+    return `${hours}h ${minutes}m`;
+};
 
-//Renders dashboard page
-exports.showDashboard = (req, res) => {
-    res.render('user/dashboard', {
-        ...dashboardView
+const formatDate = (date) => {
+    return new Date(date).toLocaleDateString('en-US', {
+        month: 'short', day: 'numeric', year: 'numeric'
     });
 };
 
-//Dashboard logic goes here
+const formatTime = (date) => {
+    return new Date(date).toLocaleTimeString('en-US', {
+        hour: '2-digit', minute: '2-digit'
+    });
+};
 
+const formatFlight = (flight) => ({
+    ...flight,
+    departureDate: formatDate(flight.departureDate),
+    arrivalDate: formatDate(flight.arrivalDate),
+    departureTime: formatTime(flight.departureDate),
+    arrivalTime: formatTime(flight.arrivalDate),
+    flightDuration: getFlightDuration(flight.departureDate, flight.arrivalDate),
+    promoEndFormatted: flight.promoEndDate ? formatDate(flight.promoEndDate) : 'Limited time',
+    discountedPrice: flight.discountPercent > 0
+        ? Math.round(flight.price - (flight.price * flight.discountPercent / 100))
+        : flight.price
+});
+
+
+
+//Renders dashboard page
+exports.showDashboard = async (req, res) => {
+
+    try {
+
+        //Flight statistics
+        const availableFlights = await Flight.countDocuments({ availableSeats: { $gt: 0 } });
+        const activeBookings = await Reservation.countDocuments({ status: 'confirmed' });
+        const popularDestinations = await Flight.distinct('destination');
+
+
+        const stats = {
+            availableFlights,
+            activeBookings,
+            popularDestinations: popularDestinations.length
+        };
+
+
+        //Promo flights
+        const promoFlights = await Flight.find({
+            discountPercent: { $gt: 0 },
+            availableSeats: { $gt: 0 }
+        }).limit(6).lean();
+
+
+        const formattedPromos = promoFlights.map(formatFlight);
+
+        //Groups the promos into 3 for the carousel slides
+        const promotionSlides = [];
+        for (let i = 0; i < formattedPromos.length; i += 3) {
+            promotionSlides.push(formattedPromos.slice(i, i + 3));
+        }
+
+        //Recently viewed from session (no sessions yet)
+        let recentlyViewed = [];
+
+
+        res.render('user/dashboard', {
+            ...dashboardView,
+            airports,
+            stats,
+            promotionSlides,
+            recentlyViewed,
+            hasPromos: promotionSlides.length > 0,
+            hasRecentlyViewed: recentlyViewed.length > 0
+        });
+
+    } catch (err) {
+        console.error('Dashboard error:', err);
+        res.render('user/dashboard', {
+            ...dashboardView,
+            airports: [],
+            stats: { availableFlights: 0, activeBookings: 0, popularDestinations: 0 },
+            promotionSlides: [],
+            recentlyViewed: [],
+            hasPromos: false,
+            hasRecentlyViewed: false,
+            error: 'Could not load flight data.'
+        });
+    }
+
+};
 
 //Renders flight search page
 exports.showSearch = (req, res) => {
     res.render('user/search', {
-        ...searchView
+        ...searchView,
+        airports,
+        airlines
     });
 };
 
-//Search logic goes here
+exports.searchFlights = async (req, res) => {
+    const {
+        origin,
+        destination,
+        departDate,
+        returnDate,
+        tripType,
+        passengers,
+        cabinClass
+    } = req.query;
+
+    try {
+
+        const totalPassengers = Math.max(parseInt(req.query.passengers) || 1, 1);
+
+        const query = {
+            availableSeats: { $gte: totalPassengers }
+        };
+
+        if (origin) query.origin = origin;
+        if (destination) query.destination = destination;
+        if (tripType) query.tripType = tripType;
+
+        // Match departure date (same calendar day)
+        if (departDate) {
+            const start = new Date(departDate);
+            const end = new Date(departDate);
+            end.setDate(end.getDate() + 1);
+            query.departureDate = { $gte: start, $lt: end };
+        }
+
+        const flights = await Flight.find(query).lean();
+        const formattedFlights = flights.map(formatFlight);
+
+
+        res.render('user/search', {
+            ...searchView,
+            airports,
+            airlines,
+            flights: formattedFlights,
+            hasFlights: formattedFlights.length > 0,
+            totalResults: formattedFlights.length,
+            searchParams: {
+                origin,
+                destination,
+                departDate,
+                returnDate,
+                tripType,
+                passengers: totalPassengers,
+                cabinClass
+            }
+        });
+
+    } catch (err) {
+        console.error('Search error:', err);
+        res.render('user/search', {
+            ...searchView,
+            airports,
+            airlines,
+            flights: [],
+            hasFlights: false,
+            error: 'Could not fetch flights. Please try again.'
+        });
+    }
+};
+
+//Flight details
+exports.showFlightDetails = async (req, res) => {
+    try {
+        const flight = await Flight.findById(req.params.id).lean();
+
+        if (!flight) {
+            return res.status(404).render('error', {
+                layout: 'main',
+                title: 'Flight Not Found',
+                message: 'The flight you are looking for does not exist.'
+            });
+        }
+
+        // Track recently viewed in session
+        if (req.session) {
+            const viewed = req.session.recentlyViewed || [];
+            const flightIdStr = flight._id.toString();
+
+            // Remove duplicate then add to front
+            const filtered = viewed.filter(id => id !== flightIdStr);
+            filtered.unshift(flightIdStr);
+
+            // Keep only last 5
+            req.session.recentlyViewed = filtered.slice(0, 5);
+        }
+
+        const formattedFlight = formatFlight(flight);
+
+        res.render('user/flight-details', {
+            title: `TravelBuddy - ${flight.origin} to ${flight.destination}`,
+            layout: 'main',
+            extraCSS: ['/css/flight-details.css'],
+            extraJS: ['/js/flight-details.js'],
+            flight: formattedFlight
+        });
+
+    } catch (err) {
+        console.error('Flight details error:', err);
+        res.redirect('/search');
+    }
+};
