@@ -20,7 +20,13 @@ router.get('/booking', reservationController.showBooking);
 router.get('/reservations', reservationController.showReservations);
 
 //Profile page route
-router.get('/profile', userController.showProfile);
+router.get('/profile/:id', userController.showProfile);
+router.put('/profile/:id', userController.updateProfile);
+
+// Saved passengers page route
+router.post('/profile/:id/passengers', userController.addPassenger);
+router.put('/profile/:id/passengers/:passengerId', userController.updatePassenger);
+router.delete('/profile/:id/passengers/:passengerId', userController.deletePassenger);
 
 module.exports = router;
 

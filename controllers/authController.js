@@ -127,7 +127,12 @@ exports.login = async (req, res) => {
         }
 
 
-        //Success (Sessions will not be implemented yet --for MCO3)
+        //Success - store who's logged in (Sessions will not be fully implemented yet --for MCO3)
+        // Had to add this so profile page can properly display logged-in user's info !!
+        req.session.userId = user._id;
+        req.session.role = user.role;
+        req.session.profileIMG = user.profileIMG;
+
         if (user.role === "admin") {
             return res.redirect("/adminDashboard");
         }
@@ -141,4 +146,9 @@ exports.login = async (req, res) => {
             error: 'Something went wrong. Please try again.'
         });
     }
+};
+
+//Logs out user
+exports.logout = (req, res) => {
+    req.session.destroy(() => res.redirect('/login'));
 };

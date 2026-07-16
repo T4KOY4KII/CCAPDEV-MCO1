@@ -2,6 +2,7 @@ const express = require('express');
 const exphbs = require('express-handlebars');
 const path = require('path');
 const mongoose = require('mongoose');
+const session = require('express-session');
 
 const app = express();
 const User = require('./models/User');
@@ -17,6 +18,22 @@ app.use(express.static('public'));
 
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
+
+app.use(session({
+    secret: 'travelbuddy-dev-secret',
+    resave: false,
+    saveUninitialized: true,
+    cookie: { maxAge: 1000 * 60 * 60 * 2, httpOnly: true }
+}));
+
+// makes the logged-in user's ID available to EVERY template automatically,
+// including partials like the navbar, without each controller passing it manually
+app.use((req, res, next) => {
+    res.locals.sessionUserId = req.session.userId || null;
+    res.locals.sessionRole = req.session.role || null;
+    res.locals.profileIMG = req.session.profileIMG || '/imgs/users/default-pfp.jpg';
+    next();
+});
 
 //Handlebars setup
 app.engine("hbs", exphbs.engine({ extname: 'hbs' }));

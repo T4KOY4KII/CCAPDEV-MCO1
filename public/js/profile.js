@@ -4,7 +4,16 @@ $(document).ready(function () {
 
     if ($('.profile-tab-link').length) {
 
-        /* --- Tab switching --- */
+        // on page load, show whichever tab matches the URL's hash (defaults to profile-info)
+        var initialTab = window.location.hash ? window.location.hash.substring(1) : 'profile-info';
+        if ($('#' + initialTab).length) {
+            $('.profile-tab-link').removeClass('active');
+            $('.tab-content-panel').removeClass('active');
+            $('.profile-tab-link[data-tab="' + initialTab + '"]').addClass('active');
+            $('#' + initialTab).addClass('active');
+        }
+
+        /* Tab switching */
         $('.profile-tab-link').on('click', function (e) { // think if conditional. in english/layman's terms it'd mean 'when you click a tab...'
             e.preventDefault(); // prevents the <a> from trying to navigate to a new page bc this is a tab link
             $('.profile-tab-link').removeClass('active'); // removes the active status from all tabs before any switching
@@ -12,10 +21,11 @@ $(document).ready(function () {
             var targetTab = $(this).data('tab'); // get which tab was clicked e.g. "saved-passengers"
             $('.tab-content-panel').removeClass('active'); // removes active status from all content panels so things don't clash
             $('#' + targetTab).addClass('active'); // show the only panel whose id matches the clicked tab
+            window.location.hash = targetTab;
         });
 
 
-        /* --- Avatar upload --- */
+        /* Avatar upload */
 
         // clicking either the avatar circle OR the edit button
         // triggers a click on the hidden file input (the actual file picker)
@@ -36,7 +46,7 @@ $(document).ready(function () {
         });
 
 
-        /* --- Personal info form: edit / save --- */
+        /* Personal info form: edit / save */
 
         lockPersonalInfoForm(); // form starts locked by default on page load
 
@@ -44,10 +54,51 @@ $(document).ready(function () {
             unlockPersonalInfoForm(); // clicking the edit button unlocks everything
         });
 
+        // Reflect saved Title/Gender back into the dropdowns on page load
+        var savedTitle = $('#profileTitle').val();
+        var savedGender = $('#profileGender').val();
+
+        if (savedTitle) $('#title').val(savedTitle);
+        if (savedGender) $('#gender').val(savedGender);
+
         $('#personalInfoForm').on('submit', function (e) {
-            e.preventDefault(); // stop the form from reloading the page
-            lockPersonalInfoForm();
-            showSaveFeedback();
+            e.preventDefault();
+                
+            var userId = $('#profileUserId').val();
+            var payload = {
+                title: $('#title').val(),
+                firstName: $('#firstName').val(),
+                lastName: $('#lastName').val(),
+                contactCode: $('#contactCode').val(),
+                contactNumber: $('#contactNumber').val(),
+                gender: $('#gender').val(),
+                dobMonth: $('#dobMonth').val(),
+                dobDay: $('#dobDay').val(),
+                dobYear: $('#dobYear').val(),
+                email: $('#email').val(),
+                address: $('#address').val(),
+                city: $('#city').val(),
+                country: $('#country').val()
+            };
+        
+            fetch('/profile/' + userId, {
+                method: 'PUT',
+                headers: { 'Content-type': 'application/json; charset=UTF-8' },
+                body: JSON.stringify(payload)
+            })
+                .then(function (response) { return response.json(); })
+                .then(function (data) {
+                    if (data.success) {
+                        lockPersonalInfoForm();
+                        showSaveFeedback();
+                    } else {
+                        alert(data.error || 'Something went wrong.');
+                    }
+                })
+                .catch(function (err) {
+                    console.error('Update profile error:', err);
+                    alert('Something went wrong. Please try again.');
+                });
         });
 
         function lockPersonalInfoForm() {
@@ -103,15 +154,23 @@ $(document).ready(function () {
 
         /* SAVED PASSENGERS */
 
-        var passengers = [
-            { title: 'Mr',  firstName: 'Jose',     lastName: 'Rizal',     gender: 'Male',   nationality: 'Filipino', passport: 'P1234567', contactCode: '+63', contact: '9674206967', email: 'joserizzal@gmail.com',  dobMonth: '06', dobDay: '19', dobYear: '1861', address: '123 Rizal Street',   city: 'Calamba',      country: 'Philippines' },
-            { title: 'Ms',  firstName: 'Maria',    lastName: 'Clara',     gender: 'Female', nationality: 'Filipino', passport: 'P2345678', contactCode: '+63', contact: '9171234567', email: 'mclara@yahoo.com',      dobMonth: '03', dobDay: '15', dobYear: '1868', address: '456 Noli Street',    city: 'Manila',       country: 'Philippines' },
-            { title: 'Mr',  firstName: 'Andres',   lastName: 'Bonifacio', gender: 'Male',   nationality: 'Filipino', passport: 'P3456789', contactCode: '+63', contact: '9189876543', email: 'abonifacio@gmail.com',  dobMonth: '11', dobDay: '30', dobYear: '1863', address: '789 Katipunan Ave',  city: 'Tondo',        country: 'Philippines' },
-            { title: 'Ms',  firstName: 'Gabriela', lastName: 'Silang',    gender: 'Female', nationality: 'Filipino', passport: 'P4567890', contactCode: '+63', contact: '9205551234', email: 'gsilang@yahoo.com',     dobMonth: '03', dobDay: '19', dobYear: '1731', address: '10 Ilocos Sur Rd',   city: 'Vigan',        country: 'Philippines' },
-            { title: 'Mr',  firstName: 'Emilio',   lastName: 'Aguinaldo', gender: 'Male',   nationality: 'Filipino', passport: 'P5678901', contactCode: '+63', contact: '9179991111', email: 'eaguinaldo@gmail.com',  dobMonth: '03', dobDay: '22', dobYear: '1869', address: '1 Aguinaldo St',     city: 'Kawit',        country: 'Philippines' },
-            { title: 'Mr',  firstName: 'Juan',     lastName: 'Luna',      gender: 'Male',   nationality: 'Filipino', passport: 'P6789012', contactCode: '+63', contact: '9162223333', email: 'jluna@gmail.com',       dobMonth: '10', dobDay: '23', dobYear: '1857', address: '88 Spoliarium Rd',   city: 'Ilocos Norte', country: 'Philippines' },
-            { title: 'Ms',  firstName: 'Melchora', lastName: 'Aquino',    gender: 'Female', nationality: 'Filipino', passport: 'P7890123', contactCode: '+63', contact: '9154445555', email: 'maquino@yahoo.com',     dobMonth: '01', dobDay: '06', dobYear: '1812', address: '5 Tandang Sora Rd',  city: 'Quezon City',  country: 'Philippines' }
-        ];
+        var passengers = JSON.parse($('#savedPassengersData').text() || '[]');
+
+        // works out Adult / Child / Infant from a birthdate, using the same categories as the booking passenger selector
+        function getPassengerAgeCategory(dobMonth, dobDay, dobYear) {
+            var today = new Date();
+            var birthDate = new Date(parseInt(dobYear, 10), parseInt(dobMonth, 10) - 1, parseInt(dobDay, 10));
+        
+            var age = today.getFullYear() - birthDate.getFullYear();
+            var hadBirthdayThisYear =
+                (today.getMonth() > birthDate.getMonth()) ||
+                (today.getMonth() === birthDate.getMonth() && today.getDate() >= birthDate.getDate());
+            if (!hadBirthdayThisYear) age--;
+        
+            if (age < 2) return 'Infant';
+            if (age < 18) return 'Child';
+            return 'Adult';
+        }
 
         // builds and injects the full passenger list into the page
         function renderPassengerList() {
@@ -121,7 +180,7 @@ $(document).ready(function () {
                 html += '<div class="passenger-card d-flex justify-content-between align-items-start">' +
                     '<div>' +
                         '<div class="passenger-card-name">' + p.title + '. ' + p.firstName + ' ' + p.lastName + '</div>' +
-                        '<div class="passenger-card-meta">Adult &bull; ' + p.nationality + '</div>' +
+                        '<div class="passenger-card-meta">' + getPassengerAgeCategory(p.dobMonth, p.dobDay, p.dobYear) + ' &bull; ' + p.nationality + '</div>' +
                         '<div class="passenger-card-meta">Passport Ending in ' + passportLast4 + '</div>' +
                     '</div>' +
                     '<div class="passenger-card-actions">' +
@@ -137,6 +196,7 @@ $(document).ready(function () {
         function loadPassengerIntoForm(index) {
             var p = passengers[index];
             $('#passengerIndex').val(index);
+            $('#passengerMongoId').val(p._id);
             $('#passengerFormTitle').text('Edit Passenger');
             $('#pTitle').val(p.title);
             $('#pPassport').val(p.passport);
@@ -152,12 +212,14 @@ $(document).ready(function () {
             $('#pAddress').val(p.address);
             $('#pCity').val(p.city);
             $('#pCountry').val(p.country);
+            $('#pNationality').val(p.nationality);
             $('#passengerSaveFeedback').addClass('d-none');
         }
 
         // resets the form back to blank for adding a new passenger
         function clearPassengerForm() {
             $('#passengerIndex').val('');
+            $('#passengerMongoId').val('');
             $('#passengerFormTitle').text('Add New Passenger');
             $('#passengerForm')[0].reset();
             $('#passengerSaveFeedback').addClass('d-none');
@@ -193,11 +255,25 @@ $(document).ready(function () {
         $('#passengerList').on('click', '.remove-passenger-btn', function () {
             var index = parseInt($(this).data('index'));
             var p = passengers[index];
+            var userId = $('#profileUserId').val();
+
             if (confirm('Remove ' + p.title + '. ' + p.firstName + ' ' + p.lastName + ' from saved passengers?')) {
-                passengers.splice(index, 1); // remove 1 item at this index
-                renderPassengerList();
-                clearPassengerForm();
-                lockPassengerForm();
+                fetch('/profile/' + userId + '/passengers/' + p._id, { method: 'DELETE' })
+                    .then(function (response) { return response.json(); })
+                    .then(function (result) {
+                        if (result.success) {
+                            passengers = result.savedPassengers;
+                            renderPassengerList();
+                            clearPassengerForm();
+                            lockPassengerForm();
+                        } else {
+                            alert(result.error || 'Something went wrong.');
+                        }
+                    })
+                    .catch(function (err) {
+                        console.error('Delete passenger error:', err);
+                        alert('Something went wrong. Please try again.');
+                    });
             }
         });
 
@@ -217,39 +293,110 @@ $(document).ready(function () {
         $('#passengerForm').on('submit', function (e) {
             e.preventDefault();
 
-            var index = $('#passengerIndex').val();
+            // clears the old errors first
+            $('#passengerForm .is-invalid').removeClass('is-invalid');
+            $('#passengerForm .invalid-feedback').remove();
+
+            var titleVal     = $('#pTitle').val();
+            var firstNameVal = $('#pFirstName').val().trim();
+            var lastNameVal  = $('#pLastName').val().trim();
+            var genderVal    = $('#pGender').val();
+            var passportVal  = $('#pPassport').val().trim();
+            var contactVal   = $('#pContactNumber').val().trim();
+            var emailVal     = $('#pEmail').val().trim();
+            var dobMonthVal  = $('#pDobMonth').val().trim();
+            var dobDayVal    = $('#pDobDay').val().trim();
+            var dobYearVal   = $('#pDobYear').val().trim();
+            var addressVal   = $('#pAddress').val().trim();
+            var cityVal      = $('#pCity').val().trim();
+            var countryVal   = $('#pCountry').val().trim();
+            var nationalityVal = $('#pNationality').val();
+            
+            var hasError = false;
+
+            if (!titleVal)     { showFieldError('#pTitle', 'Title is required.'); hasError = true; }
+            if (!firstNameVal) { showFieldError('#pFirstName', 'First name is required.'); hasError = true; }
+            if (!lastNameVal)  { showFieldError('#pLastName', 'Last name is required.'); hasError = true; }
+            if (!genderVal)    { showFieldError('#pGender', 'Gender is required.'); hasError = true; }
+            if (!passportVal)  { showFieldError('#pPassport', 'Passport number is required.'); hasError = true; }
+
+            if (!contactVal) {
+                showFieldError('#pContactNumber', 'Contact number is required.');
+                hasError = true;
+            } else if (!/^\d{7,15}$/.test(contactVal)) {
+                showFieldError('#pContactNumber', 'Enter a valid contact number (digits only).');
+                hasError = true;
+            }
+        
+            if (!emailVal) {
+                showFieldError('#pEmail', 'Email is required.');
+                hasError = true;
+            } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailVal)) {
+                showFieldError('#pEmail', 'Please enter a valid email address.');
+                hasError = true;
+            }
+        
+            var month = parseInt(dobMonthVal, 10);
+            var day = parseInt(dobDayVal, 10);
+            var year = parseInt(dobYearVal, 10);
+            var currentYear = new Date().getFullYear();
+        
+            if (!dobMonthVal || !dobDayVal || !dobYearVal) {
+                showFieldError('#pDobYear', 'Full date of birth is required.');
+                hasError = true;
+            } else if (month < 1 || month > 12) {
+                showFieldError('#pDobMonth', 'Month must be between 01-12.');
+                hasError = true;
+            } else if (day < 1 || day > 31) {
+                showFieldError('#pDobDay', 'Day must be between 01-31.');
+                hasError = true;
+            } else if (year < 1900 || year > currentYear) {
+                showFieldError('#pDobYear', 'Enter a realistic birth year.');
+                hasError = true;
+            }
+        
+            if (!addressVal) { showFieldError('#pAddress', 'Address is required.'); hasError = true; }
+            if (!cityVal)    { showFieldError('#pCity', 'City is required.'); hasError = true; }
+            if (!countryVal) { showFieldError('#pCountry', 'Country is required.'); hasError = true; }
+            if (!nationalityVal) { showFieldError('#pNationality', 'Nationality is required.'); hasError = true; }
+            
+            if (hasError) return;
+        
+            var mongoId = $('#passengerMongoId').val();
+            var userId = $('#profileUserId').val();
             var data = {
-                title:       $('#pTitle').val(),
-                firstName:   $('#pFirstName').val().trim(),
-                lastName:    $('#pLastName').val().trim(),
-                gender:      $('#pGender').val() || 'Prefer not to say',
-                nationality: 'Filipino',
-                passport:    $('#pPassport').val().trim(),
-                contactCode: $('#pContactCode').val(),
-                contact:     $('#pContactNumber').val().trim(),
-                email:       $('#pEmail').val().trim(),
-                dobMonth:    $('#pDobMonth').val().trim(),
-                dobDay:      $('#pDobDay').val().trim(),
-                dobYear:     $('#pDobYear').val().trim(),
-                address:     $('#pAddress').val().trim(),
-                city:        $('#pCity').val().trim(),
-                country:     $('#pCountry').val().trim()
+                title: titleVal, firstName: firstNameVal, lastName: lastNameVal, gender: genderVal,
+                passport: passportVal, contactCode: $('#pContactCode').val(),
+                contact: contactVal, email: emailVal, dobMonth: dobMonthVal, dobDay: dobDayVal, dobYear: dobYearVal,
+                address: addressVal, city: cityVal, country: countryVal, nationality: nationalityVal
             };
 
-            if (index !== '') {
-                passengers[parseInt(index)] = data; // update existing
-            } else {
-                passengers.push(data); // add new
-            }
+            var url = mongoId ? '/profile/' + userId + '/passengers/' + mongoId : '/profile/' + userId + '/passengers';
+            var method = mongoId ? 'PUT' : 'POST';
 
-            renderPassengerList();
-            clearPassengerForm();
-            lockPassengerForm();
+            fetch(url, {
+                method: method,
+                headers: { 'Content-type': 'application/json; charset=UTF-8' },
+                body: JSON.stringify(data)
+            })
+                .then(function (response) { return response.json(); })
+                .then(function (result) {
+                    if (result.success) {
+                        passengers = result.savedPassengers;
+                        renderPassengerList();
+                        clearPassengerForm();
+                        lockPassengerForm()     ;
 
-            $('#passengerSaveFeedback').removeClass('d-none');
-            setTimeout(function () {
-                $('#passengerSaveFeedback').addClass('d-none');
-            }, 3000);
+                        $('#passengerSaveFeedback').removeClass('d-none');
+                        setTimeout(function () { $('#passengerSaveFeedback').addClass('d-none'); }, 3000);
+                    } else {
+                        alert(result.error || 'Something went wrong.');
+                    }
+                })
+                .catch(function (err) {
+                    console.error('Save passenger error:', err);
+                    alert('Something went wrong. Please try again.');
+                });
         });
 
         // auto-jump to next DOB field in passenger form
@@ -278,9 +425,9 @@ $(document).ready(function () {
         /* PAYMENT METHODS */
 
         var paymentMethods = [
-            { id: 1, type: 'card',    name: 'BDO Titanium',  subtype: 'Mastercard', ending: '4747', isDefault: false, icon: 'public/imgs/payments/mastercard-logo.png' },
-            { id: 2, type: 'ewallet', name: 'Google Pay',    subtype: 'E-Wallet',   ending: '2373', isDefault: true,  icon: 'public/imgs/payments/googlepay-logo.png'  },
-            { id: 3, type: 'ewallet', name: 'PayPal',        subtype: 'E-Wallet',   ending: '4209', isDefault: false, icon: 'public/imgs/payments/paypal-logo.png'     }
+            { id: 1, type: 'card',    name: 'BDO Titanium',  subtype: 'Mastercard', ending: '4747', isDefault: false, icon: '/imgs/payments/mastercard-logo.png' },
+            { id: 2, type: 'ewallet', name: 'Google Pay',    subtype: 'E-Wallet',   ending: '2373', isDefault: true,  icon: '/imgs/payments/googlepay-logo.png'  },
+            { id: 3, type: 'ewallet', name: 'PayPal',        subtype: 'E-Wallet',   ending: '4209', isDefault: false, icon: '/imgs/payments/paypal-logo.png'     }
         ];
 
         var nextPaymentId = 4;
@@ -377,8 +524,8 @@ $(document).ready(function () {
             }
             var ending = Math.floor(1000 + Math.random() * 9000).toString();
             var icon = provider === 'PayPal'
-                ? 'public/imgs/payments/paypal-logo.png'
-                : 'public/imgs/payments/googlepay-logo.png';
+                ? '/imgs/payments/paypal-logo.png'
+                : '/imgs/payments/googlepay-logo.png';
             paymentMethods.push({ id: nextPaymentId++, type: 'ewallet', name: provider, subtype: 'E-Wallet', ending: ending, isDefault: false, icon: icon });
             renderPaymentMethods();
             $('#paymentFormCard').removeClass('active');
@@ -400,7 +547,7 @@ $(document).ready(function () {
                 subtype: 'Credit/Debit Card',
                 ending: cvv.slice(-4).padStart(4, '0'),
                 isDefault: false,
-                icon: 'public/imgs/payments/mastercard-logo.png'
+                icon: '/imgs/payments/mastercard-logo.png'
             });
 
             renderPaymentMethods();
@@ -447,15 +594,15 @@ $(document).ready(function () {
         /* TRAVEL HISTORY */
 
         var travelHistory = [
-            { route: 'CGY-BCD', airline: 'Philippine Airlines', flightNum: 'PR4923', date: 'March 13, 2025',      status: 'past',     bookingNum: 'V9ABCD', logo: 'public/imgs/flights/pal-logo.png',          name: 'Jose Rizal', gender: 'Adult', nationality: 'Filipino', contact: '+63 9674206967', email: 'joserizal@gmail.com', gate: '3B',  seat: '14A', boarding: '2:30PM'  },
-            { route: 'DVO-BXU', airline: 'AirAsia',             flightNum: 'Z2842',  date: 'December 5, 2025',    status: 'past',     bookingNum: 'K3LMNO', logo: 'public/imgs/flights/air-asia-logo.png',     name: 'Jose Rizal', gender: 'Adult', nationality: 'Filipino', contact: '+63 9674206967', email: 'joserizal@gmail.com', gate: '7C',  seat: '22F', boarding: '10:00AM' },
-            { route: 'CRK-ILO', airline: 'Royal Air',           flightNum: 'RW804',  date: 'April 1, 2026',       status: 'past',     bookingNum: 'P7QRST', logo: 'public/imgs/flights/royal-air-logo.png',    name: 'Jose Rizal', gender: 'Adult', nationality: 'Filipino', contact: '+63 9674206967', email: 'joserizal@gmail.com', gate: '1A',  seat: '8C',  boarding: '6:45AM'  },
-            { route: 'MNL-CEB', airline: 'Cebu Pacific',        flightNum: '5J557',  date: 'May 4, 2026',         status: 'past',     bookingNum: 'V9EVSM', logo: 'public/imgs/flights/cebu-pacific-logo.png', name: 'Jose Rizal', gender: 'Adult', nationality: 'Filipino', contact: '+63 9674206967', email: 'joserizal@gmail.com', gate: '5A',  seat: '27B', boarding: '4:30PM'  },
-            { route: 'MNL-SIN', airline: 'Philippine Airlines', flightNum: 'PR502',  date: 'June 20, 2026',       status: 'upcoming', bookingNum: 'A1BCDE', logo: 'public/imgs/flights/pal-logo.png',          name: 'Jose Rizal', gender: 'Adult', nationality: 'Filipino', contact: '+63 9674206967', email: 'joserizal@gmail.com', gate: '9D',  seat: '12A', boarding: '8:00AM'  },
-            { route: 'CEB-MNL', airline: 'Cebu Pacific',        flightNum: '5J102',  date: 'July 3, 2026',        status: 'upcoming', bookingNum: 'B2CDEF', logo: 'public/imgs/flights/cebu-pacific-logo.png', name: 'Jose Rizal', gender: 'Adult', nationality: 'Filipino', contact: '+63 9674206967', email: 'joserizal@gmail.com', gate: '2B',  seat: '33C', boarding: '1:15PM'  },
-            { route: 'MNL-KUL', airline: 'AirAsia',             flightNum: 'AK521',  date: 'July 18, 2026',       status: 'upcoming', bookingNum: 'C3DEFG', logo: 'public/imgs/flights/air-asia-logo.png',     name: 'Jose Rizal', gender: 'Adult', nationality: 'Filipino', contact: '+63 9674206967', email: 'joserizal@gmail.com', gate: '6E',  seat: '18D', boarding: '3:45PM'  },
-            { route: 'ILO-MNL', airline: 'Royal Air',           flightNum: 'RW210',  date: 'August 5, 2026',      status: 'upcoming', bookingNum: 'D4EFGH', logo: 'public/imgs/flights/royal-air-logo.png',    name: 'Jose Rizal', gender: 'Adult', nationality: 'Filipino', contact: '+63 9674206967', email: 'joserizal@gmail.com', gate: '4F',  seat: '5B',  boarding: '11:30AM' },
-            { route: 'MNL-HKG', airline: 'Philippine Airlines', flightNum: 'PR300',  date: 'September 12, 2026',  status: 'upcoming', bookingNum: 'E5FGHI', logo: 'public/imgs/flights/pal-logo.png',          name: 'Jose Rizal', gender: 'Adult', nationality: 'Filipino', contact: '+63 9674206967', email: 'joserizal@gmail.com', gate: '11A', seat: '7C',  boarding: '7:20AM'  }
+            { route: 'CGY-BCD', airline: 'Philippine Airlines', flightNum: 'PR4923', date: 'March 13, 2025',      status: 'past',     bookingNum: 'V9ABCD', logo: '/imgs/flights/pal-logo.png',          name: 'Jose Rizal', gender: 'Adult', nationality: 'Filipino', contact: '+63 9674206967', email: 'joserizal@gmail.com', gate: '3B',  seat: '14A', boarding: '2:30PM'  },
+            { route: 'DVO-BXU', airline: 'AirAsia',             flightNum: 'Z2842',  date: 'December 5, 2025',    status: 'past',     bookingNum: 'K3LMNO', logo: '/imgs/flights/air-asia-logo.png',     name: 'Jose Rizal', gender: 'Adult', nationality: 'Filipino', contact: '+63 9674206967', email: 'joserizal@gmail.com', gate: '7C',  seat: '22F', boarding: '10:00AM' },
+            { route: 'CRK-ILO', airline: 'Royal Air',           flightNum: 'RW804',  date: 'April 1, 2026',       status: 'past',     bookingNum: 'P7QRST', logo: '/imgs/flights/royal-air-logo.png',    name: 'Jose Rizal', gender: 'Adult', nationality: 'Filipino', contact: '+63 9674206967', email: 'joserizal@gmail.com', gate: '1A',  seat: '8C',  boarding: '6:45AM'  },
+            { route: 'MNL-CEB', airline: 'Cebu Pacific',        flightNum: '5J557',  date: 'May 4, 2026',         status: 'past',     bookingNum: 'V9EVSM', logo: '/imgs/flights/cebu-pacific-logo.png', name: 'Jose Rizal', gender: 'Adult', nationality: 'Filipino', contact: '+63 9674206967', email: 'joserizal@gmail.com', gate: '5A',  seat: '27B', boarding: '4:30PM'  },
+            { route: 'MNL-SIN', airline: 'Philippine Airlines', flightNum: 'PR502',  date: 'June 20, 2026',       status: 'upcoming', bookingNum: 'A1BCDE', logo: '/imgs/flights/pal-logo.png',          name: 'Jose Rizal', gender: 'Adult', nationality: 'Filipino', contact: '+63 9674206967', email: 'joserizal@gmail.com', gate: '9D',  seat: '12A', boarding: '8:00AM'  },
+            { route: 'CEB-MNL', airline: 'Cebu Pacific',        flightNum: '5J102',  date: 'July 3, 2026',        status: 'upcoming', bookingNum: 'B2CDEF', logo: '/imgs/flights/cebu-pacific-logo.png', name: 'Jose Rizal', gender: 'Adult', nationality: 'Filipino', contact: '+63 9674206967', email: 'joserizal@gmail.com', gate: '2B',  seat: '33C', boarding: '1:15PM'  },
+            { route: 'MNL-KUL', airline: 'AirAsia',             flightNum: 'AK521',  date: 'July 18, 2026',       status: 'upcoming', bookingNum: 'C3DEFG', logo: '/imgs/flights/air-asia-logo.png',     name: 'Jose Rizal', gender: 'Adult', nationality: 'Filipino', contact: '+63 9674206967', email: 'joserizal@gmail.com', gate: '6E',  seat: '18D', boarding: '3:45PM'  },
+            { route: 'ILO-MNL', airline: 'Royal Air',           flightNum: 'RW210',  date: 'August 5, 2026',      status: 'upcoming', bookingNum: 'D4EFGH', logo: '/imgs/flights/royal-air-logo.png',    name: 'Jose Rizal', gender: 'Adult', nationality: 'Filipino', contact: '+63 9674206967', email: 'joserizal@gmail.com', gate: '4F',  seat: '5B',  boarding: '11:30AM' },
+            { route: 'MNL-HKG', airline: 'Philippine Airlines', flightNum: 'PR300',  date: 'September 12, 2026',  status: 'upcoming', bookingNum: 'E5FGHI', logo: '/imgs/flights/pal-logo.png',          name: 'Jose Rizal', gender: 'Adult', nationality: 'Filipino', contact: '+63 9674206967', email: 'joserizal@gmail.com', gate: '11A', seat: '7C',  boarding: '7:20AM'  }
         ];
 
         // builds and injects the travel history list (all items, no pagination)

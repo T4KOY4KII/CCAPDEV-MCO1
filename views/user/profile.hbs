@@ -35,8 +35,8 @@
 
         <!-- Avatar -->
         <div class="profile-avatar-section text-center mb-4">
-          <div class="profile-avatar-lg mx-auto mb-3" id="avatarPreview">JR</div>
-          <h5 class="mb-0">Jose Rizal</h5>
+          <div class="profile-avatar-lg mx-auto mb-3" id="avatarPreview">{{initials}}</div>
+          <h5 class="mb-0">{{user.firstName}} {{user.lastName}}</h5>
           <button class="btn btn-link btn-sm text-muted p-0 mt-1" id="editAvatarBtn">
             <i class="bi bi-pencil me-1"></i>Edit Profile Picture
           </button>
@@ -54,7 +54,7 @@
           </div>
           <hr class="summary-divider">
           <div class="summary-item">
-            <span class="summary-count">7</span> Saved Passengers
+              <span class="summary-count">{{user.savedPassengers.length}}</span> Saved Passengers
           </div>
           <hr class="summary-divider">
           <div class="summary-item">
@@ -70,6 +70,9 @@
           <h5 class="fw-bold mb-4">Personal Information</h5>
 
           <form id="personalInfoForm" novalidate>
+            <input type="hidden" id="profileUserId" value="{{user._id}}">
+            <input type="hidden" id="profileTitle" value="{{user.title}}">
+            <input type="hidden" id="profileGender" value="{{user.gender}}">
 
             <!-- Title -->
             <div class="mb-3">
@@ -80,7 +83,7 @@
                 <option value="Ms">Ms.</option>
                 <option value="Mrs">Mrs.</option>
                 <option value="Dr">Dr.</option>
-                <option value="Prof">Prof.</option>
+                <option value="Eng">Eng.</option>
               </select>
             </div>
 
@@ -88,11 +91,11 @@
             <div class="row g-3 mb-3">
               <div class="col-md-6">
                 <label class="form-label" for="firstName">First Name</label>
-                <input type="text" class="form-control" id="firstName" name="firstName" placeholder="" value="Jose">
+                <input type="text" class="form-control" id="firstName" name="firstName" value="{{user.firstName}}">
               </div>
               <div class="col-md-6">
                 <label class="form-label" for="lastName">Last Name</label>
-                <input type="text" class="form-control" id="lastName" name="lastName" placeholder="" value="Rizal">
+                <input type="text" class="form-control" id="lastName" name="lastName" value="{{user.lastName}}">
               </div>
             </div>
 
@@ -109,7 +112,7 @@
                   <option value="+86">🇨🇳 +86</option>
                 </select>
                 <input type="tel" class="form-control" id="contactNumber" name="contactNumber" placeholder="9674206967"
-                  value="9674206967">
+                  value="{{user.contactNumber}}">
               </div>
             </div>
 
@@ -118,8 +121,8 @@
               <div class="col-md-4">
                 <label class="form-label" for="gender">Gender</label>
                 <select class="form-select" id="gender" name="gender">
-                  <option value="" disabled></option>
-                  <option value="male" selected>Male</option>
+                  <option value="" selected disabled></option>
+                  <option value="male">Male</option>
                   <option value="female">Female</option>
                   <option value="other">Other</option>
                   <option value="prefer-not">Prefer not to say</option>
@@ -129,13 +132,13 @@
                 <label class="form-label">Date of Birth (MM/DD/YYYY)</label>
                 <div class="d-flex align-items-center gap-2">
                   <input type="text" class="form-control text-center" id="dobMonth" name="dobMonth" placeholder="MM"
-                    maxlength="2" value="06">
+                    maxlength="2">
                   <span class="text-muted">/</span>
                   <input type="text" class="form-control text-center" id="dobDay" name="dobDay" placeholder="DD"
-                    maxlength="2" value="19">
+                    maxlength="2">
                   <span class="text-muted">/</span>
                   <input type="text" class="form-control text-center" id="dobYear" name="dobYear" placeholder="YYYY"
-                    maxlength="4" value="1861">
+                    maxlength="4">
                 </div>
               </div>
             </div>
@@ -143,24 +146,24 @@
             <!-- Email -->
             <div class="mb-3">
               <label class="form-label" for="email">Email</label>
-              <input type="email" class="form-control" id="email" name="email" value="joserizal@gmail.com">
+              <input type="email" class="form-control" id="email" name="email" value="{{user.email}}">
             </div>
 
             <!-- Address -->
             <div class="mb-3">
               <label class="form-label" for="address">Address</label>
-              <input type="text" class="form-control" id="address" name="address" value="123 Rizal Street">
+              <input type="text" class="form-control" id="address" name="address" value="{{user.address}}" placeholder="Street, Building, etc.">
             </div>
 
-            <!-- City + Country -->
+            <!-- City + Country ONLY-->
             <div class="row g-3 mb-3">
               <div class="col-md-6">
                 <label class="form-label" for="city">City</label>
-                <input type="text" class="form-control" id="city" name="city" value="Calamba">
+                <input type="text" class="form-control" id="city" name="city" value="{{user.city}}" placeholder="e.g. Cebu">
               </div>
               <div class="col-md-6">
                 <label class="form-label" for="country">Country</label>
-                <input type="text" class="form-control" id="country" name="country" value="Philippines">
+                <input type="text" class="form-control" id="country" name="country" value="{{user.country}}" placeholder="e.g. Philippines">
               </div>
             </div>
 
@@ -200,6 +203,7 @@
           </div>
 
           <!-- Passenger list from JS -->
+          <script id="savedPassengersData" type="application/json">{{{savedPassengersJSON}}}</script> <!-- Triple braces to avoid escaping -->
           <div id="passengerList"></div>
 
           <!-- Pagination -->
@@ -224,6 +228,7 @@
 
           <form id="passengerForm" novalidate>
             <input type="hidden" id="passengerIndex" value="">
+            <input type="hidden" id="passengerMongoId" value="">
 
             <!-- Title + Passport Number -->
             <div class="row g-3 mb-3">
@@ -308,7 +313,7 @@
               <input type="text" class="form-control" id="pAddress" name="pAddress">
             </div>
 
-            <!-- City + Country -->
+            <!-- City + Country + Nationality -->
             <div class="row g-3 mb-3">
               <div class="col-md-6">
                 <label class="form-label" for="pCity">City</label>
@@ -317,6 +322,19 @@
               <div class="col-md-6">
                 <label class="form-label" for="pCountry">Country</label>
                 <input type="text" class="form-control" id="pCountry" name="pCountry">
+              </div>
+              <div class="mb-3">
+                <label class="form-label" for="pNationality">Nationality</label>
+                <select class="form-select" id="pNationality" name="pNationality">
+                  <option value="" selected disabled></option>
+                  <option value="Filipino">Filipino</option>
+                  <option value="American">American</option>
+                  <option value="British">British</option>
+                  <option value="Chinese">Chinese</option>
+                  <option value="Japanese">Japanese</option>
+                  <option value="Korean">Korean</option>
+                  <option value="Other">Other</option>
+                </select>
               </div>
             </div>
 
@@ -375,8 +393,8 @@
                 <span class="payment-type-sub">Your Flight, Your Bank, One Easy Payment.</span>
               </div>
               <div class="payment-type-logos">
-                <img src="public/imgs/payments/visa-logo.png" alt="Visa" class="payment-logo">
-                <img src="public/imgs/payments/mastercard-logo.png" alt="Mastercard" class="payment-logo">
+                <img src="/imgs/payments/visa-logo.png" alt="Visa" class="payment-logo">
+                <img src="/imgs/payments/mastercard-logo.png" alt="Mastercard" class="payment-logo">
               </div>
             </label>
           </div>
@@ -422,8 +440,8 @@
                 <span class="payment-type-sub">Travel Made Easy with E-Wallet Payments.</span>
               </div>
               <div class="payment-type-logos">
-                <img src="public/imgs/payments/paypal-logo.png" alt="PayPal" class="payment-logo">
-                <img src="public/imgs/payments/googlepay-logo.png" alt="Google Pay" class="payment-logo"
+                <img src="/imgs/payments/paypal-logo.png" alt="PayPal" class="payment-logo">
+                <img src="/imgs/payments/googlepay-logo.png" alt="Google Pay" class="payment-logo"
                   style="width:20px;">
               </div>
             </label>
@@ -434,7 +452,7 @@
             <div class="ewallet-options">
               <label class="ewallet-card" id="paypalCard">
                 <input type="radio" name="ewalletProvider" value="PayPal">
-                <img src="public/imgs/payments/paypal-logo.png" alt="PayPal" class="ewallet-logo">
+                <img src="/imgs/payments/paypal-logo.png" alt="PayPal" class="ewallet-logo">
               </label>
               <label class="ewallet-card" id="gpayCard">
                 <input type="radio" name="ewalletProvider" value="Google Pay">
