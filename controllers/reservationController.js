@@ -52,8 +52,6 @@ exports.createBooking = async (req, res) => {
     if (!firstName || !lastName ||  !passport || seats == undefined) {
             return res.status(400).json({ success: false, error: "All fields are required." });
     }
-
-    
 }
 
 
