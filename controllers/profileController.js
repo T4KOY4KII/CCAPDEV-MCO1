@@ -1,6 +1,4 @@
 const User = require('../models/User');
-const Reservations = require('../models/Reservation');
-const Flight = require('../models/Flight');
 
 //User views details
 const profileView = {
@@ -15,28 +13,29 @@ const profileView = {
 };
 
 //Helper to validate passenger fields
-function validatePassengerFields({ title, firstName, lastName, gender, passport, contact, email, dobMonth, dobDay, dobYear, address, city, country, nationality }) {
-    if (!title || !firstName || !lastName || !gender || !passport || !contact || !email || !dobMonth || !dobDay || !dobYear || !address || !city || !country || !nationality) {
-        return 'All passenger fields are required.';
+function validatePassengerFields({ firstName, lastName, passport, email }) {
+    if (!firstName || !lastName || !passport || !email) {
+        return 'Full name, email, and passport number are required.';
     }
-    const month = parseInt(dobMonth, 10);
-    const day = parseInt(dobDay, 10);
-    const year = parseInt(dobYear, 10);
-    if (month < 1 || month > 12 || day < 1 || day > 31 || year < 1900 || year > new Date().getFullYear()) {
-        return 'Please enter a valid date of birth.';
-    }
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return 'Please enter a valid email address.';
-    if (!/^\d{7,15}$/.test(contact)) return 'Please enter a valid contact number.';
+    if (!isValidEmail(email)) return 'Please enter a valid email address.';
     return null;
 }
 
 //Helper to validate profile fields
-function validateProfileFields({ title, firstName, lastName, gender, email }) {
-    if (!title || !firstName || !lastName || !gender || !email) {
-        return 'Title, first name, last name, gender, and email are required.';
+function validateProfileFields({ firstName, lastName, email }) {
+    if (!firstName || !lastName || !email) {
+        return 'First name, last name, and email are required.';
     }
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return 'Please enter a valid email address.';
+    if (!isValidEmail(email)) return 'Please enter a valid email address.';
     return null;
+}
+
+//Helper to validate email format
+function isValidEmail(email) {
+    var atIndex = email.indexOf('@');
+    var dotIndex = email.lastIndexOf('.');
+    // needs an @ somewhere, a . somewhere after the @, and can't start or end with either
+    return atIndex > 0 && dotIndex > atIndex + 1 && dotIndex < email.length - 1;
 }
 
 //Renders profile page

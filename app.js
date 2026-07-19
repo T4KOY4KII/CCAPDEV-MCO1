@@ -36,7 +36,14 @@ app.use((req, res, next) => {
 });
 
 //Handlebars setup
-app.engine("hbs", exphbs.engine({ extname: 'hbs' }));
+app.engine("hbs", exphbs.engine({
+    extname: 'hbs',
+    helpers: {
+        eq: function (a, b) { //small helper function to compare two values in handlebars templates because of the glitch ?? 
+            return a === b; // error was asking for this specific helper function
+        }
+    }
+}));
 app.set("view engine", "hbs");
 app.set("views", "./views");
 
