@@ -25,31 +25,21 @@ const bookingView = {
     ]
 };
 
-//Renders user reservations page
-exports.showReservations = (req, res) => {
-    res.render('user/reservations', {
-        ...reservationsView
-    });
-};
+// Helper functions to format date and time
+function formatDate(date) {
+    return new Date(date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+}
 
-//User reservations logic goes here
-
-//Renders booking page
-exports.showBooking = (req, res) => {
-    res.render('user/booking', {
-        ...bookingView
-    });
-};
-
-//Booking logic goes here
-
+function formatTime(date) {
+    return new Date(date).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+}
 
 // Create a new booking 
-async function bookFlight(req, res){
-    try{
+exports.bookFlight = async (req, res) => {
+    try {
         /* Assuming request body contains necessary details for flight booking */
 
-        const {firstName, lastName, contactCode, contactNumber, email, passport, nationality, dobMonth,
+        const { firstName, lastName, contactCode, contactNumber, email, passport, nationality, dobMonth,
             dobDay, dobYear, gender,
         } = req.body;
 
@@ -69,20 +59,14 @@ async function bookFlight(req, res){
             // Store flight details in database
         });
 
-        res.status(201).json({booking});
+        res.status(201).json({ booking });
     } catch (error) {
         res.status(400).json({
             error: error.message
         });
     }
-// Helper functions to format date and time
-function formatDate(date) {
-    return new Date(date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
-}
+};
 
-function formatTime(date) {
-    return new Date(date).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
-}
 
 //Renders booking page
 exports.showBooking = async (req, res) => {
@@ -208,10 +192,4 @@ exports.cancelReservation = async (req, res) => {
         res.status(500).json({ error: 'Something went wrong.' });
     }
 };
-
-
-
-
-
-
 
