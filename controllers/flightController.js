@@ -128,12 +128,32 @@ exports.showDashboard = async (req, res) => {
 };
 
 //Renders flight search page
-exports.showSearch = (req, res) => {
-    res.render('user/search', {
-        ...searchView,
-        airports,
-        airlines
-    });
+exports.showSearch = async (req, res) => {
+    try {
+        // Show all currently bookable flights by default
+        const flights = await Flight.find({ availableSeats: { $gt: 0 } }).lean();
+        const formattedFlights = flights.map(formatFlight);
+
+        res.render('user/search', {
+            ...searchView,
+            airports,
+            airlines,
+            flights: formattedFlights,
+            hasFlights: formattedFlights.length > 0,
+            totalResults: formattedFlights.length
+        });
+    } catch (err) {
+        console.error('Search page error:', err);
+        res.render('user/search', {
+            ...searchView,
+            airports,
+            airlines,
+            flights: [],
+            hasFlights: false,
+            totalResults: 0,
+            error: 'Could not load flight data.'
+        });
+    }
 };
 
 exports.searchFlights = async (req, res) => {
