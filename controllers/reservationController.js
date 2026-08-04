@@ -43,7 +43,7 @@ exports.bookFlight = async (req, res) => {
             dobDay, dobYear, gender,
         } = req.body;
 
-        // New flight booking document in database //
+        // New flight booking document in database 
         const booking = await User.create({
             firstName,
             lastName,
@@ -92,8 +92,6 @@ exports.showBooking = async (req, res) => {
 //Creates a new booking
 exports.createBooking = async (req, res) => {
     try {
-        if (!req.session.userId) return res.status(401).json({ success: false, error: 'You must be logged in to book.' });
-
         const { firstName, lastName, email, passportNumber, seat } = req.body;
 
         if (!firstName || !lastName || !email || !passportNumber || !seat) {
@@ -103,6 +101,10 @@ exports.createBooking = async (req, res) => {
         const flight = await Flight.findById(req.params.flightId);
         if (!flight) return res.status(404).json({ success: false, error: 'Flight not found.' });
         if (flight.availableSeats <= 0) return res.status(400).json({ success: false, error: 'This flight has no available seats.' });
+
+        //Checks that this specific seat isn't already taken by an active reservation on this flight
+        const seatTaken = await Reservations.findOne({ flight: flight._id, seat, status: { $ne: 'cancelled' } });
+        if (seatTaken) return res.status(400).json({ success: false, error: 'That seat is already taken. Please choose another.' });
 
         const reservationNumber = 'RES-' + Date.now();
 
@@ -129,8 +131,6 @@ exports.createBooking = async (req, res) => {
 //Renders user reservations page
 exports.showReservations = async (req, res) => {
     try {
-        if (!req.session.userId) return res.redirect('/login');
-
         const reservations = await Reservations.find({ user: req.session.userId });
 
         const reservationList = [];
@@ -160,13 +160,20 @@ exports.updateSeat = async (req, res) => {
         const { seat } = req.body;
         if (!seat) return res.status(400).json({ error: 'Seat is required.' });
 
-        const reservation = await Reservations.findOneAndUpdate(
-            { _id: req.params.id, user: req.session.userId },
-            { seat },
-            { returnDocument: 'after' }
-        );
-
+        const reservation = await Reservations.findOne({ _id: req.params.id, user: req.session.userId });
         if (!reservation) return res.status(404).json({ error: 'Reservation not found.' });
+
+        //Checks that the new seat isn't already taken by a different active reservation on this flight
+        const seatTaken = await Reservations.findOne({
+            _id: { $ne: reservation._id },
+            flight: reservation.flight,
+            seat,
+            status: { $ne: 'cancelled' }
+        });
+        if (seatTaken) return res.status(400).json({ error: 'That seat is already taken. Please choose another.' });
+
+        reservation.seat = seat;
+        await reservation.save();
 
         res.json({ success: true, reservation });
     } catch (err) {
@@ -178,13 +185,18 @@ exports.updateSeat = async (req, res) => {
 //Cancels a reservation
 exports.cancelReservation = async (req, res) => {
     try {
-        const reservation = await Reservations.findOneAndUpdate(
-            { _id: req.params.id, user: req.session.userId },
-            { status: 'cancelled' },
-            { returnDocument: 'after' }
-        );
-
+        const reservation = await Reservations.findOne({ _id: req.params.id, user: req.session.userId });
         if (!reservation) return res.status(404).json({ error: 'Reservation not found.' });
+
+        //Already cancelled - don't restore the seat a second time if this gets called twice
+        if (reservation.status === 'cancelled') {
+            return res.json({ success: true, reservation });
+        }
+
+        reservation.status = 'cancelled';
+        await reservation.save();
+
+        await Flight.findByIdAndUpdate(reservation.flight, { $inc: { availableSeats: 1 } });
 
         res.json({ success: true, reservation });
     } catch (err) {
@@ -192,4 +204,3 @@ exports.cancelReservation = async (req, res) => {
         res.status(500).json({ error: 'Something went wrong.' });
     }
 };
-
