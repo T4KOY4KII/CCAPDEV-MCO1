@@ -52,18 +52,11 @@ const userSchema = new mongoose.Schema({
 
 //Password hashing middleware so password saves before document is saved
 userSchema.pre('save', async function (next) {
-    if (!this.isModified('password')) {
-        return next();
-    }
-
-    try {
-        const salt = await bcrypt.genSalt(SALT_WORK_FACTOR);
-        this.password = await bcrypt.hash(this.password, salt);
-        next();
-    } catch (err) {
-        next(err);
-    }
+    if (!this.isModified('password')) return;
+    const salt = await bcrypt.genSalt(SALT_WORK_FACTOR);
+    this.password = await bcrypt.hash(this.password, salt);
 });
+
 
 //Method to compare a given password with the database hash
 userSchema.method('comparePassword', async function (candidatePassword) {
