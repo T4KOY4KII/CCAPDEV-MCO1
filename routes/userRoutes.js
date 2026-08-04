@@ -6,6 +6,7 @@ const router = express.Router();
 const flightController = require("../controllers/flightController");
 const reservationController = require("../controllers/reservationController");
 const userController = require("../controllers/profileController");
+const { requireAuth, requireAuthAPI } = require("../middleware/authMiddleware");
 
 //Dashboard page route
 router.get('/dashboard', flightController.showDashboard);
@@ -22,18 +23,18 @@ router.get('/booking/:flightId', reservationController.showBooking);
 router.post('/booking/:flightId', reservationController.createBooking);
 
 //Reservations page routes
-router.get('/reservations', reservationController.showReservations);
-router.put('/reservations/:id/seat', reservationController.updateSeat);
-router.put('/reservations/:id/cancel', reservationController.cancelReservation);
+router.get('/reservations', requireAuth, reservationController.showReservations);
+router.put('/reservations/:id/seat', requireAuthAPI, reservationController.updateSeat);
+router.put('/reservations/:id/cancel', requireAuthAPI, reservationController.cancelReservation);
 
 //Profile page route
 router.get('/profile/:id', userController.showProfile);
 router.put('/profile/:id', userController.updateProfile);
 
 // Saved passengers page route
-router.post('/profile/:id/passengers', userController.addPassenger);
-router.put('/profile/:id/passengers/:passengerId', userController.updatePassenger);
-router.delete('/profile/:id/passengers/:passengerId', userController.deletePassenger);
+router.post('/profile/:id/passengers', requireAuthAPI, userController.addPassenger);
+router.put('/profile/:id/passengers/:passengerId', requireAuthAPI, userController.updatePassenger);
+router.delete('/profile/:id/passengers/:passengerId', requireAuthAPI, userController.deletePassenger);
 
 //Notification preferences route
 router.put('/profile/:id/notifications', userController.updateNotifications);
