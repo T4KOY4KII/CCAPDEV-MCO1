@@ -17,6 +17,7 @@ router.get('/search/results', requireAuth, flightController.searchFlights);
 
 // Flight details
 router.get('/flight/:id', requireAuth, flightController.showFlightDetails); 
+router.post('/flight/:id/view', requireAuthAPI, flightController.trackViewedFlight);
 
 //Booking page route
 router.get('/booking/:flightId', requireAuth, reservationController.showBooking);

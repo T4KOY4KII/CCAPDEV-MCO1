@@ -17,3 +17,19 @@ function toggleDetails(detailsId, btnId) {
         if (btn) btn.innerHTML = 'Hide Details <i class="bi bi-chevron-down"></i>';
     }
 }
+
+async function viewDetails(flightId) {
+
+    toggleDetails(
+        `flightDetails${flightId}`,
+        `detailsToggle${flightId}`
+    );
+
+    try {
+        await fetch(`/flight/${flightId}/view`, {
+            method: "POST"
+        });
+    } catch (err) {
+        console.error(err);
+    }
+}

@@ -259,7 +259,7 @@
                                     </p>
                                     <div class="text-center">
                                         <!-- Prefill search with promo route -->
-                                        <a href="/search?origin={{origin}}&destination={{destination}}"
+                                        <a href="/search/results?origin={{origin}}&destination={{destination}}"
                                             class="btn btn-outline-light btn-sm rounded-pill px-4">
                                             Learn More
                                         </a>
@@ -394,7 +394,7 @@
                     {{/if}}
 
                     {{#if availableSeats}}
-                    <a href="/flight/{{_id}}" class="btn primary-btn btn-sm px-4 mt-2">
+                    <a href="/booking/{{this._id}}" class="btn primary-btn btn-sm px-4 mt-2">
                         Book
                     </a>
                     {{else}}
