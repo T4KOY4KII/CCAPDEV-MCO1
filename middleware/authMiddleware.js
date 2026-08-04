@@ -6,7 +6,13 @@ function requireAuth(req, res, next) {
     next();
 };
 
-//Verification that the user has the required role before accessing protected routes
+//Verify that the user is authenticated (JSON version)
+function requireAuthAPI(req, res, next) {
+    if (!req.session.userId) {
+        return res.status(401).json({ error: 'You must be logged in to do that.' });
+    }
+    next();
+}
 
 //Verify if user is an admin
 function requireAdmin(req, res, next) {
@@ -23,14 +29,6 @@ function requireAdmin(req, res, next) {
     next();
 
 }
-
-//Verify that the user is authenticated (JSON version)
-function requireAuthAPI(req, res, next) {
-    if (!req.session.userId) {
-        return res.status(401).json({ error: 'You must be logged in to do that.' });
-    }
-    next();
-}
  
 //Verify if user is an admin (JSON version)
 function requireAdminAPI(req, res, next) {
@@ -46,4 +44,4 @@ function requireAdminAPI(req, res, next) {
     next();
 }
  
-module.exports = { requireAuth, requireAdmin, requirePassenger, requireAuthAPI, requireAdminAPI };
+module.exports = { requireAuth, requireAdmin, requireAuthAPI, requireAdminAPI };

@@ -26,9 +26,9 @@ const userSchema = new mongoose.Schema({
     lastName: { type: String, required: true },
     email: { type: String, required: true, unique: true },
     password: { type: String, required: true },
-    role: { type: String, enum: ['user', 'admin'], default: 'user', required: true},
-    status: {type: String, enum: ['active', 'deactivated'], default: 'active'},
-    profileIMG: {type: String, default: "/imgs/users/default-pfp.jpg"},
+    role: { type: String, enum: ['user', 'admin'], default: 'user', required: true },
+    status: { type: String, enum: ['active', 'deactivated'], default: 'active' },
+    profileIMG: { type: String, default: "/imgs/users/default-pfp.jpg" },
     title: { type: String },
     contactCode: { type: String, default: '+63' },
     contactNumber: { type: String },
@@ -48,19 +48,13 @@ const userSchema = new mongoose.Schema({
         promo: { type: Boolean, default: true },
         sms: { type: Boolean, default: false }
     }
-}, { timestamps: true }); 
+}, { timestamps: true });
 
 //Password hashing middleware so password saves before document is saved
 userSchema.pre('save', async function (next) {
-    if (!this.isModified('password')) return next();
-
-    try {
-        const salt = await bcrypt.genSalt(SALT_WORK_FACTOR);
-        this.password = await bcrypt.hash(this.password, salt);
-        next();
-    } catch (err) {
-        next(err);
-    }
+    if (!this.isModified('password')) return;
+    const salt = await bcrypt.genSalt(SALT_WORK_FACTOR);
+    this.password = await bcrypt.hash(this.password, salt);
 });
 
 
