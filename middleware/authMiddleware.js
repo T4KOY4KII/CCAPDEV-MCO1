@@ -24,23 +24,6 @@ function requireAdmin(req, res, next) {
 
 }
 
-//Verify if user is a passenger
-function requirePassenger(req, res, next) {
-    
-        //Must be logged in first
-        if (!req.session.userId) {
-            return res.redirect('/login');
-
-        }
-        //Checks if the user has a passenger  role
-        if (req.session.role !== 'user') {
-            return res.status(403).send('Access Denied: This page is for passengers only') //403 Forbidden
-        }
-        next();
-   
-}
-
- 
 //Verify that the user is authenticated (JSON version)
 function requireAuthAPI(req, res, next) {
     if (!req.session.userId) {

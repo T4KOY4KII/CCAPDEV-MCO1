@@ -9,14 +9,14 @@ const userController = require("../controllers/profileController");
 const { requireAuth, requireAuthAPI } = require("../middleware/authMiddleware");
 
 //Dashboard page route
-router.get('/dashboard', flightController.showDashboard);
+router.get('/dashboard', requireAuth, flightController.showDashboard);
 
 //Search page route
-router.get('/search', flightController.showSearch);
-router.get('/search/results', flightController.searchFlights); 
+router.get('/search', requireAuth, flightController.showSearch);
+router.get('/search/results', requireAuth, flightController.searchFlights); 
 
 // Flight details
-router.get('/flight/:id', flightController.showFlightDetails); 
+router.get('/flight/:id', requireAuth, flightController.showFlightDetails); 
 
 //Booking page route
 router.get('/booking/:flightId', requireAuth, reservationController.showBooking);
