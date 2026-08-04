@@ -19,25 +19,25 @@ router.get('/search/results', flightController.searchFlights);
 router.get('/flight/:id', flightController.showFlightDetails); 
 
 //Booking page route
-router.get('/booking/:flightId', reservationController.showBooking);
-router.post('/booking/:flightId', reservationController.createBooking);
+router.get('/booking/:flightId', requireAuth, reservationController.showBooking);
+router.post('/booking/:flightId', requireAuthAPI, reservationController.createBooking); //protected
 
 //Reservations page routes
 router.get('/reservations', requireAuth, reservationController.showReservations);
-router.put('/reservations/:id/seat', requireAuthAPI, reservationController.updateSeat);
-router.put('/reservations/:id/cancel', requireAuthAPI, reservationController.cancelReservation);
+router.put('/reservations/:id/seat', requireAuthAPI, reservationController.updateSeat); //protected
+router.put('/reservations/:id/cancel', requireAuthAPI, reservationController.cancelReservation); //protected
 
 //Profile page route
-router.get('/profile/:id', userController.showProfile);
-router.put('/profile/:id', userController.updateProfile);
+router.get('/profile/:id', requireAuth, userController.showProfile);
+router.put('/profile/:id', requireAuthAPI, userController.updateProfile);
 
 // Saved passengers page route
-router.post('/profile/:id/passengers', requireAuthAPI, userController.addPassenger);
-router.put('/profile/:id/passengers/:passengerId', requireAuthAPI, userController.updatePassenger);
-router.delete('/profile/:id/passengers/:passengerId', requireAuthAPI, userController.deletePassenger);
+router.post('/profile/:id/passengers', requireAuthAPI, userController.addPassenger); //protected
+router.put('/profile/:id/passengers/:passengerId', requireAuthAPI, userController.updatePassenger); //protected
+router.delete('/profile/:id/passengers/:passengerId', requireAuthAPI, userController.deletePassenger); //protected
 
 //Notification preferences route
-router.put('/profile/:id/notifications', userController.updateNotifications);
+router.put('/profile/:id/notifications', requireAuthAPI, userController.updateNotifications); //protected
 
 module.exports = router;
 

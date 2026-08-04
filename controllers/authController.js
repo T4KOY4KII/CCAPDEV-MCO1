@@ -64,7 +64,7 @@ exports.register = async (req, res) => {
             });
         }
 
-        //Save User
+        //Save User  password gets hashed automatically by the pre-middleware in the User model
         const newUser = new User({ firstName, lastName, email, password });
         await newUser.save();
 
@@ -117,8 +117,9 @@ exports.login = async (req, res) => {
             });
         }
 
-        //Checks password
-        if (user.password !== password) {
+        //Checks password against the hashed value using bcrypt
+        const isMatch = await user.comparePassword(password);
+        if (!isMatch) {
             return res.render('auth/login', {
                 ...loginView,
                 error: 'Invalid email or password.',

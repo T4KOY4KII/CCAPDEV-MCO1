@@ -1,4 +1,7 @@
 const mongoose = require('mongoose');
+const bcrypt = require('bcrypt');
+
+const SALT_WORK_FACTOR = 10; // Number of salt rounds for bcrypt
 
 const passengerSchema = new mongoose.Schema({
     title: String,
@@ -47,24 +50,23 @@ const userSchema = new mongoose.Schema({
     }
 }, { timestamps: true }); 
 
-module.exports = mongoose.model('User', userSchema);
+//Password hashing middleware so password saves before document is saved
+userSchema.pre('save', async function (next) {
+    if (!this.isModified('password')) return next();
 
-//Updates the user's notification preferences
-exports.updateNotifications = async (req, res) => {
     try {
-        const { booking, schedule, checkin, travel, promo, sms } = req.body;
-
-        const updatedUser = await User.findOneAndUpdate(
-            { _id: req.params.id },
-            { notificationPrefs: { booking: !!booking, schedule: !!schedule, checkin: !!checkin, travel: !!travel, promo: !!promo, sms: !!sms } },
-            { returnDocument: 'after', runValidators: true }
-        );
-
-        if (!updatedUser) return res.status(404).json({ error: 'User not found' });
-
-        res.json({ success: true, notificationPrefs: updatedUser.notificationPrefs });
+        const salt = await bcrypt.genSalt(SALT_WORK_FACTOR);
+        this.password = await bcrypt.hash(this.password, salt);
+        next();
     } catch (err) {
-        console.error('Update notifications error:', err);
-        res.status(500).json({ error: 'Something went wrong.' });
+        next(err);
     }
-};
+});
+
+
+//Method to compare a given password with the database hash
+userSchema.method('comparePassword', async function (candidatePassword) {
+    return bcrypt.compare(candidatePassword, this.password);
+});
+
+module.exports = mongoose.model('User', userSchema);
