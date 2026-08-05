@@ -183,10 +183,9 @@
                 Show details <i class="bi bi-chevron-down" id="seatDetailsIcon"></i>
               </button>
             </div>
-            <div class="small text-muted">Seat: Premium</div>
+            <div class="small text-muted js-seat-label">Seat: not selected yet</div>
             <div id="seatDetails" class="summary-expandable d-none mt-2 small text-muted">
-              <div class="d-flex justify-content-between"><span>Seat 1A (Premium)</span><span id="seatPrice1">PHP
-                  385.00</span></div>
+              <div class="d-flex justify-content-between"><span class="js-seat-detail-label">No seat selected</span><span class="js-seat-price">{{pricingDisplay.zero}}</span></div>
             </div>
           </div>
           <hr>
@@ -201,7 +200,7 @@
             </div>
             <div class="small text-muted" id="selectedMealLabel">Standard</div>
             <div id="mealDetails" class="summary-expandable d-none mt-2 small text-muted">
-              <div class="d-flex justify-content-between"><span id="mealDetailName">Standard</span><span>PHP 0.00</span>
+              <div class="d-flex justify-content-between"><span id="mealDetailName">Standard</span><span class="js-meal-price">{{pricingDisplay.zero}}</span>
               </div>
             </div>
           </div>
@@ -215,10 +214,12 @@
                 Show details <i class="bi bi-chevron-down" id="extrasDetailsIcon"></i>
               </button>
             </div>
-            <div class="small text-muted">1 pc checked bag (24kg)</div>
+            <div class="small text-muted"><span class="js-baggage-count">1</span> pc checked bag (24kg)</div>
             <div id="extrasDetails" class="summary-expandable d-none mt-2">
-              <div class="d-flex justify-content-between small text-muted"><span>1 pc checked bag (24kg)</span><span>PHP
-                  2,105.00</span></div>
+              <div class="d-flex justify-content-between small text-muted mb-1"><span>Checked bag (×<span class="js-baggage-count">1</span>)</span><span class="js-baggage-price">{{pricingDisplay.baggagePerUnit}}</span></div>
+              <div class="d-flex justify-content-between small text-muted js-addon-priority-row"><span>Priority boarding</span><span class="js-addon-priority-price">{{pricingDisplay.zero}}</span></div>
+              <div class="d-flex justify-content-between small text-muted js-addon-insurance-row"><span>Travel insurance</span><span class="js-addon-insurance-price">{{pricingDisplay.zero}}</span></div>
+              <div class="d-flex justify-content-between small text-muted js-addon-lounge-row"><span>Lounge access</span><span class="js-addon-lounge-price">{{pricingDisplay.zero}}</span></div>
             </div>
           </div>
           <hr>
@@ -232,22 +233,9 @@
               </button>
             </div>
             <div id="taxDetails" class="summary-expandable d-none mt-2 small text-muted">
-              <div class="d-flex justify-content-between mb-1"><span>Administrative Fee</span><span>PHP 1,100.00</span>
+              <div class="d-flex justify-content-between mb-1"><span>Subtotal</span><span class="js-subtotal-price">{{pricingDisplay.basePrice}}</span>
               </div>
-              <div class="d-flex justify-content-between mb-1"><span>Fuel Surcharge</span><span>PHP 2,792.00</span>
-              </div>
-              <div class="d-flex justify-content-between mb-1"><span>CRK International Passenger Service
-                  Charge</span><span>PHP 730.00</span></div>
-              <div class="d-flex justify-content-between mb-1"><span>Domestic Passenger Service Charge -
-                  ASF</span><span>PHP 100.00</span></div>
-              <div class="d-flex justify-content-between mb-1"><span>HK Air Passenger Departure Tax</span><span>PHP
-                  1,567.60</span></div>
-              <div class="d-flex justify-content-between mb-1"><span>HK Airport Construction Fee</span><span>PHP
-                  705.42</span></div>
-              <div class="d-flex justify-content-between mb-1"><span>HK Airport Passenger Security
-                  Charge</span><span>PHP 509.47</span></div>
-              <div class="d-flex justify-content-between fw-semibold mt-1"><span>Subtotal</span><span>PHP
-                  7,504.49</span></div>
+              <div class="d-flex justify-content-between fw-semibold mt-1"><span>Taxes & fees ({{pricingDisplay.taxRatePercent}}%)</span><span class="js-tax-price">{{pricingDisplay.zero}}</span></div>
             </div>
           </div>
           <hr>
@@ -258,7 +246,7 @@
               <div class="fw-bold" style="font-size:18px">Total</div>
               <div class="text-muted small">Includes taxes and fees</div>
             </div>
-            <div class="fw-bold" style="font-size:20px" id="grandTotal">PHP 24,207.49</div>
+            <div class="fw-bold js-total" style="font-size:20px" id="grandTotal">{{pricingDisplay.basePrice}}</div>
           </div>
 
         </div>
@@ -276,30 +264,15 @@
           <div class="meal-container w-100 mb-3">
             <div class="d-flex justify-content-between align-items-center w-100 px-3 pt-2 mb-2">
               <h5 class="mb-0"><i class="bi bi-cup-hot me-2"></i>Meals</h5>
-              <select class="form-select form-select-sm" style="width:auto" id="mealSelect"
-                onchange="updateMeal(this.value)">
-                <option value="Standard">Select Meal</option>
-              </select>
             </div>
             <div class="w-100 px-3 pb-2" id="mealOptions">
-              <div class="meal-option active" data-meal="Standard" onclick="selectMeal('Standard')">
-                <span>Standard</span><i class="bi bi-check2 ms-auto"></i>
+              {{#each mealOptions}}
+              <div class="meal-option {{#if @first}}active{{/if}}" data-meal="{{this.value}}" data-price="{{this.price}}" onclick="selectMeal('{{this.value}}')">
+                <span>{{this.label}}</span>
+                <small class="text-muted ms-2">{{this.priceFormatted}}</small>
+                {{#if @first}}<i class="bi bi-check2 ms-auto"></i>{{/if}}
               </div>
-              <div class="meal-option" data-meal="Vegetarian" onclick="selectMeal('Vegetarian')">
-                <span>Vegetarian</span>
-              </div>
-              <div class="meal-option" data-meal="Vegan" onclick="selectMeal('Vegan')">
-                <span>Vegan</span>
-              </div>
-              <div class="meal-option" data-meal="Halal" onclick="selectMeal('Halal')">
-                <span>Halal</span>
-              </div>
-              <div class="meal-option" data-meal="Kosher" onclick="selectMeal('Kosher')">
-                <span>Kosher</span>
-              </div>
-              <div class="meal-option" data-meal="Gluten-Free" onclick="selectMeal('Gluten-Free')">
-                <span>Gluten-Free</span>
-              </div>
+              {{/each}}
             </div>
           </div>
 
@@ -314,7 +287,7 @@
               <!-- Legend -->
               <div class="d-flex gap-3 flex-wrap mb-3">
                 <div class="d-flex align-items-center gap-1">
-                  <div class="seat-legend premium"></div><small>Premium</small>
+                  <div class="seat-legend premium"></div><small>Premium (+{{pricingDisplay.seatPremiumSurcharge}})</small>
                 </div>
                 <div class="d-flex align-items-center gap-1">
                   <div class="seat-legend selected"></div><small>Selected</small>
@@ -327,11 +300,6 @@
                 </div>
               </div>
 
-              <div class="d-flex justify-content-between align-items-center mb-2">
-                <span class="fw-semibold small">Available Seats</span>
-                <span class="text-muted small" id="selectedSeatTag">Seat: C4</span>
-              </div>
-
               <div class="text-muted small mb-3">
                 <i class="bi bi-info-circle me-1"></i>
                 Guests with no pre-selected seats will be randomly assigned a seat at check-in
@@ -339,100 +307,23 @@
 
               <!-- Seat map -->
               <div class="seat-map mb-3" id="seatMap">
-                <!-- Row 1 — premium -->
+                {{#each seatMap}}
                 <div class="seat-row">
-                  <span class="row-num">1</span>
+                  <span class="row-num">{{this.rowNum}}</span>
                   <div class="seat-group">
-                    <button type="button" class="seat premium" data-seat="1A" onclick="selectSeat(this)">A</button>
-                    <button type="button" class="seat premium" data-seat="1B" onclick="selectSeat(this)">B</button>
+                    {{#each this.leftSeats}}
+                    <button type="button" class="{{this.cssClass}}" data-seat="{{this.id}}" data-premium="{{this.isPremium}}" {{#if this.isOccupied}}disabled{{else}}onclick="selectSeat(this)"{{/if}}>{{this.letter}}</button>
+                    {{/each}}
                   </div>
                   <div class="seat-aisle"></div>
                   <div class="seat-group">
-                    <button type="button" class="seat premium" data-seat="1C" onclick="selectSeat(this)">C</button>
-                    <button type="button" class="seat premium" data-seat="1D" onclick="selectSeat(this)">D</button>
+                    {{#each this.rightSeats}}
+                    <button type="button" class="{{this.cssClass}}" data-seat="{{this.id}}" data-premium="{{this.isPremium}}" {{#if this.isOccupied}}disabled{{else}}onclick="selectSeat(this)"{{/if}}>{{this.letter}}</button>
+                    {{/each}}
                   </div>
-                  <span class="row-num">1</span>
+                  <span class="row-num">{{this.rowNum}}</span>
                 </div>
-                <!-- Row 2 -->
-                <div class="seat-row">
-                  <span class="row-num">2</span>
-                  <div class="seat-group">
-                    <button type="button" class="seat occupied" data-seat="2A" disabled>A</button>
-                    <button type="button" class="seat available" data-seat="2B" onclick="selectSeat(this)">B</button>
-                    <button type="button" class="seat available" data-seat="2C" onclick="selectSeat(this)">C</button>
-                  </div>
-                  <div class="seat-aisle"></div>
-                  <div class="seat-group">
-                    <button type="button" class="seat available" data-seat="2D" onclick="selectSeat(this)">D</button>
-                    <button type="button" class="seat occupied" data-seat="2E" disabled>E</button>
-                    <button type="button" class="seat available" data-seat="2F" onclick="selectSeat(this)">F</button>
-                  </div>
-                  <span class="row-num">2</span>
-                </div>
-                <!-- Row 3 -->
-                <div class="seat-row">
-                  <span class="row-num">3</span>
-                  <div class="seat-group">
-                    <button type="button" class="seat occupied" data-seat="3A" disabled>A</button>
-                    <button type="button" class="seat occupied" data-seat="3B" disabled>B</button>
-                    <button type="button" class="seat available" data-seat="3C" onclick="selectSeat(this)">C</button>
-                  </div>
-                  <div class="seat-aisle"></div>
-                  <div class="seat-group">
-                    <button type="button" class="seat available" data-seat="3D" onclick="selectSeat(this)">D</button>
-                    <button type="button" class="seat occupied" data-seat="3E" disabled>E</button>
-                    <button type="button" class="seat available" data-seat="3F" onclick="selectSeat(this)">F</button>
-                  </div>
-                  <span class="row-num">3</span>
-                </div>
-                <!-- Row 4 -->
-                <div class="seat-row">
-                  <span class="row-num">4</span>
-                  <div class="seat-group">
-                    <button type="button" class="seat available" data-seat="4A" onclick="selectSeat(this)">A</button>
-                    <button type="button" class="seat available" data-seat="4B" onclick="selectSeat(this)">B</button>
-                    <button type="button" class="seat selected" data-seat="4C" onclick="selectSeat(this)">C</button>
-                  </div>
-                  <div class="seat-aisle"></div>
-                  <div class="seat-group">
-                    <button type="button" class="seat available" data-seat="4D" onclick="selectSeat(this)">D</button>
-                    <button type="button" class="seat available" data-seat="4E" onclick="selectSeat(this)">E</button>
-                    <button type="button" class="seat available" data-seat="4F" onclick="selectSeat(this)">F</button>
-                  </div>
-                  <span class="row-num">4</span>
-                </div>
-                <!-- Row 5 -->
-                <div class="seat-row">
-                  <span class="row-num">5</span>
-                  <div class="seat-group">
-                    <button type="button" class="seat available" data-seat="5A" onclick="selectSeat(this)">A</button>
-                    <button type="button" class="seat available" data-seat="5B" onclick="selectSeat(this)">B</button>
-                    <button type="button" class="seat available" data-seat="5C" onclick="selectSeat(this)">C</button>
-                  </div>
-                  <div class="seat-aisle"></div>
-                  <div class="seat-group">
-                    <button type="button" class="seat available" data-seat="5D" onclick="selectSeat(this)">D</button>
-                    <button type="button" class="seat available" data-seat="5E" onclick="selectSeat(this)">E</button>
-                    <button type="button" class="seat available" data-seat="5F" onclick="selectSeat(this)">F</button>
-                  </div>
-                  <span class="row-num">5</span>
-                </div>
-                <!-- Row 6 -->
-                <div class="seat-row">
-                  <span class="row-num">6</span>
-                  <div class="seat-group">
-                    <button type="button" class="seat available" data-seat="6A" onclick="selectSeat(this)">A</button>
-                    <button type="button" class="seat available" data-seat="6B" onclick="selectSeat(this)">B</button>
-                    <button type="button" class="seat available" data-seat="6C" onclick="selectSeat(this)">C</button>
-                  </div>
-                  <div class="seat-aisle"></div>
-                  <div class="seat-group">
-                    <button type="button" class="seat available" data-seat="6D" onclick="selectSeat(this)">D</button>
-                    <button type="button" class="seat available" data-seat="6E" onclick="selectSeat(this)">E</button>
-                    <button type="button" class="seat available" data-seat="6F" onclick="selectSeat(this)">F</button>
-                  </div>
-                  <span class="row-num">6</span>
-                </div>
+                {{/each}}
               </div>
 
             </div>
@@ -455,7 +346,7 @@
                   <div>
                     <div class="fw-semibold small">Additional baggage</div>
                     <div class="text-muted small">Weight: 24kg</div>
-                    <div class="text-muted small">PHP 1,250.00</div>
+                    <div class="text-muted small">{{pricingDisplay.baggagePerUnit}} per bag</div>
                   </div>
                   <div class="d-flex align-items-center gap-2">
                     <button type="button" class="btn btn-sm btn-light" onclick="changeBaggage(-1)"><i
@@ -470,10 +361,10 @@
                 <div class="extra-row mb-3">
                   <div>
                     <div class="fw-semibold small">Priority boarding</div>
-                    <div class="text-muted small">PHP 720.00</div>
+                    <div class="text-muted small">{{pricingDisplay.priorityBoardingPrice}}</div>
                   </div>
                   <div class="form-check form-switch mb-0">
-                    <input class="form-check-input" type="checkbox" id="priorityBoarding" onchange="updateTotal()">
+                    <input class="form-check-input" type="checkbox" id="priorityBoarding" onchange="recalculateTotals()">
                   </div>
                 </div>
 
@@ -481,10 +372,10 @@
                 <div class="extra-row mb-3">
                   <div>
                     <div class="fw-semibold small">Travel insurance</div>
-                    <div class="text-muted small">PHP 6,780.00</div>
+                    <div class="text-muted small">{{pricingDisplay.travelInsurancePrice}}</div>
                   </div>
                   <div class="form-check mb-0">
-                    <input class="form-check-input" type="checkbox" id="travelInsurance" onchange="updateTotal()">
+                    <input class="form-check-input" type="checkbox" id="travelInsurance" onchange="recalculateTotals()">
                   </div>
                 </div>
 
@@ -492,10 +383,10 @@
                 <div class="extra-row">
                   <div>
                     <div class="fw-semibold small">Lounge access</div>
-                    <div class="text-muted small">PHP 2,100.00</div>
+                    <div class="text-muted small">{{pricingDisplay.loungeAccessPrice}}</div>
                   </div>
                   <div class="form-check mb-0">
-                    <input class="form-check-input" type="checkbox" id="loungeAccess" onchange="updateTotal()">
+                    <input class="form-check-input" type="checkbox" id="loungeAccess" onchange="recalculateTotals()">
                   </div>
                 </div>
               </div>
@@ -513,18 +404,16 @@
             <div class="text-muted small">{{flight.departureDateFormatted}} · {{flight.departureTimeFormatted}} - {{flight.arrivalTimeFormatted}}</div>
           </div>
           <hr>
-          <div class="d-flex justify-content-between small mb-2"><span>Base fare</span><span>PHP 16,703.00</span></div>
-          <div class="d-flex justify-content-between small mb-2"><span>Seat (Premium)</span><span
-              id="seatPriceSummary2">PHP 385.00</span></div>
-          <div class="d-flex justify-content-between small mb-2"><span>Meal</span><span>PHP 0.00</span></div>
-          <div class="d-flex justify-content-between small mb-2"><span>Baggage (×<span
-                id="baggageCountSummary">1</span>)</span><span id="baggagePriceSummary">PHP 1,250.00</span></div>
-          <div class="d-flex justify-content-between small mb-2"><span>Taxes & fees</span><span>PHP 7,504.49</span>
-          </div>
+          <div class="d-flex justify-content-between small mb-2"><span>Base fare</span><span class="js-base-fare">{{pricingDisplay.basePrice}}</span></div>
+          <div class="d-flex justify-content-between small mb-2"><span class="js-seat-row-label">Seat</span><span class="js-seat-price">{{pricingDisplay.zero}}</span></div>
+          <div class="d-flex justify-content-between small mb-2"><span>Meal</span><span class="js-meal-price">{{pricingDisplay.zero}}</span></div>
+          <div class="d-flex justify-content-between small mb-2"><span>Baggage (×<span class="js-baggage-count">1</span>)</span><span class="js-baggage-price">{{pricingDisplay.baggagePerUnit}}</span></div>
+          <div class="d-flex justify-content-between small mb-2 js-addons-row"><span>Add-ons</span><span class="js-addons-price">{{pricingDisplay.zero}}</span></div>
+          <div class="d-flex justify-content-between small mb-2"><span>Taxes & fees</span><span class="js-tax-price">{{pricingDisplay.zero}}</span></div>
           <hr>
           <div class="d-flex justify-content-between fw-bold">
             <span>Total</span>
-            <span id="grandTotal2">PHP 24,207.49</span>
+            <span class="js-total">{{pricingDisplay.basePrice}}</span>
           </div>
         </div>
 
@@ -572,18 +461,19 @@
           <!-- Order summary -->
           <div class="w-100 px-3">
             <h6 class="mb-3">Order Summary</h6>
-            <div class="d-flex justify-content-between small mb-2"><span>Flight: CRK → HKG</span><span>PHP
-                16,703.00</span></div>
-            <div class="d-flex justify-content-between small mb-2"><span>Seat (Premium 4C)</span><span>PHP 385.00</span>
+            <div class="d-flex justify-content-between small mb-2"><span>Flight: {{flight.origin}} → {{flight.destination}}</span><span class="js-base-fare">{{pricingDisplay.basePrice}}</span></div>
+            <div class="d-flex justify-content-between small mb-2"><span class="js-seat-row-label">Seat</span><span class="js-seat-price">{{pricingDisplay.zero}}</span>
             </div>
-            <div class="d-flex justify-content-between small mb-2"><span>Meal (Standard)</span><span>PHP 0.00</span>
+            <div class="d-flex justify-content-between small mb-2"><span>Meal</span><span class="js-meal-price">{{pricingDisplay.zero}}</span>
             </div>
-            <div class="d-flex justify-content-between small mb-2"><span>Baggage (×1)</span><span>PHP 1,250.00</span>
+            <div class="d-flex justify-content-between small mb-2"><span>Baggage (×<span class="js-baggage-count">1</span>)</span><span class="js-baggage-price">{{pricingDisplay.baggagePerUnit}}</span>
             </div>
-            <div class="d-flex justify-content-between small mb-2"><span>Taxes & fees</span><span>PHP 7,504.49</span>
+            <div class="d-flex justify-content-between small mb-2 js-addons-row"><span>Add-ons</span><span class="js-addons-price">{{pricingDisplay.zero}}</span>
+            </div>
+            <div class="d-flex justify-content-between small mb-2"><span>Taxes & fees</span><span class="js-tax-price">{{pricingDisplay.zero}}</span>
             </div>
             <hr>
-            <div class="d-flex justify-content-between fw-bold mb-1"><span>Total</span><span>PHP 24,207.49</span></div>
+            <div class="d-flex justify-content-between fw-bold mb-1"><span>Total</span><span class="js-total">{{pricingDisplay.basePrice}}</span></div>
             <div class="text-muted small">Includes taxes and fees</div>
           </div>
 
@@ -597,18 +487,20 @@
             <div class="text-muted small">{{flight.departureDateFormatted}} · {{flight.departureTimeFormatted}} - {{flight.arrivalTimeFormatted}}</div>
           </div>
           <hr>
-          <div class="d-flex justify-content-between small mb-2"><span>Base fare</span><span>PHP 16,703.00</span></div>
-          <div class="d-flex justify-content-between small mb-2"><span>Seat (Premium)</span><span>PHP 385.00</span>
+          <div class="d-flex justify-content-between small mb-2"><span>Base fare</span><span class="js-base-fare">{{pricingDisplay.basePrice}}</span></div>
+          <div class="d-flex justify-content-between small mb-2"><span class="js-seat-row-label">Seat</span><span class="js-seat-price">{{pricingDisplay.zero}}</span>
           </div>
-          <div class="d-flex justify-content-between small mb-2"><span>Meal</span><span>PHP 0.00</span></div>
-          <div class="d-flex justify-content-between small mb-2"><span>Baggage (×1)</span><span>PHP 1,250.00</span>
+          <div class="d-flex justify-content-between small mb-2"><span>Meal</span><span class="js-meal-price">{{pricingDisplay.zero}}</span></div>
+          <div class="d-flex justify-content-between small mb-2"><span>Baggage (×<span class="js-baggage-count">1</span>)</span><span class="js-baggage-price">{{pricingDisplay.baggagePerUnit}}</span>
           </div>
-          <div class="d-flex justify-content-between small mb-2"><span>Taxes & fees</span><span>PHP 7,504.49</span>
+          <div class="d-flex justify-content-between small mb-2 js-addons-row"><span>Add-ons</span><span class="js-addons-price">{{pricingDisplay.zero}}</span>
+          </div>
+          <div class="d-flex justify-content-between small mb-2"><span>Taxes & fees</span><span class="js-tax-price">{{pricingDisplay.zero}}</span>
           </div>
           <hr>
           <div class="d-flex justify-content-between fw-bold">
             <span>Total</span>
-            <span>PHP 24,207.49</span>
+            <span class="js-total">{{pricingDisplay.basePrice}}</span>
           </div>
         </div>
 
@@ -623,5 +515,8 @@
     <button type="button" class="next-btn">Next →</button>
     <button type="submit" class="pay-btn">Pay Now</button>
   </div>
+
+  <!-- Pricing config for booking.js to read - see reservationController.showBooking -->
+  <script id="pricingConfigData" type="application/json">{{{pricingConfigJSON}}}</script>
 
 </form>

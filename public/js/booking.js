@@ -56,6 +56,7 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
     progressUpdate();
+    recalculateTotals(); // set correct initial numbers (base fare + default baggage + tax) instead of the static placeholders
 });
 
 // Toggle summary expand/collapse sections
@@ -66,8 +67,68 @@ function toggleSummarySection(id) {
     if (icon) icon.className = el.classList.contains('d-none') ? 'bi bi-chevron-down' : 'bi bi-chevron-up';
 }
 
+//Pricing configuration data that recalculates as soon as the user selects different options
+var pricingConfig = JSON.parse(document.getElementById('pricingConfigData').textContent);
+
+var selectedSeat = null;
+var selectedSeatIsPremium = false;
+var selectedMeal = 'Standard';
+var baggageCount = 1;
+
+function formatPHP(amount) {
+    return 'PHP ' + amount.toLocaleString('en-PH', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+}
+
+function setAllText(className, text) {
+    document.querySelectorAll('.' + className).forEach(function (el) { el.textContent = text; });
+}
+
+function recalculateTotals() {
+    var priorityBoarding = document.getElementById('priorityBoarding');
+    var travelInsurance = document.getElementById('travelInsurance');
+    var loungeAccess = document.getElementById('loungeAccess');
+
+    var seatPrice = selectedSeatIsPremium ? pricingConfig.seatPremiumSurcharge : 0;
+
+    var mealOption = pricingConfig.mealOptions.find(function (m) { return m.value === selectedMeal; }) || pricingConfig.mealOptions[0];
+    var mealPrice = mealOption.price;
+
+    var baggagePrice = baggageCount * pricingConfig.baggagePerUnit;
+
+    var priorityPrice = (priorityBoarding && priorityBoarding.checked) ? pricingConfig.priorityBoardingPrice : 0;
+    var insurancePrice = (travelInsurance && travelInsurance.checked) ? pricingConfig.travelInsurancePrice : 0;
+    var loungePrice = (loungeAccess && loungeAccess.checked) ? pricingConfig.loungeAccessPrice : 0;
+    var addonsPrice = priorityPrice + insurancePrice + loungePrice;
+
+    var subtotal = pricingConfig.basePrice + seatPrice + mealPrice + baggagePrice + addonsPrice;
+    var taxPrice = subtotal * pricingConfig.taxRate;
+    var total = subtotal + taxPrice;
+
+    setAllText('js-base-fare', formatPHP(pricingConfig.basePrice));
+    setAllText('js-seat-price', formatPHP(seatPrice));
+    setAllText('js-meal-price', formatPHP(mealPrice));
+    setAllText('js-baggage-price', formatPHP(baggagePrice));
+    setAllText('js-baggage-count', baggageCount);
+    setAllText('js-addons-price', formatPHP(addonsPrice));
+    setAllText('js-tax-price', formatPHP(taxPrice));
+    setAllText('js-subtotal-price', formatPHP(subtotal));
+    setAllText('js-total', formatPHP(total));
+
+    setAllText('js-addon-priority-price', formatPHP(priorityPrice));
+    setAllText('js-addon-insurance-price', formatPHP(insurancePrice));
+    setAllText('js-addon-lounge-price', formatPHP(loungePrice));
+
+    var seatRowLabel = selectedSeat ? ('Seat (' + (selectedSeatIsPremium ? 'Premium' : 'Standard') + ')') : 'Seat';
+    setAllText('js-seat-row-label', seatRowLabel);
+
+    var seatLabelText = selectedSeat ? ('Seat: ' + selectedSeat) : 'Seat: not selected yet';
+    setAllText('js-seat-label', seatLabelText);
+
+    var seatDetailLabel = selectedSeat ? ('Seat ' + selectedSeat + ' (' + (selectedSeatIsPremium ? 'Premium' : 'Standard') + ')') : 'No seat selected';
+    setAllText('js-seat-detail-label', seatDetailLabel);
+}
+
 // Seat selection
-var selectedSeat = '4C';
 function selectSeat(btn) {
     document.querySelectorAll('.seat.selected').forEach(function (s) {
         if (!s.classList.contains('premium')) s.classList.replace('selected', 'available');
@@ -75,33 +136,37 @@ function selectSeat(btn) {
     });
     btn.classList.add('selected');
     selectedSeat = btn.dataset.seat;
+    selectedSeatIsPremium = btn.dataset.premium === 'true';
     document.getElementById('selectedSeatLabel').textContent = 'Seat: ' + selectedSeat;
-    document.getElementById('selectedSeatTag').textContent = 'Seat: ' + selectedSeat;
+    recalculateTotals();
 }
 
 // Meal selection
 function selectMeal(meal) {
     document.querySelectorAll('.meal-option').forEach(function (el) {
         el.classList.remove('active');
-        el.innerHTML = '<span>' + el.dataset.meal + '</span>';
+        var price = parseInt(el.dataset.price, 10) || 0;
+        var priceLabel = price > 0 ? ('+PHP ' + price.toLocaleString('en-PH', { minimumFractionDigits: 2 })) : 'Included';
+        el.innerHTML = '<span>' + el.dataset.meal + '</span><small class="text-muted ms-2">' + priceLabel + '</small>';
     });
     var active = document.querySelector('.meal-option[data-meal="' + meal + '"]');
     if (active) {
         active.classList.add('active');
-        active.innerHTML = '<span>' + meal + '</span><i class="bi bi-check2 ms-auto"></i>';
+        var price = parseInt(active.dataset.price, 10) || 0;
+        var priceLabel = price > 0 ? ('+PHP ' + price.toLocaleString('en-PH', { minimumFractionDigits: 2 })) : 'Included';
+        active.innerHTML = '<span>' + meal + '</span><small class="text-muted ms-2">' + priceLabel + '</small><i class="bi bi-check2 ms-auto"></i>';
     }
     document.getElementById('selectedMealLabel').textContent = meal;
     document.getElementById('mealDetailName').textContent = meal;
+    selectedMeal = meal;
+    recalculateTotals();
 }
 
 // Baggage counter
-var baggageCount = 1;
 function changeBaggage(delta) {
     baggageCount = Math.max(0, Math.min(5, baggageCount + delta));
     document.getElementById('baggageCount').textContent = baggageCount;
-    document.getElementById('baggageCountSummary').textContent = baggageCount;
-    var price = baggageCount * 1250;
-    document.getElementById('baggagePriceSummary').textContent = 'PHP ' + price.toLocaleString('en-PH', { minimumFractionDigits: 2 });
+    recalculateTotals();
 }
 
 // Toggle extras section
@@ -109,19 +174,26 @@ function toggleExtras(show) {
     document.getElementById('extrasContent').style.display = show ? 'block' : 'none';
 }
 
-// Update total (simplified)
-function updateTotal() { }
-
 // Submit the booking to the server
 document.querySelector('.pay-btn').addEventListener('click', function (e) {
     e.preventDefault();
+
+    if (!selectedSeat) {
+        alert('Please select a seat before paying.');
+        return;
+    }
 
     var payload = {
         firstName: document.getElementById('firstName').value.trim(),
         lastName: document.getElementById('lastName').value.trim(),
         email: document.getElementById('email').value.trim(),
         passportNumber: document.getElementById('passportNumber').value.trim(),
-        seat: selectedSeat
+        seat: selectedSeat,
+        meal: selectedMeal,
+        baggageCount: baggageCount,
+        priorityBoarding: document.getElementById('priorityBoarding').checked,
+        travelInsurance: document.getElementById('travelInsurance').checked,
+        loungeAccess: document.getElementById('loungeAccess').checked
     };
 
     fetch(window.location.pathname, {
