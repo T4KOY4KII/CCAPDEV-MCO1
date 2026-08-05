@@ -140,7 +140,8 @@ exports.showDashboard = async (req, res) => {
             promotionSlides,
             recentlyViewed,
             hasPromos: promotionSlides.length > 0,
-            hasRecentlyViewed: recentlyViewed.length > 0
+            hasRecentlyViewed: recentlyViewed.length > 0,
+            lastSearchJSON: JSON.stringify(req.session.lastSearch || null)
         });
 
     } catch (err) {
@@ -153,6 +154,7 @@ exports.showDashboard = async (req, res) => {
             recentlyViewed: [],
             hasPromos: false,
             hasRecentlyViewed: false,
+            lastSearchJSON: JSON.stringify(req.session.lastSearch || null),
             error: 'Could not load flight data.'
         });
     }
@@ -228,6 +230,8 @@ exports.searchFlights = async (req, res) => {
         const flights = await Flight.find(query).lean();
         const formattedFlights = flights.map(formatFlight);
 
+        //Remembering the last search in session so the user can return to it from the dashboard or other pages
+        req.session.lastSearch = { origin, destination, departDate, returnDate, tripType, cabinClass };
 
         res.render('user/search', {
             ...searchView,

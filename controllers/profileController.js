@@ -1,4 +1,6 @@
 const User = require('../models/User');
+const Reservation = require('../models/Reservation');
+const Flight = require('../models/Flight');
 
 //User views details
 const profileView = {
@@ -56,7 +58,16 @@ exports.showProfile = async (req, res) => {
 
         const initials = (user.firstName.charAt(0) + user.lastName.charAt(0)).toUpperCase();
 
-        res.render('user/profile', { ...profileView, user, initials, savedPassengersJSON: JSON.stringify(user.savedPassengers || []) });
+        //Counts upcoming flights - same manual lookup pattern reservationController.showReservations
+        //already uses (this codebase doesn't use .populate() anywhere, so matching that)
+        const activeReservations = await Reservation.find({ user: req.params.id, status: { $ne: 'cancelled' } });
+        let upcomingFlightsCount = 0;
+        for (const r of activeReservations) {
+            const flight = await Flight.findById(r.flight);
+            if (flight && new Date(flight.departureDate) >= new Date()) upcomingFlightsCount++;
+        }
+
+        res.render('user/profile', { ...profileView, user, initials, upcomingFlightsCount, savedPassengersJSON: JSON.stringify(user.savedPassengers || []) });
     } catch (err) {
         console.error('Show profile error:', err);
         res.status(500).send('Something went wrong.');

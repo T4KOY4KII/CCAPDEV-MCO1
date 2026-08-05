@@ -147,6 +147,13 @@ $(document).ready(function () {
             }, 3000);
         }
 
+        //Validation for email format
+        function isValidEmail(email) {
+            var atIndex = email.indexOf('@');
+            var dotIndex = email.lastIndexOf('.');
+            return atIndex > 0 && dotIndex > atIndex + 1 && dotIndex < email.length - 1;
+        }
+
         function showFieldError(selector, message) {
             // slap the red border + error message under the bad field
             $(selector)
@@ -457,6 +464,9 @@ $(document).ready(function () {
 
         // builds and injects the payment methods list
         function renderPaymentMethods() {
+            // makes sure the count in the profile summary is always up to date
+            $('#paymentMethodCount').text(paymentMethods.length);
+
             var html = '';
             paymentMethods.forEach(function (m) {
                 html += '<div class="payment-method-row">' +
