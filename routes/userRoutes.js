@@ -9,15 +9,15 @@ const userController = require("../controllers/profileController");
 const { requireAuth, requireAuthAPI } = require("../middleware/authMiddleware");
 
 //Dashboard page route
-router.get('/dashboard', requireAuth, flightController.showDashboard);
+router.get('/dashboard', flightController.showDashboard); //NOT required to be protected
 
 //Search page route
-router.get('/search', requireAuth, flightController.showSearch);
-router.get('/search/results', requireAuth, flightController.searchFlights); 
+router.get('/search', flightController.showSearch); //NOT required to be protected
+router.get('/search/results', flightController.searchFlights); //NOT required to be protected
 
 // Flight details
-router.get('/flight/:id', requireAuth, flightController.showFlightDetails); 
-router.post('/flight/:id/view', requireAuthAPI, flightController.trackViewedFlight);
+router.get('/flight/:id', flightController.showFlightDetails); //NOT required to be protected
+router.post('/flight/:id/view', flightController.trackViewedFlight); //NOT required to be protected
 
 //Booking page route
 router.get('/booking/:flightId', requireAuth, reservationController.showBooking);
