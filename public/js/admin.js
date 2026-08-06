@@ -1,31 +1,5 @@
 document.addEventListener('DOMContentLoaded', () => {
 
-    //flights pagination state
-    const FLIGHTS_PAGE_SIZE = 5;
-    let allFlights = [];
-    let flightsCurrentPage = 1;
-
-    function renderFlightsPage() {
-        const totalResults = allFlights.length;
-        const totalPages = Math.max(Math.ceil(totalResults / FLIGHTS_PAGE_SIZE), 1);
-
-        if (flightsCurrentPage > totalPages) flightsCurrentPage = totalPages;
-        if (flightsCurrentPage < 1) flightsCurrentPage = 1;
-
-        const start = (flightsCurrentPage - 1) * FLIGHTS_PAGE_SIZE;
-        const pageItems = allFlights.slice(start, start + FLIGHTS_PAGE_SIZE);
-
-        renderFlightsTable(pageItems);
-
-        const pageInfo = document.getElementById('resPageInfo');
-        const prevBtn = document.getElementById('resPrevBtn');
-        const nextBtn = document.getElementById('resNextBtn');
-
-        if (pageInfo) pageInfo.textContent = `Page ${flightsCurrentPage} of ${totalPages} (${totalResults} result${totalResults === 1 ? '' : 's'})`;
-        if (prevBtn) prevBtn.disabled = flightsCurrentPage === 1;
-        if (nextBtn) nextBtn.disabled = flightsCurrentPage === totalPages;
-    }
-
     /* --- Search bar typing --- */
     const flightSearchInput = document.getElementById('flightSearch');
     if (flightSearchInput) {
@@ -144,6 +118,34 @@ function renderFlightsTable(flights) {
         </tr>
     `).join('');
 }
+
+
+//flights pagination state
+const FLIGHTS_PAGE_SIZE = 5;
+let allFlights = [];
+let flightsCurrentPage = 1;
+
+function renderFlightsPage() {
+    const totalResults = allFlights.length;
+    const totalPages = Math.max(Math.ceil(totalResults / FLIGHTS_PAGE_SIZE), 1);
+
+    if (flightsCurrentPage > totalPages) flightsCurrentPage = totalPages;
+    if (flightsCurrentPage < 1) flightsCurrentPage = 1;
+
+    const start = (flightsCurrentPage - 1) * FLIGHTS_PAGE_SIZE;
+    const pageItems = allFlights.slice(start, start + FLIGHTS_PAGE_SIZE);
+
+    renderFlightsTable(pageItems);
+
+    const pageInfo = document.getElementById('resPageInfo');
+    const prevBtn = document.getElementById('resPrevBtn');
+    const nextBtn = document.getElementById('resNextBtn');
+
+    if (pageInfo) pageInfo.textContent = `Page ${flightsCurrentPage} of ${totalPages} (${totalResults} result${totalResults === 1 ? '' : 's'})`;
+    if (prevBtn) prevBtn.disabled = flightsCurrentPage === 1;
+    if (nextBtn) nextBtn.disabled = flightsCurrentPage === totalPages;
+}
+
 
 /* --- get flights from server without reloading --- */
 async function fetchFlightsAJAX(query = '') {
