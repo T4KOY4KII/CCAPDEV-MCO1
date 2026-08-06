@@ -100,9 +100,10 @@ describe('cancelReservation', () =>{
         // Arrange
         const req = {
             params: { flightId: 'flight123' },
-            body: { firstName: 'Juan', lastName: 'Dela Cruz', email: 'juan@example.com', passportNumber: 'P1234567', seat: '2A' },
+            body: { firstName: 'Juan', lastName: 'Dela Cruz', email: 'juan@example.com', passportNumber: 'P1234567', seat: '2A', status: 'confirmed' },
             session: { userId: 'user123' }
         };
+        
         const res = mockResponse();
 
         const mockFlight = { _id: 'flight123', price: 5000, availableSeats: 5, save: jest.fn().mockResolvedValue(true) };
