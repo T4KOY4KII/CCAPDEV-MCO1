@@ -78,7 +78,7 @@ const formatFlight = (flight) => {
 
 
 
-//Renders dashboard page
+//Renders dashboard page 
 exports.showDashboard = async (req, res) => {
 
     try {
@@ -161,7 +161,7 @@ exports.showDashboard = async (req, res) => {
 
 };
 
-//Renders flight search page
+//Renders defaultflight search page
 exports.showSearch = async (req, res) => {
     try {
         // Show all currently bookable flights by default
@@ -194,6 +194,7 @@ exports.showSearch = async (req, res) => {
     }
 };
 
+//Fetches matching flights and renders search results page
 exports.searchFlights = async (req, res) => {
     const {
         origin,
@@ -252,14 +253,14 @@ exports.searchFlights = async (req, res) => {
         });
 
     } catch (err) {
-        console.error('Search error:', err);
+        console.error('Search page error:', err);
         res.render('user/search', {
             ...searchView,
             airports,
             airlines,
             flights: [],
             hasFlights: false,
-            error: 'Could not fetch flights. Please try again.'
+            error: 'Could not load flight data.'
         });
     }
 };
