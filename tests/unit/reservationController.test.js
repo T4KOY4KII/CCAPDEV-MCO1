@@ -23,7 +23,7 @@ describe('Business Rule Validation (createBooking) - Unit Testing', () => {
 
     //Booking a flight with no available seats
     test('rejects booking when the flight has no available seats', async () => {
-        // Arrange
+        
         const req = {
             params: { flightId: 'flight123' },
             body: { firstName: 'Juan', lastName: 'Dela Cruz', email: 'juan@example.com', passportNumber: 'P1234567', seat: '2A' },
@@ -33,17 +33,15 @@ describe('Business Rule Validation (createBooking) - Unit Testing', () => {
 
         Flight.findById.mockResolvedValue({ _id: 'flight123', price: 5000, availableSeats: 0 });
 
-        // Act
         await reservationController.createBooking(req, res);
-
-        // Assert
+        
         expect(res.status).toHaveBeenCalledWith(400);
         expect(res.json).toHaveBeenCalledWith({ success: false, error: 'This flight has no available seats.' });
     });
 
     //Selecting an occupied seat
     test('rejects booking when the selected seat is already taken', async () => {
-        // Arrange
+        
         const req = {
             params: { flightId: 'flight123' },
             body: { firstName: 'Juan', lastName: 'Dela Cruz', email: 'juan@example.com', passportNumber: 'P1234567', seat: '2A' },
@@ -54,10 +52,9 @@ describe('Business Rule Validation (createBooking) - Unit Testing', () => {
         Flight.findById.mockResolvedValue({ _id: 'flight123', price: 5000, availableSeats: 5 });
         Reservations.findOne.mockResolvedValue({ _id: 'existingRes123', seat: '2A', status: 'confirmed' });
 
-        // Act
+        
         await reservationController.createBooking(req, res);
-
-        // Assert
+        
         expect(res.status).toHaveBeenCalledWith(400);
         expect(res.json).toHaveBeenCalledWith({ success: false, error: 'That seat is already taken. Please choose another.' });
     });
@@ -73,7 +70,7 @@ describe('Reservation Management - Unit Testing', () => {
 
     //Create reservation
     test('successfully creates a reservation when seats are available and the seat is free', async () => {
-        // Arrange
+        
         const req = {
             params: { flightId: 'flight123' },
             body: { firstName: 'Juan', lastName: 'Dela Cruz', email: 'juan@example.com', passportNumber: 'P1234567', seat: '2A' },
@@ -89,11 +86,9 @@ describe('Reservation Management - Unit Testing', () => {
         Reservations.mockImplementation(function (data) {
             return { ...data, save: mockSave };
         });
-
-        // Act
+        
         await reservationController.createBooking(req, res);
-
-        // Assert
+        
         expect(res.json).toHaveBeenCalledWith(expect.objectContaining({ success: true }));
         expect(mockFlight.availableSeats).toBe(4); // decremented from 5
         expect(mockSave).toHaveBeenCalled();
@@ -101,7 +96,7 @@ describe('Reservation Management - Unit Testing', () => {
 
     //Cancel Reservation
     test('successfully cancels a reservation', async () => {
-        // Arrange
+        
         const req = {
             params: { id: 'reservation123' },
             session: { userId: 'user123' }
@@ -127,10 +122,9 @@ describe('Reservation Management - Unit Testing', () => {
         Reservations.findOne.mockResolvedValue(mockReservation); 
         Flight.findById.mockResolvedValue(mockFlight);
 
-        // Act
+        
         await reservationController.cancelReservation(req, res);
-
-        // Assert
+        
         expect(res.json).toHaveBeenCalledWith(expect.objectContaining({
             success: true,
             reservation: mockReservation
