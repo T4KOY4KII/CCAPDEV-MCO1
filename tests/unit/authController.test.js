@@ -3,6 +3,7 @@ const authController = require('../../controllers/authController');
 
 //Mock user model
 jest.mock('../../models/User');
+jest.mock('../../models/AuditLog');
 
 function mockResponse() {
     const res = [];

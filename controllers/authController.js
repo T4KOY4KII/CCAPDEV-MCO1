@@ -70,11 +70,15 @@ exports.register = async (req, res) => {
         const newUser = new User({ firstName, lastName, email, password });
         await newUser.save();
 
-        await AuditLog.create({
-            username: `${newUser.firstName} ${newUser.lastName}`,
-            userRole: newUser.role,
-            activity: "User Registration"
-        });
+        try {
+            await AuditLog.create({
+                username: `${newUser.firstName} ${newUser.lastName}`,
+                userRole: newUser.role || 'user',
+                activity: "User Registration"
+            });
+        } catch (auditErr) {
+            console.error('Audit log error:', auditErr);
+        }
 
         //Redirect to login page
         res.redirect('/login?registered=true');
