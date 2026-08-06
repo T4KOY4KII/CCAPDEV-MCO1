@@ -74,14 +74,14 @@ $(document).ready(function () {
 
             var hasError = false;
 
-            if (!firstNameVal) { showFieldError('#pFirstName', 'First name is required.'); hasError = true; }
-            if (!lastNameVal)  { showFieldError('#pLastName', 'Last name is required.'); hasError = true; }
+            if (!firstNameVal) { showFieldError('#firstName', 'First name is required.'); hasError = true; }
+            if (!lastNameVal)  { showFieldError('#lastName', 'Last name is required.'); hasError = true; }
                 
             if (!emailVal) {
-                showFieldError('#pEmail', 'Email is required.');
+                showFieldError('#email', 'Email is required.');
                 hasError = true;
             } else if (!isValidEmail(emailVal)) {
-                showFieldError('#pEmail', 'Please enter a valid email address.');
+                showFieldError('#email', 'Please enter a valid email address.');
                 hasError = true;
             }
         
@@ -147,7 +147,7 @@ $(document).ready(function () {
             }, 3000);
         }
 
-        //Validation for email format
+        //Same validation function as other js files
         function isValidEmail(email) {
             var atIndex = email.indexOf('@');
             var dotIndex = email.lastIndexOf('.');
@@ -642,6 +642,7 @@ $(document).ready(function () {
 
         /* TRAVEL HISTORY */
 
+        //STATIC - this wasn't in the specs so like...
         var travelHistory = [
             { route: 'CGY-BCD', airline: 'Philippine Airlines', flightNum: 'PR4923', date: 'March 13, 2025',      status: 'past',     bookingNum: 'V9ABCD', logo: '/imgs/flights/pal-logo.png',          name: 'Jose Rizal', gender: 'Adult', nationality: 'Filipino', contact: '+63 9674206967', email: 'joserizal@gmail.com', gate: '3B',  seat: '14A', boarding: '2:30PM'  },
             { route: 'DVO-BXU', airline: 'AirAsia',             flightNum: 'Z2842',  date: 'December 5, 2025',    status: 'past',     bookingNum: 'K3LMNO', logo: '/imgs/flights/air-asia-logo.png',     name: 'Jose Rizal', gender: 'Adult', nationality: 'Filipino', contact: '+63 9674206967', email: 'joserizal@gmail.com', gate: '7C',  seat: '22F', boarding: '10:00AM' },

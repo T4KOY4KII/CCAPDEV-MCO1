@@ -49,6 +49,13 @@ document.addEventListener("DOMContentLoaded", () => {
     nextButton.addEventListener("click", (e) => {
         e.preventDefault(); // preventing form submission
 
+        // Only step 1 (Passenger Information) needs validation before moving on -
+        // steps 2 and 3 either have their own checks (seat required before pay)
+        // or nothing required to fill in
+        if (currentStep === 0 && !validatePassengerInfo()) {
+            return;
+        }
+
         if (currentStep < stepIndicators.length - 1) {
             currentStep++;
             progressUpdate();
@@ -67,6 +74,83 @@ function toggleSummarySection(id) {
     if (icon) icon.className = el.classList.contains('d-none') ? 'bi bi-chevron-down' : 'bi bi-chevron-up';
 }
 
+// Validate email format
+function isValidEmail(email) {
+    var atIndex = email.indexOf('@');
+    var dotIndex = email.lastIndexOf('.');
+    return atIndex > 0 && dotIndex > atIndex + 1 && dotIndex < email.length - 1;
+}
+
+// Show error message for a specific field
+function showFieldError(selector, message) {
+    $(selector)
+        .addClass('is-invalid')
+        .after('<div class="invalid-feedback">' + message + '</div>');
+}
+
+// Validate passenger information form fields
+function validatePassengerInfo() {
+    $('.passenger-container .is-invalid').removeClass('is-invalid');
+    $('.passenger-container .invalid-feedback').remove();
+
+    var firstNameVal = $('#firstName').val().trim();
+    var lastNameVal = $('#lastName').val().trim();
+    var contactVal = $('#contactNumber').val().trim();
+    var emailVal = $('#email').val().trim();
+    var passportVal = $('#passportNumber').val().trim();
+    var nationalityVal = $('#nationality').val();
+    var dobMonthVal = $('#dobMonth').val().trim();
+    var dobDayVal = $('#dobDay').val().trim();
+    var dobYearVal = $('#dobYear').val().trim();
+    var genderVal = $('#gender').val();
+
+    var hasError = false;
+
+    if (!firstNameVal) { showFieldError('#firstName', 'First name is required.'); hasError = true; }
+    if (!lastNameVal) { showFieldError('#lastName', 'Last name is required.'); hasError = true; }
+
+    if (!contactVal) {
+        showFieldError('#contactNumber', 'Contact number is required.');
+        hasError = true;
+    } else if (!/^\d{7,15}$/.test(contactVal)) {
+        showFieldError('#contactNumber', 'Enter a valid contact number (digits only).');
+        hasError = true;
+    }
+
+    if (!emailVal) {
+        showFieldError('#email', 'Email is required.');
+        hasError = true;
+    } else if (!isValidEmail(emailVal)) {
+        showFieldError('#email', 'Please enter a valid email address.');
+        hasError = true;
+    }
+
+    if (!passportVal) { showFieldError('#passportNumber', 'Passport number is required.'); hasError = true; }
+    if (!nationalityVal) { showFieldError('#nationality', 'Nationality is required.'); hasError = true; }
+    if (!genderVal) { showFieldError('#gender', 'Gender is required.'); hasError = true; }
+
+    var month = parseInt(dobMonthVal, 10);
+    var day = parseInt(dobDayVal, 10);
+    var year = parseInt(dobYearVal, 10);
+    var currentYear = new Date().getFullYear();
+
+    if (!dobMonthVal || !dobDayVal || !dobYearVal) {
+        showFieldError('#dobYear', 'Full date of birth is required.');
+        hasError = true;
+    } else if (month < 1 || month > 12) {
+        showFieldError('#dobMonth', 'Month must be between 01-12.');
+        hasError = true;
+    } else if (day < 1 || day > 31) {
+        showFieldError('#dobDay', 'Day must be between 01-31.');
+        hasError = true;
+    } else if (year < 1900 || year > currentYear) {
+        showFieldError('#dobYear', 'Enter a realistic birth year.');
+        hasError = true;
+    }
+
+    return !hasError;
+}
+
 //Pricing configuration data that recalculates as soon as the user selects different options
 var pricingConfig = JSON.parse(document.getElementById('pricingConfigData').textContent);
 
@@ -74,6 +158,7 @@ var selectedSeat = null;
 var selectedSeatIsPremium = false;
 var selectedMeal = 'Standard';
 var baggageCount = 1;
+var extrasEnabled = true; // matches the toggle's default "checked" state
 
 function formatPHP(amount) {
     return 'PHP ' + amount.toLocaleString('en-PH', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
@@ -93,11 +178,11 @@ function recalculateTotals() {
     var mealOption = pricingConfig.mealOptions.find(function (m) { return m.value === selectedMeal; }) || pricingConfig.mealOptions[0];
     var mealPrice = mealOption.price;
 
-    var baggagePrice = baggageCount * pricingConfig.baggagePerUnit;
-
-    var priorityPrice = (priorityBoarding && priorityBoarding.checked) ? pricingConfig.priorityBoardingPrice : 0;
-    var insurancePrice = (travelInsurance && travelInsurance.checked) ? pricingConfig.travelInsurancePrice : 0;
-    var loungePrice = (loungeAccess && loungeAccess.checked) ? pricingConfig.loungeAccessPrice : 0;
+    // Extras are only added if enabled but otherwise they're 0
+    var baggagePrice = extrasEnabled ? (baggageCount * pricingConfig.baggagePerUnit) : 0;
+    var priorityPrice = (extrasEnabled && priorityBoarding && priorityBoarding.checked) ? pricingConfig.priorityBoardingPrice : 0;
+    var insurancePrice = (extrasEnabled && travelInsurance && travelInsurance.checked) ? pricingConfig.travelInsurancePrice : 0;
+    var loungePrice = (extrasEnabled && loungeAccess && loungeAccess.checked) ? pricingConfig.loungeAccessPrice : 0;
     var addonsPrice = priorityPrice + insurancePrice + loungePrice;
 
     var subtotal = pricingConfig.basePrice + seatPrice + mealPrice + baggagePrice + addonsPrice;
@@ -108,7 +193,7 @@ function recalculateTotals() {
     setAllText('js-seat-price', formatPHP(seatPrice));
     setAllText('js-meal-price', formatPHP(mealPrice));
     setAllText('js-baggage-price', formatPHP(baggagePrice));
-    setAllText('js-baggage-count', baggageCount);
+    setAllText('js-baggage-count', extrasEnabled ? baggageCount : 0);
     setAllText('js-addons-price', formatPHP(addonsPrice));
     setAllText('js-tax-price', formatPHP(taxPrice));
     setAllText('js-subtotal-price', formatPHP(subtotal));
@@ -144,18 +229,15 @@ function selectSeat(btn) {
 // Meal selection
 function selectMeal(meal) {
     document.querySelectorAll('.meal-option').forEach(function (el) {
-        el.classList.remove('active');
+        var isThisOne = el.dataset.meal === meal;
         var price = parseInt(el.dataset.price, 10) || 0;
         var priceLabel = price > 0 ? ('+PHP ' + price.toLocaleString('en-PH', { minimumFractionDigits: 2 })) : 'Included';
-        el.innerHTML = '<span>' + el.dataset.meal + '</span><small class="text-muted ms-2">' + priceLabel + '</small>';
+
+        el.classList.toggle('active', isThisOne);
+        el.innerHTML = '<input type="radio" name="mealChoice" class="meal-option-radio" value="' + el.dataset.meal + '"' + (isThisOne ? ' checked' : '') + '>' +
+            '<span>' + el.dataset.meal + '</span><small class="text-muted ms-2">' + priceLabel + '</small>';
     });
-    var active = document.querySelector('.meal-option[data-meal="' + meal + '"]');
-    if (active) {
-        active.classList.add('active');
-        var price = parseInt(active.dataset.price, 10) || 0;
-        var priceLabel = price > 0 ? ('+PHP ' + price.toLocaleString('en-PH', { minimumFractionDigits: 2 })) : 'Included';
-        active.innerHTML = '<span>' + meal + '</span><small class="text-muted ms-2">' + priceLabel + '</small><i class="bi bi-check2 ms-auto"></i>';
-    }
+
     document.getElementById('selectedMealLabel').textContent = meal;
     document.getElementById('mealDetailName').textContent = meal;
     selectedMeal = meal;
@@ -169,9 +251,11 @@ function changeBaggage(delta) {
     recalculateTotals();
 }
 
-// Toggle extras section
+// Toggle extras section visibility
 function toggleExtras(show) {
     document.getElementById('extrasContent').style.display = show ? 'block' : 'none';
+    extrasEnabled = show;
+    recalculateTotals();
 }
 
 // Submit the booking to the server
@@ -183,6 +267,11 @@ document.querySelector('.pay-btn').addEventListener('click', function (e) {
         return;
     }
 
+    if (!document.querySelector('input[name="payMethod"]:checked')) {
+        alert('Please select a payment method before paying.');
+        return;
+    }
+
     var payload = {
         firstName: document.getElementById('firstName').value.trim(),
         lastName: document.getElementById('lastName').value.trim(),
@@ -190,10 +279,10 @@ document.querySelector('.pay-btn').addEventListener('click', function (e) {
         passportNumber: document.getElementById('passportNumber').value.trim(),
         seat: selectedSeat,
         meal: selectedMeal,
-        baggageCount: baggageCount,
-        priorityBoarding: document.getElementById('priorityBoarding').checked,
-        travelInsurance: document.getElementById('travelInsurance').checked,
-        loungeAccess: document.getElementById('loungeAccess').checked
+        baggageCount: extrasEnabled ? baggageCount : 0,
+        priorityBoarding: extrasEnabled && document.getElementById('priorityBoarding').checked,
+        travelInsurance: extrasEnabled && document.getElementById('travelInsurance').checked,
+        loungeAccess: extrasEnabled && document.getElementById('loungeAccess').checked
     };
 
     fetch(window.location.pathname, {
