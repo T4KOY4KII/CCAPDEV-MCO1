@@ -12,7 +12,7 @@ function mockResponse() {
     return res;
 }
 
-describe('authenticateUser - Unit Testing', () => {
+describe('User Authentication - Unit Testing', () => {
 
     beforeEach(() => { jest.clearAllMocks(); });
 
