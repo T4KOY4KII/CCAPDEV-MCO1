@@ -1,4 +1,31 @@
 document.addEventListener('DOMContentLoaded', () => {
+
+    //flights pagination state
+    const FLIGHTS_PAGE_SIZE = 5;
+    let allFlights = [];
+    let flightsCurrentPage = 1;
+
+    function renderFlightsPage() {
+        const totalResults = allFlights.length;
+        const totalPages = Math.max(Math.ceil(totalResults / FLIGHTS_PAGE_SIZE), 1);
+
+        if (flightsCurrentPage > totalPages) flightsCurrentPage = totalPages;
+        if (flightsCurrentPage < 1) flightsCurrentPage = 1;
+
+        const start = (flightsCurrentPage - 1) * FLIGHTS_PAGE_SIZE;
+        const pageItems = allFlights.slice(start, start + FLIGHTS_PAGE_SIZE);
+
+        renderFlightsTable(pageItems);
+
+        const pageInfo = document.getElementById('resPageInfo');
+        const prevBtn = document.getElementById('resPrevBtn');
+        const nextBtn = document.getElementById('resNextBtn');
+
+        if (pageInfo) pageInfo.textContent = `Page ${flightsCurrentPage} of ${totalPages} (${totalResults} result${totalResults === 1 ? '' : 's'})`;
+        if (prevBtn) prevBtn.disabled = flightsCurrentPage === 1;
+        if (nextBtn) nextBtn.disabled = flightsCurrentPage === totalPages;
+    }
+
     /* --- Search bar typing --- */
     const flightSearchInput = document.getElementById('flightSearch');
     if (flightSearchInput) {
@@ -10,6 +37,18 @@ document.addEventListener('DOMContentLoaded', () => {
                 fetchFlightsAJAX(query);
             }, 250);
         });
+
+        const resPrevBtn = document.getElementById('resPrevBtn');
+        const resNextBtn = document.getElementById('resNextBtn');
+        if (resPrevBtn) resPrevBtn.addEventListener('click', () => { flightsCurrentPage--; renderFlightsPage(); });
+        if (resNextBtn) resNextBtn.addEventListener('click', () => { flightsCurrentPage++; renderFlightsPage(); });
+
+        try {
+            allFlights = JSON.parse(document.getElementById('flightsData').textContent || '[]');
+        } catch (e) {
+            allFlights = [];
+        }
+        renderFlightsPage();
     }
 
     /* --- reservation search and filter --- */
@@ -112,7 +151,9 @@ async function fetchFlightsAJAX(query = '') {
         const response = await fetch(`/api/admin/flights?q=${encodeURIComponent(query)}`);
         const dataObj = await response.json();
         if (dataObj.success) {
-            renderFlightsTable(dataObj.flights);
+            allFlights = dataObj.flights;
+            flightsCurrentPage = 1;
+            renderFlightsPage();
         } else {
             console.error("Error fetching flights:", dataObj.error);
         }
