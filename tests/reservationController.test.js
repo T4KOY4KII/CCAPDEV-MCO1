@@ -88,3 +88,38 @@ describe('createBooking - Business Rule Validation', () => {
     });
 
 });
+/*
+describe('cancelReservation', () =>{
+    
+    beforeEach(() => {
+        jest.clearAllMocks();
+    });
+
+    test('successfully creates a reservation when seats are available and the seat is free', async () => {
+        // Arrange
+        const req = {
+            params: { flightId: 'flight123' },
+            body: { firstName: 'Juan', lastName: 'Dela Cruz', email: 'juan@example.com', passportNumber: 'P1234567', seat: '2A' },
+            session: { userId: 'user123' }
+        };
+        const res = mockResponse();
+
+        const mockFlight = { _id: 'flight123', price: 5000, availableSeats: 5, save: jest.fn().mockResolvedValue(true) };
+        Flight.findById.mockResolvedValue(mockFlight);
+        Reservations.findOne.mockResolvedValue(null); // seat is free
+
+        const mockSave = jest.fn().mockResolvedValue(true);
+        Reservations.mockImplementation(function (data) {
+            return { ...data, save: mockSave };
+        });
+
+        // Act
+        await reservationController.cancelReservation(req, res);
+
+        // Assert
+        expect(res.json).toHaveBeenCalledWith(expect.objectContaining({ success: true }));
+        expect(mockFlight.status).toBe('cancelled'); // 
+        expect(mockSave).toHaveBeenCalled();
+    });
+})
+*/
