@@ -99,16 +99,18 @@ describe('cancelReservation', () =>{
     test('cancels the reservation', async () => {
         // Arrange
         const req = {
-            params: { flightId: 'flight123' },
+            params: { reservationNumber: 'reservation123' },
             body: { firstName: 'Juan', lastName: 'Dela Cruz', email: 'juan@example.com', passportNumber: 'P1234567', seat: '2A', status: 'confirmed' },
             session: { userId: 'user123' }
         };
         
         const res = mockResponse();
 
-        const mockFlight = { _id: 'flight123', price: 5000, availableSeats: 5, save: jest.fn().mockResolvedValue(true) };
-        Flight.findById.mockResolvedValue(mockFlight);
-        Reservations.findOne.mockResolvedValue({_id: 'res123', seat: '2A', status: 'confirmed'}); // created reservation
+        const mockReservation= { reservationNumber: 'reservation123', status: 'confirmed', userId: 'user123', seat:'2A', save: jest.fn().mockResolvedValue(true) };
+        Reservations.findOneAndUpdate.mockResolvedValue({
+            reservationNumber: 'reservation123',
+            status: 'cancelled'
+        }); // cancelled reservation
 
         const mockSave = jest.fn().mockResolvedValue(true);
         Reservations.mockImplementation(function (data) {
@@ -119,7 +121,11 @@ describe('cancelReservation', () =>{
         await reservationController.cancelReservation(req, res);
 
         // Assert
-        expect(res.json).toHaveBeenCalledWith(expect.objectContaining({ success: true}));
+        expect(res.json).toHaveBeenCalledWith(expect.objectContaining({ 
+            success: true,
+            message: 'Reservation cancelled successfully',
+            reservation: {reservationNumber: 'reservation123', status: 'cancelled'}
+        }));
         expect(mockFlight.status).toBe('cancelled'); // 
         expect(mockSave).toHaveBeenCalled();
     });
