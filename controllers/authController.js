@@ -117,6 +117,15 @@ exports.login = async (req, res) => {
             });
         }
 
+        //Checks user status
+        if (user.status === "deactivated") {
+            return res.render('auth/login', {
+                ...loginView,
+                error: 'Your account has been deactivated.',
+                email
+            });
+        }
+
         //Checks password against the hashed value using bcrypt
         const isMatch = await user.comparePassword(password);
         if (!isMatch) {
@@ -151,8 +160,8 @@ exports.login = async (req, res) => {
 
 //Logs out user
 exports.logout = (req, res) => {
-    req.session.destroy(function(err)  {
-        if(err) {
+    req.session.destroy(function (err) {
+        if (err) {
             console.error('Logout Error:', err);
             return res.redirect('/dashboard');
         }
