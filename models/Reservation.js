@@ -7,6 +7,7 @@ const reservationSchema = new mongoose.Schema({
     seat: {type: String, required: true},
     status: {type: String, enum: ['confirmed', 'pending', 'cancelled'], default: 'pending'},
     passengerName: { type: String, required: true },
+    passportNumber: { type: String, required: true },
     //Add-ons selected during booking
     meal: { type: String, default: 'Standard' },
     baggageCount: { type: Number, default: 0, min: 0 },

@@ -223,6 +223,7 @@ exports.createBooking = async (req, res) => {
             seat,
             status: 'confirmed',
             passengerName: firstName + ' ' + lastName,
+            passportNumber,
             meal: selectedMeal,
             baggageCount: bagCount,
             extras,
