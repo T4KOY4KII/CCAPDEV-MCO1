@@ -31,5 +31,7 @@ router.get('/adminUsers', adminController.showUserMgmt);
 //Users AJAX API routes
 router.get('/api/admin/users', adminController.getUsersAPI);
 router.put('/api/admin/users/:id/status', adminController.toggleUserStatus);
+//Audit logs page route
+router.get('/adminAuditLogs', adminController.showAuditLogs);
 
 module.exports = router;

@@ -1,6 +1,7 @@
 const User = require('../models/User');
 const Flight = require('../models/Flight');
 const Reservations = require('../models/Reservation');
+const AuditLog = require('../models/AuditLog');
 const {airlines, airports} = require('../constants/flightOptions');
 
 //Admin views details
@@ -304,6 +305,13 @@ exports.createFlight = async (req, res) => {
         });
 
         await newFlight.save();
+        
+        await AuditLog.create({
+            username: req.session.email || 'Admin',
+            userRole: req.session.role || 'admin',
+            activity: 'Flight Creation'
+        });
+
         res.json({ success: true, flight: formatFlight(newFlight) });
     } catch (errorObj) {
         console.error("Error creating flight:", errorObj);
@@ -394,6 +402,13 @@ exports.updateFlight = async (req, res) => {
         flight.promoEndDate = Boolean(isPromo) && promoEndDate ? promoEndDate : null;
 
         await flight.save();
+
+        await AuditLog.create({
+            username: req.session.email || 'Admin',
+            userRole: req.session.role || 'admin',
+            activity: 'Flight Update'
+        });
+
         res.json({ success: true, flight: formatFlight(flight) });
     } catch (errorObj) {
         console.error("Error updating flight:", errorObj);
@@ -420,6 +435,13 @@ exports.deleteFlight = async (req, res) => {
         }
 
         await Flight.findByIdAndDelete(id);
+
+        await AuditLog.create({
+            username: req.session.email || 'Admin',
+            userRole: req.session.role || 'admin',
+            activity: 'Flight Deletion'
+        });
+
         res.json({ success: true, id });
     } catch (errorObj) {
         console.error("Error deleting flight:", errorObj);
@@ -641,6 +663,31 @@ exports.getUsersAPI = async (req, res) => {
     } catch (errorObj) {
         console.error("Error fetching users API:", errorObj);
         res.status(500).json({ success: false, error: "Server error fetching users" });
+    }
+};
+
+/* --- Audit Logs View --- */
+exports.showAuditLogs = async (req, res) => {
+    try {
+        const logs = await AuditLog.find().sort({ date: -1 }).lean();
+        
+        // Format dates for display
+        const formattedLogs = logs.map(log => ({
+            ...log,
+            formattedDate: new Date(log.date).toLocaleString('en-US', {
+                month: 'short', day: '2-digit', year: 'numeric',
+                hour: 'numeric', minute: '2-digit', hour12: true
+            })
+        }));
+
+        res.render('admin/auditLogs', {
+            title: 'TravelBuddy - Audit Logs',
+            layout: 'admin-main',
+            logs: formattedLogs
+        });
+    } catch (error) {
+        console.error("Error retrieving audit logs:", error);
+        res.status(500).send("Server error retrieving audit logs.");
     }
 };
 

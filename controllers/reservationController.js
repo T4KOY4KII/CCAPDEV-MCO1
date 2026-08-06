@@ -1,6 +1,7 @@
 const User = require('../models/User');
 const Reservations = require('../models/Reservation');
 const Flight = require('../models/Flight');
+const AuditLog = require('../models/AuditLog');
 
 //Reservations-related views details
 const reservationsView = {
@@ -85,6 +86,12 @@ exports.createBooking = async (req, res) => {
         flight.availableSeats -= 1;
         await flight.save();
 
+        await AuditLog.create({
+            username: req.session.email || 'User',
+            userRole: req.session.role || 'user',
+            activity: 'Reservation Creation'
+        });
+
         res.json({ success: true, reservationNumber });
     } catch (err) {
         console.error('Create booking error:', err);
@@ -151,6 +158,12 @@ exports.cancelReservation = async (req, res) => {
         );
 
         if (!reservation) return res.status(404).json({ error: 'Reservation not found.' });
+
+        await AuditLog.create({
+            username: req.session.email || 'User',
+            userRole: req.session.role || 'user',
+            activity: 'Reservation Cancellation'
+        });
 
         res.json({ success: true, reservation });
     } catch (err) {

@@ -1,4 +1,5 @@
 const User = require('../models/User');
+const AuditLog = require('../models/AuditLog');
 
 //Authentication views details
 const registerView = {
@@ -68,6 +69,8 @@ exports.register = async (req, res) => {
         const newUser = new User({ firstName, lastName, email, password });
         await newUser.save();
 
+        await AuditLog.create({ username: email, userRole: 'user', activity: 'User Registration' });
+
         //Redirect to login page
         res.redirect('/login?registered=true');
 
@@ -132,6 +135,9 @@ exports.login = async (req, res) => {
         req.session.userId = user._id;
         req.session.role = user.role;
         req.session.profileIMG = user.profileIMG;
+        req.session.email = user.email;
+
+        await AuditLog.create({ username: user.email, userRole: user.role, activity: 'User Login' });
 
         if (user.role === "admin") {
             return res.redirect("/adminDashboard");
@@ -149,6 +155,9 @@ exports.login = async (req, res) => {
 };
 
 //Logs out user
-exports.logout = (req, res) => {
+exports.logout = async (req, res) => {
+    if (req.session.email) {
+        await AuditLog.create({ username: req.session.email, userRole: req.session.role, activity: 'User Logout' });
+    }
     req.session.destroy(() => res.redirect('/login'));
 };
