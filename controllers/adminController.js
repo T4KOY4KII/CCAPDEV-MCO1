@@ -682,7 +682,7 @@ exports.showAuditLogs = async (req, res) => {
 
         res.render('admin/auditLogs', {
             title: 'TravelBuddy - Audit Logs',
-            layout: 'admin-main',
+            layout: 'main',
             logs: formattedLogs
         });
     } catch (error) {
