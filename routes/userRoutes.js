@@ -20,7 +20,7 @@ router.get('/flight/:id', flightController.showFlightDetails); //NOT required to
 router.post('/flight/:id/view', flightController.trackViewedFlight); //NOT required to be protected
 
 //Booking page route
-router.get('/booking/:flightId', requireAuth, reservationController.showBooking);
+router.get('/booking/:flightId', requireAuth, reservationController.showBooking); //protected
 router.post('/booking/:flightId', requireAuthAPI, reservationController.createBooking); //protected
 
 //Reservations page routes
@@ -29,8 +29,8 @@ router.put('/reservations/:id/seat', requireAuthAPI, reservationController.updat
 router.put('/reservations/:id/cancel', requireAuthAPI, reservationController.cancelReservation); //protected
 
 //Profile page route
-router.get('/profile/:id', requireAuth, userController.showProfile);
-router.put('/profile/:id', requireAuthAPI, userController.updateProfile);
+router.get('/profile/:id', requireAuth, userController.showProfile); //protected
+router.put('/profile/:id', requireAuthAPI, userController.updateProfile); //protected
 
 // Saved passengers page route
 router.post('/profile/:id/passengers', requireAuthAPI, userController.addPassenger); //protected
