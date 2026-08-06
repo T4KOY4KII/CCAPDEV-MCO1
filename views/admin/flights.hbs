@@ -49,54 +49,8 @@
         </tr>
 
       </thead>
-      <tbody id="TableBody">
-        {{#if flights.length}}
-        {{#each flights}}
-        <tr id="flight-row-{{this._id}}" data-id="{{this._id}}" data-flightcode="{{this.flightCode}}"
-          data-triptype="{{this.tripType}}" data-status="{{this.status}}" data-airline="{{this.airline}}"
-          data-origin="{{this.origin}}" data-destination="{{this.destination}}"
-          data-departure="{{this.departureDateISO}}" data-arrival="{{this.arrivalDateISO}}" data-price="{{this.price}}"
-          data-seats="{{this.availableSeats}}" data-ispromo="{{this.isPromo}}"
-          data-discountpercent="{{this.discountPercent}}" data-promotitle="{{this.promoLabel}}"
-          data-promostartdate="{{this.promoStartDateISO}}" data-promoenddate="{{this.promoEndDateISO}}">
-          <td class="col-flightCode fw-bold">{{this.flightCode}}</td>
-          <td class="col-airline">{{this.airline}}</td>
-          <td class="col-route">{{this.origin}} <i class="bi bi-arrow-right"></i> {{this.destination}}</td>
-          <td class="col-departure">{{this.departureFormatted}}</td>
-          <td class="col-arrival">{{this.arrivalFormatted}}</td>
-          <td class="col-price">₱{{this.priceFormatted}}</td>
-          <td class="col-promo">
-            {{#if this.isPromo}}
-            <button class="btn btn-sm secondary-btn" onclick="openPromoModal('{{this._id}}')">
-              View
-            </button>
-            {{else}}
-            <span class="text-muted">—</span>
-            {{/if}}
-          </td>
-          <td class="col-seats">{{this.availableSeats}}</td>
-          <td class="col-status">
-            <span class="badge badge-{{this.statusBadgeClass}}">{{this.statusCapitalized}}</span>
-          </td>
-          <td>
-            <div>
-              <button class="edit-btn" onclick="openEditFlightModal('{{this._id}}')">
-                <i class="bi bi-pencil me-1"></i>
-              </button>
-              <button class="delete-btn" onclick="openDeleteFlightModal('{{this._id}}', '{{this.flightCode}}')">
-                <i class="bi bi-trash3 ms-1"></i>
-              </button>
-            </div>
-          </td>
-        </tr>
-        {{/each}}
-        {{else}}
-        <tr id="noFlightsRow">
-          <td colspan="10" class="text-center text-muted py-4">No flights found in database. Click 'Add Flight' above to
-            create one.</td>
-        </tr>
-        {{/if}}
-      </tbody>
+      <script id="flightsData" type="application/json">{{{flightsJSON}}}</script>
+      <tbody id="TableBody"></tbody>
     </table>
 
 

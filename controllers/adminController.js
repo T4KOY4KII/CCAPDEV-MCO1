@@ -192,7 +192,7 @@ exports.showFlightsMgmt = async (req, res) => {
         const flights = rawFlights.map(formatFlight);
         res.render("admin/flights", {
             ...flightsMgmt,
-            flights,
+            flightsJSON: JSON.stringify(flights),
             airlines,
             airports
         });
@@ -675,7 +675,7 @@ exports.showAuditLogs = async (req, res) => {
         // Format dates for display
         const formattedLogs = logs.map(log => ({
             ...log,
-            createdAt: log.date,   
+            createdAt: log.date,
             formattedDate: new Date(log.date).toLocaleString('en-US', {
                 month: 'short', day: '2-digit', year: 'numeric',
                 hour: 'numeric', minute: '2-digit', hour12: true
