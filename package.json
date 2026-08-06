@@ -15,12 +15,13 @@
   "type": "commonjs",
   "main": "app.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "jest",
     "start": "node app.js",
     "dev": "nodemon app.js"
   },
   "dependencies": {
     "bcrypt": "^6.0.0",
+    "connect-mongo": "^6.0.0",
     "express": "^5.2.1",
     "express-handlebars": "^9.0.1",
     "express-session": "^1.19.0",
@@ -28,6 +29,8 @@
     "mongoose": "^9.7.4"
   },
   "devDependencies": {
+    "@types/jest": "^30.0.0",
+    "jest": "^30.4.2",
     "nodemon": "^3.1.14"
   }
 }

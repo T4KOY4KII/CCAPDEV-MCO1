@@ -65,7 +65,7 @@ exports.register = async (req, res) => {
             });
         }
 
-        //Save User
+        //Save User  password gets hashed automatically by the pre-middleware in the User model
         const newUser = new User({ firstName, lastName, email, password });
         await newUser.save();
 
@@ -120,8 +120,18 @@ exports.login = async (req, res) => {
             });
         }
 
-        //Checks password
-        if (user.password !== password) {
+        //Checks user status
+        if (user.status === "deactivated") {
+            return res.render('auth/login', {
+                ...loginView,
+                error: 'Your account has been deactivated.',
+                email
+            });
+        }
+
+        //Checks password against the hashed value using bcrypt
+        const isMatch = await user.comparePassword(password);
+        if (!isMatch) {
             return res.render('auth/login', {
                 ...loginView,
                 error: 'Invalid email or password.',
@@ -129,11 +139,11 @@ exports.login = async (req, res) => {
             });
         }
 
-
-        //Success - store who's logged in (Sessions will not be fully implemented yet --for MCO3)
-        // Had to add this so profile page can properly display logged-in user's info !!
+        //Implement sessions to store the successfully logged in user
         req.session.userId = user._id;
         req.session.role = user.role;
+        req.session.firstName = user.firstName;
+        req.session.lastName = user.lastName;
         req.session.profileIMG = user.profileIMG;
         req.session.email = user.email;
 
@@ -159,5 +169,12 @@ exports.logout = async (req, res) => {
     if (req.session.email) {
         await AuditLog.create({ username: req.session.email, userRole: req.session.role, activity: 'User Logout' });
     }
-    req.session.destroy(() => res.redirect('/login'));
+    req.session.destroy(function (err) {
+        if (err) {
+            console.error('Logout Error:', err);
+            return res.redirect('/dashboard');
+        }
+        res.clearCookie('connect.sid');
+        res.redirect('/login');
+    });
 };

@@ -237,9 +237,38 @@ function validateSearch() {
 
 $(document).ready(function () {
 
-    // Set today as default and minimum date
+    // Restore the last search so it's connected to the search results page and the user doesn't have to re-enter it
+    var lastSearchEl = document.getElementById('lastSearchData');
+    var lastSearch = null;
+    if (lastSearchEl && lastSearchEl.textContent) {
+        try {
+            lastSearch = JSON.parse(lastSearchEl.textContent);
+        } catch (e) {
+            lastSearch = null;
+        }
+    }
+
+    if (lastSearch) {
+        if (lastSearch.origin) $('#fromField').val(lastSearch.origin);
+        if (lastSearch.destination) $('#toField').val(lastSearch.destination);
+        if (lastSearch.departDate) $('#departDate').val(lastSearch.departDate);
+
+        if (lastSearch.tripType === 'round') {
+            $('#roundTrip').prop('checked', true);
+            setTripType('round');
+            if (lastSearch.returnDate) $('#returnDate').val(lastSearch.returnDate);
+        }
+
+        if (lastSearch.cabinClass) {
+            $('#cabinClass').val(lastSearch.cabinClass);
+            setCabin(lastSearch.cabinClass);
+        }
+    }
+
+    // Set today as default and minimum date (only fills departDate if the restore above didn't)
     const today = new Date().toISOString().split('T')[0];
-    $('#departDate').val(today).attr('min', today);
+    if (!$('#departDate').val()) $('#departDate').val(today);
+    $('#departDate').attr('min', today);
     $('#returnDate').attr('min', today);
 
     // Update return min when depart changes

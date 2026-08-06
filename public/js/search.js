@@ -1,36 +1,3 @@
-$(document).ready(function () {
-    
-    // Strip off the handlers search-flight.js attached 
-    $('#searchBtn').off('click');
-
-    $('#searchBtn').on('click', async function (e) {
-        e.preventDefault();
-
-        const from    = $('#fromField').val();
-        const to      = $('#toField').val();
-        const departD = $('#departDate').val();
-        const returnD = $('#returnDate').val();
-        const isRound = tripType === 'round'; 
-
-        $('#fromError, #toError, #dateError, #passengerError').text('');
-        $('#fromField, #toField, #departDate, #returnDate').removeClass('is-error');
-
-        let hasError = false;
-
-        if (!from) { $('#fromError').text('Please select an origin.'); $('#fromField').addClass('is-error'); hasError = true; }
-        if (!to)   { $('#toError').text('Please select a destination.'); $('#toField').addClass('is-error'); hasError = true; }
-        if (from && to && from === to) { $('#toError').text('Origin and destination cannot be the same.'); $('#toField').addClass('is-error'); hasError = true; }
-        if (!departD) { $('#dateError').text('Please select a departure date.'); $('#departDate').addClass('is-error'); hasError = true; }
-        if (isRound && !returnD) { $('#dateError').text('Please select a return date.'); $('#returnDate').addClass('is-error'); hasError = true; }
-        if (isRound && departD && returnD && returnD <= departD) { $('#dateError').text('Return date must be after departure date.'); $('#returnDate').addClass('is-error'); hasError = true; }
-        if (passengers.adults < 1) { $('#passengerError').text('At least 1 adult is required.'); hasError = true; }
-
-        if (!hasError) {
-            await runSearch();
-        }
-    });
-});
-
 /* PRICE RANGE SLIDERS */
 
 /** 
@@ -61,72 +28,8 @@ $('.priceRange').each(function () {
 const $resetBtn = $('#resetFltrsBtn');
 
 $resetBtn.on('click', function () {
-
-    // Reset all checkboxes (Airlines)
-    $('.filter-sidebar input[type="checkbox"]').prop('checked', false);
-
-    // Reset all radio buttons (Stops)
-    $('.filter-sidebar input[type="radio"]').prop('checked', false);
-
-    // Reset date input
-    const $dateInput = $('#departSched');
-    if ($dateInput.length) $dateInput.val('');
-
-    // Reset all price sliders
-    $('.priceRange').each(function () {
-        const $range = $(this);
-
-        $range.val(this.max); // default value (15000)
-
-        // Find the text display element
-        const $container = $range.closest('.price-container');
-        const $display = $container.find('.priceValue');
-
-        // Update the display text
-        $display.text(formatPrice($range.val()));
-    });
-
-    // Reset advanced search dropdown fields
-    const $airlineField = $('#airlineField');
-    if ($airlineField.length) $airlineField.val('');
-
-    // Reset all radio buttons (flexible dates and direct flights)
-    $('input[name="flightType"]').prop('checked', false);
-
-    // Reset quick search widget fields 
-    $('#fromField').val('');
-    $('#toField').val('');
-
-    // Set today as the default departure date
-    const today = new Date().toISOString().split('T')[0];
-    $('#departDate').val(today);
-
-    // Reset return date the disable it since default = one-way
-    $('#returnDate').val('').prop('disabled', true);
-
-    // Reset trip type
-    $('#oneWay').prop('checked', true);
-    $('#roundTrip').prop('checked', false);
-
-    if (typeof setTripType === 'function') setTripType('oneway');
-
-    // Reset passenger counts and cabin class
-    if (typeof passengers !== 'undefined') {
-        passengers.adults = 1;
-        passengers.children = 0;
-        passengers.infants = 0;
-    }
-
-    if (typeof cabin !== 'undefined') cabin = 'Economy'; // default cabin (Economy)
-    if (typeof updatePassengerCount === 'function') updatePassengerCount(); // refresh displayed passenger count
-
-    // Clear quick search and advanced search
-    resetAppliedSearch();
-
-    // Re-apply filters/sort now that everything is back to default
-    $('#sortSelect').val('price-asc');
-    applySort();
-    applyFilters();
+    // Reset Filters needs a unfiltered result set from the server 
+    window.location.href = '/search';
 });
 
 /* FLIGHT RESULTS FILTERING AND SORTING */
@@ -310,81 +213,7 @@ if ($flightCards.length > 0) {
     applyFilters();
 }
 
-// Get flight data and update page
-async function runSearch() {
-    const url = buildSearchURL();
-
-    try {
-        $('#searchBtn').prop('disabled', true).text('Searching...');
-        const res = await fetch(url);
-        const data = await res.json();
-
-        if (data.success) {
-            renderFlightCards(data.flights);
-        } else {
-            $('.search-results').html('<p class="text-danger">Could not fetch flights. Please try again.</p>');
-        }
-    } catch (err) {
-        $('.search-results').html('<p class="text-danger">Something went wrong. Please try again.</p>');
-    } finally {
-        $('#searchBtn').prop('disabled', false).html('<i class="bi bi-search me-1"></i> Search Flights');
-    }
-}
-
-// Display flight results on page
-function renderFlightCards(flights) {
-    const $container = $('.search-results');
-    $container.find('.flight-card').remove(); // clear old cards
-
-    if (!flights.length) {
-        $('#noResultsMsg').removeClass('d-none');
-        return;
-    }
-    $('#noResultsMsg').addClass('d-none');
-
-    flights.forEach(f => {
-        const card = `
-        <div class="card flight-card text-center"
-                data-airline="${f.airline}" data-stops="${f.stops || 'direct'}"
-                data-trip-type="${f.tripType}" data-price="${f.discountedPrice}"
-                data-depart-date="${f.departureDate}" data-depart-time="${f.departureTime}"
-                data-duration="${f.flightDuration}" data-origin="${f.origin}"
-                data-destination="${f.destination}" data-seats="${f.availableSeats}">
-            <div class="card-header">
-                <div class="d-flex flex-wrap justify-content-between align-items-center gap-2">
-                    <span class="flight-airline">${f.airline}</span>
-                    <span class="seats-left">${f.availableSeats} seats left</span>
-                </div>
-            </div>
-            <div class="card-body">
-                <div class="row align-items-center g-3">
-                    <div class="col-6 col-md-2 flight-time-block">
-                        <div class="flight-date">${f.departureDate}</div>
-                        <div class="flight-time">${f.departureTime}</div>
-                        <div class="flight-country">${f.origin}</div>
-                    </div>
-                    <div class="col-12 col-md-6 flight-route-block">
-                        <div class="flight-route-label">${f.origin} → ${f.destination}</div>
-                        <div class="flight-route-line"><hr /></div>
-                        <div class="flight-route-info">${f.flightDuration}</div>
-                    </div>
-                    <div class="col-6 col-md-2 flight-time-block">
-                        <div class="flight-date">${f.arrivalDate}</div>
-                        <div class="flight-time">${f.arrivalTime}</div>
-                        <div class="flight-country">${f.destination}</div>
-                    </div>
-                    <div class="col-12 col-md-2 flight-price-block">
-                        <div class="flight-price">₱${f.discountedPrice.toLocaleString()}</div>
-                        <a href="/flight/${f._id}" class="btn primary-btn btn-sm px-4 mt-2">Book</a>
-                    </div>
-                </div>
-            </div>
-        </div>`;
-        $container.append(card);
-    });
-
-    // Refresh the filter/sort script's cached references, then re-apply
-    if (typeof refreshFlightCardCache === 'function') refreshFlightCardCache();
-    applySort();
-    applyFilters();
-}
+// Refresh the filter/sort script's cached references, then re-apply
+if (typeof refreshFlightCardCache === 'function') refreshFlightCardCache();
+applySort();
+applyFilters();

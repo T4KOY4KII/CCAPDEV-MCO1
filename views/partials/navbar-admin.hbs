@@ -41,7 +41,7 @@
                 <button class="btn d-flex align-items-center gap-2 mb-lg-1" data-bs-toggle="dropdown">
 
                     <img src="{{profileIMG}}" alt="Profile Image" class="profile-image">
-                    <div class="username">{{firstName}} {{lastName}}</div>
+                    <div class="username">{{user.firstName}} {{user.lastName}}</div>
 
                     <i class="bi bi-chevron-down"></i>
                 </button>
@@ -57,7 +57,7 @@
                     </li>
 
                     <li>
-                        <a class="dropdown-item text-danger" href="/login">Logout</a>
+                        <a class="dropdown-item text-danger" href="/logout">Logout</a>
                     </li>
                 </ul>
             </div>

@@ -49,28 +49,42 @@ const formatTime = (date) => {
     });
 };
 
-const formatFlight = (flight) => ({
-    ...flight,
-    departureDate: formatDate(flight.departureDate),
-    arrivalDate: formatDate(flight.arrivalDate),
-    departureTime: formatTime(flight.departureDate),
-    arrivalTime: formatTime(flight.arrivalDate),
-    flightDuration: getFlightDuration(flight.departureDate, flight.arrivalDate),
-    promoEndFormatted: flight.promoEndDate ? formatDate(flight.promoEndDate) : 'Limited time',
-    discountedPrice: flight.discountPercent > 0
-        ? Math.round(flight.price - (flight.price * flight.discountPercent / 100))
-        : flight.price
-});
+const formatFlight = (flight) => {
+    const now = new Date();
+
+    const promoActive = flight.discountPercent > 0 && flight.promoEndDate && new Date(flight.promoEndDate) >= now;
+
+    return {
+        ...flight,
+        departureDate: formatDate(flight.departureDate),
+        arrivalDate: formatDate(flight.arrivalDate),
+        departureTime: formatTime(flight.departureDate),
+        arrivalTime: formatTime(flight.arrivalDate),
+        flightDuration: getFlightDuration(
+            flight.departureDate,
+            flight.arrivalDate
+        ),
+
+        promoEndFormatted: flight.promoEndDate
+            ? formatDate(flight.promoEndDate)
+            : "Limited time",
+
+        // apply discount if promot is active
+        discountPercent: promoActive ? flight.discountPercent : 0,
+
+        discountedPrice: promoActive ? Math.round(flight.price - (flight.price * flight.discountPercent / 100)) : flight.price
+    };
+};
 
 
 
-//Renders dashboard page
+//Renders dashboard page 
 exports.showDashboard = async (req, res) => {
 
     try {
 
         //Flight statistics
-        const availableFlights = await Flight.countDocuments({ availableSeats: { $gt: 0 } });
+        const availableFlights = await Flight.countDocuments({ availableSeats: { $gt: 0 }, departureDate: { $gte: new Date() } });
         const activeBookings = await Reservation.countDocuments({ status: 'confirmed' });
         const popularDestinations = await Flight.distinct('destination');
 
@@ -85,7 +99,9 @@ exports.showDashboard = async (req, res) => {
         //Promo flights
         const promoFlights = await Flight.find({
             discountPercent: { $gt: 0 },
-            availableSeats: { $gt: 0 }
+            availableSeats: { $gt: 0 },
+            departureDate: { $gte: new Date() },
+            promoEndDate: { $gte: new Date() }
         }).limit(6).lean();
 
 
@@ -97,8 +113,24 @@ exports.showDashboard = async (req, res) => {
             promotionSlides.push(formattedPromos.slice(i, i + 3));
         }
 
-        //Recently viewed from session (no sessions yet)
+
+        //Recently viewed from session 
         let recentlyViewed = [];
+
+        const viewedIds = req.session.recentlyViewed || [];
+
+        if (viewedIds.length > 0) {
+
+            const viewedFlights = await Flight.find({ _id: { $in: viewedIds } }).lean();
+            const flightMap = {};
+            viewedFlights.forEach(f => { flightMap[f._id.toString()] = f; });
+
+            recentlyViewed = viewedIds
+                .map(id => flightMap[id])
+                .filter(Boolean)
+                .map(formatFlight);
+
+        };
 
 
         res.render('user/dashboard', {
@@ -108,7 +140,8 @@ exports.showDashboard = async (req, res) => {
             promotionSlides,
             recentlyViewed,
             hasPromos: promotionSlides.length > 0,
-            hasRecentlyViewed: recentlyViewed.length > 0
+            hasRecentlyViewed: recentlyViewed.length > 0,
+            lastSearchJSON: JSON.stringify(req.session.lastSearch || null)
         });
 
     } catch (err) {
@@ -121,21 +154,47 @@ exports.showDashboard = async (req, res) => {
             recentlyViewed: [],
             hasPromos: false,
             hasRecentlyViewed: false,
+            lastSearchJSON: JSON.stringify(req.session.lastSearch || null),
             error: 'Could not load flight data.'
         });
     }
 
 };
 
-//Renders flight search page
-exports.showSearch = (req, res) => {
-    res.render('user/search', {
-        ...searchView,
-        airports,
-        airlines
-    });
+//Renders defaultflight search page
+exports.showSearch = async (req, res) => {
+    try {
+        // Show all currently bookable flights by default
+        const flights = await Flight.find({
+            availableSeats: { $gt: 0 },
+            departureDate: { $gte: new Date() }
+
+        }).lean();
+        const formattedFlights = flights.map(formatFlight);
+
+        res.render('user/search', {
+            ...searchView,
+            airports,
+            airlines,
+            flights: formattedFlights,
+            hasFlights: formattedFlights.length > 0,
+            totalResults: formattedFlights.length
+        });
+    } catch (err) {
+        console.error('Search page error:', err);
+        res.render('user/search', {
+            ...searchView,
+            airports,
+            airlines,
+            flights: [],
+            hasFlights: false,
+            totalResults: 0,
+            error: 'Could not load flight data.'
+        });
+    }
 };
 
+//Fetches matching flights and renders search results page
 exports.searchFlights = async (req, res) => {
     const {
         origin,
@@ -150,9 +209,11 @@ exports.searchFlights = async (req, res) => {
     try {
 
         const totalPassengers = Math.max(parseInt(req.query.passengers) || 1, 1);
+        const now = new Date();
 
         const query = {
-            availableSeats: { $gte: totalPassengers }
+            availableSeats: { $gte: totalPassengers },
+            departureDate: { $gte: now }
         };
 
         if (origin) query.origin = origin;
@@ -164,12 +225,14 @@ exports.searchFlights = async (req, res) => {
             const start = new Date(departDate);
             const end = new Date(departDate);
             end.setDate(end.getDate() + 1);
-            query.departureDate = { $gte: start, $lt: end };
+            query.departureDate = { $gte: start > now ? start : now, $lt: end };
         }
 
         const flights = await Flight.find(query).lean();
         const formattedFlights = flights.map(formatFlight);
 
+        //Remembering the last search in session so the user can return to it from the dashboard or other pages
+        req.session.lastSearch = { origin, destination, departDate, returnDate, tripType, cabinClass };
 
         res.render('user/search', {
             ...searchView,
@@ -190,14 +253,14 @@ exports.searchFlights = async (req, res) => {
         });
 
     } catch (err) {
-        console.error('Search error:', err);
+        console.error('Search page error:', err);
         res.render('user/search', {
             ...searchView,
             airports,
             airlines,
             flights: [],
             hasFlights: false,
-            error: 'Could not fetch flights. Please try again.'
+            error: 'Could not load flight data.'
         });
     }
 };
@@ -226,6 +289,7 @@ exports.showFlightDetails = async (req, res) => {
 
             // Keep only last 5
             req.session.recentlyViewed = filtered.slice(0, 5);
+
         }
 
         const formattedFlight = formatFlight(flight);
@@ -243,3 +307,22 @@ exports.showFlightDetails = async (req, res) => {
         res.redirect('/search');
     }
 };
+
+exports.trackViewedFlight = async (req, res) => {
+    try {
+        const flightId = req.params.id;
+
+        const viewed = req.session.recentlyViewed || [];
+
+        const filtered = viewed.filter(id => id !== flightId);
+        filtered.unshift(flightId);
+
+        req.session.recentlyViewed = filtered.slice(0, 5);
+
+        res.json({ success: true });
+
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ success: false });
+    }
+}

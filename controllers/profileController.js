@@ -1,4 +1,6 @@
 const User = require('../models/User');
+const Reservation = require('../models/Reservation');
+const Flight = require('../models/Flight');
 
 //User views details
 const profileView = {
@@ -38,9 +40,16 @@ function isValidEmail(email) {
     return atIndex > 0 && dotIndex > atIndex + 1 && dotIndex < email.length - 1;
 }
 
+//Helper for making sure profile actions are from the owner of the profile ONLY
+function isOwnProfile(req) {
+    return req.session.userId && req.session.userId.toString() === req.params.id;
+}
+
 //Renders profile page
 exports.showProfile = async (req, res) => {
     try {
+        if (!isOwnProfile(req)) return res.redirect('/profile/' + req.session.userId);
+
         const user = await User.findById(req.params.id).lean();
         if (!user) return res.status(404).send('User not found');
 
@@ -49,7 +58,16 @@ exports.showProfile = async (req, res) => {
 
         const initials = (user.firstName.charAt(0) + user.lastName.charAt(0)).toUpperCase();
 
-        res.render('user/profile', { ...profileView, user, initials, savedPassengersJSON: JSON.stringify(user.savedPassengers || []) });
+        //Counts upcoming flights - same manual lookup pattern reservationController.showReservations
+        //already uses (this codebase doesn't use .populate() anywhere, so matching that)
+        const activeReservations = await Reservation.find({ user: req.params.id, status: { $ne: 'cancelled' } });
+        let upcomingFlightsCount = 0;
+        for (const r of activeReservations) {
+            const flight = await Flight.findById(r.flight);
+            if (flight && new Date(flight.departureDate) >= new Date()) upcomingFlightsCount++;
+        }
+
+        res.render('user/profile', { ...profileView, user, initials, upcomingFlightsCount, savedPassengersJSON: JSON.stringify(user.savedPassengers || []) });
     } catch (err) {
         console.error('Show profile error:', err);
         res.status(500).send('Something went wrong.');
@@ -60,6 +78,8 @@ exports.showProfile = async (req, res) => {
 // Updates user profile
 exports.updateProfile = async (req, res) => {
     try {
+        if (!isOwnProfile(req)) return res.status(403).json({ error: 'Access denied. You can only edit your own profile.' });
+
         const { title, firstName, lastName, contactCode, contactNumber, gender, dobMonth, dobDay, dobYear, email, address, city, country } = req.body;
 
         const validationError = validateProfileFields(req.body);
@@ -83,6 +103,8 @@ exports.updateProfile = async (req, res) => {
 // Saved passengers management
 exports.addPassenger = async (req, res) => {
     try {
+        if (!isOwnProfile(req)) return res.status(403).json({ error: 'Access denied. You can only edit your own profile.' });
+
         const validationError = validatePassengerFields(req.body);
         if (validationError) return res.status(400).json({ error: validationError });
 
@@ -103,6 +125,8 @@ exports.addPassenger = async (req, res) => {
 
 exports.updatePassenger = async (req, res) => {
     try {        
+        if (!isOwnProfile(req)) return res.status(403).json({ error: 'Access denied. You can only edit your own profile.' });
+
         const validationError = validatePassengerFields(req.body);
         if (validationError) return res.status(400).json({ error: validationError });
 
@@ -141,6 +165,8 @@ exports.updatePassenger = async (req, res) => {
 
 exports.deletePassenger = async (req, res) => {
     try {
+        if (!isOwnProfile(req)) return res.status(403).json({ error: 'Access denied. You can only edit your own profile.' });
+
         const user = await User.findById(req.params.id);
         if (!user) return res.status(404).json({ error: 'User not found' });
 
@@ -157,6 +183,8 @@ exports.deletePassenger = async (req, res) => {
 //Updates the user's notification preferences
 exports.updateNotifications = async (req, res) => {
     try {
+        if (!isOwnProfile(req)) return res.status(403).json({ error: 'Access denied. You can only edit your own profile.' });
+
         const { booking, schedule, checkin, travel, promo, sms } = req.body;
 
         const updatedUser = await User.findOneAndUpdate(

@@ -14,13 +14,13 @@ $(document).ready(function () {
         }
 
         /* Tab switching */
-        $('.profile-tab-link').on('click', function (e) { // think if conditional. in english/layman's terms it'd mean 'when you click a tab...'
-            e.preventDefault(); // prevents the <a> from trying to navigate to a new page bc this is a tab link
-            $('.profile-tab-link').removeClass('active'); // removes the active status from all tabs before any switching
-            $(this).addClass('active'); // adds the active status to the tab that was actually clicked
-            var targetTab = $(this).data('tab'); // get which tab was clicked e.g. "saved-passengers"
-            $('.tab-content-panel').removeClass('active'); // removes active status from all content panels so things don't clash
-            $('#' + targetTab).addClass('active'); // show the only panel whose id matches the clicked tab
+        $('.profile-tab-link').on('click', function (e) {
+            e.preventDefault(); 
+            $('.profile-tab-link').removeClass('active'); 
+            $(this).addClass('active'); 
+            var targetTab = $(this).data('tab'); 
+            $('.tab-content-panel').removeClass('active');
+            $('#' + targetTab).addClass('active'); 
             window.location.hash = targetTab;
         });
 
@@ -35,14 +35,13 @@ $(document).ready(function () {
 
         // when a file is actually chosen from the file picker
         $('#avatarInput').on('change', function () {
-            var file = this.files[0]; // grab the first (and only) file the user picked
-            if (!file) return; // if they cancelled the picker, don't do anything
-            var reader = new FileReader(); // built-in browser thing that reads files
+            var file = this.files[0]; //
+            if (!file) return;
+            var reader = new FileReader(); 
             reader.onload = function (e) {
-                // once the file is read, shove it into the avatar circle as an <img> tag
                 $('#avatarPreview').html('<img src="' + e.target.result + '" alt="Profile Picture">');
             };
-            reader.readAsDataURL(file); // command to let the code actually start reading the file (triggers onload above)
+            reader.readAsDataURL(file); 
         });
 
 
@@ -77,7 +76,6 @@ $(document).ready(function () {
 
             if (!firstNameVal) { showFieldError('#pFirstName', 'First name is required.'); hasError = true; }
             if (!lastNameVal)  { showFieldError('#pLastName', 'Last name is required.'); hasError = true; }
-            if (!passportVal)  { showFieldError('#pPassport', 'Passport number is required.'); hasError = true; }
                 
             if (!emailVal) {
                 showFieldError('#pEmail', 'Email is required.');
@@ -147,6 +145,13 @@ $(document).ready(function () {
             setTimeout(function () {
                 $feedback.addClass('d-none'); // hide it again after 3 seconds
             }, 3000);
+        }
+
+        //Validation for email format
+        function isValidEmail(email) {
+            var atIndex = email.indexOf('@');
+            var dotIndex = email.lastIndexOf('.');
+            return atIndex > 0 && dotIndex > atIndex + 1 && dotIndex < email.length - 1;
         }
 
         function showFieldError(selector, message) {
@@ -459,6 +464,9 @@ $(document).ready(function () {
 
         // builds and injects the payment methods list
         function renderPaymentMethods() {
+            // makes sure the count in the profile summary is always up to date
+            $('#paymentMethodCount').text(paymentMethods.length);
+
             var html = '';
             paymentMethods.forEach(function (m) {
                 html += '<div class="payment-method-row">' +

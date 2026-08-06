@@ -309,7 +309,10 @@
 
         <div class="card flight-card mb-3"
             data-airline="{{this.airline}}"
+            data-stops="{{this.stops}}"
+            data-trip-type="{{this.tripType}}"
             data-price="{{this.discountedPrice}}"
+            data-depart-date="{{this.departureDate}}"
             data-depart-time="{{this.departureTime}}"
             data-duration="{{this.flightDuration}}"
             data-origin="{{this.origin}}"
@@ -414,8 +417,8 @@
 
             <!-- Card Footer -->
             <div class="card-footer text-end">
-                <button class="secondary-btn"
-                    onclick="toggleDetails('flightDetails{{this._id}}', 'detailsToggle{{this._id}}')">
+                <button class="secondary-btn" id="detailsToggle{{this._id}}"
+                    onclick="viewDetails('{{this._id}}')">
                     View Details <i class="bi bi-chevron-down"></i>
                 </button>
             </div>

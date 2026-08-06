@@ -12,8 +12,8 @@
 <div class="container-fluid hero">
     <div class="formcontainer">
         <div class="row">
-            <h1 class="fs-50">Every great adventure starts with a buddy.</h1>
-            <p class="fs-5">With <strong>TravelBuddy</strong>, you travel happy.</p>
+            <h1 class="fs-50 text-white-glow">Every great adventure starts with a buddy.</h1>
+            <p class="fs-5 text-white-glow">With <strong>TravelBuddy</strong>, you travel happy.</p>
         </div>
     </div>
 </div>
@@ -177,6 +177,9 @@
     </div>
 </div>
 
+<!-- Last search, if any - lets the widget above restore what was previously searched -->
+<script id="lastSearchData" type="application/json">{{{lastSearchJSON}}}</script>
+
 <!--Flight statistics-->
 <div class="container">
     <h2 class="text-start mt-5 mb-4">Flight Statistics</h2>
@@ -259,7 +262,7 @@
                                     </p>
                                     <div class="text-center">
                                         <!-- Prefill search with promo route -->
-                                        <a href="/search?origin={{origin}}&destination={{destination}}"
+                                        <a href="/search/results?origin={{origin}}&destination={{destination}}"
                                             class="btn btn-outline-light btn-sm rounded-pill px-4">
                                             Learn More
                                         </a>
@@ -394,7 +397,7 @@
                     {{/if}}
 
                     {{#if availableSeats}}
-                    <a href="/flight/{{_id}}" class="btn primary-btn btn-sm px-4 mt-2">
+                    <a href="/booking/{{this._id}}" class="btn primary-btn btn-sm px-4 mt-2">
                         Book
                     </a>
                     {{else}}
