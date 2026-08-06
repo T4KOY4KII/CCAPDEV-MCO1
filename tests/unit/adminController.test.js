@@ -79,7 +79,7 @@ describe('Flight Management (Update) - Unit Testing', () => {
 
         const mockFlight = { _id: 'flight123', flightCode: 'PR123', save: jest.fn().mockResolvedValue(true) };
         Flight.findById.mockResolvedValue(mockFlight);
-        Flight.findOne.mockResolvedValue(null); // no OTHER flight has this code
+        Flight.findOne.mockResolvedValue(null); // no flight with the same code exists
         Reservations.countDocuments.mockResolvedValue(20); // 20 active bookings which is under the new seat count of 90
         
         await adminController.updateFlight(req, res);
@@ -97,7 +97,7 @@ describe('Flight Management (Update) - Unit Testing', () => {
         const mockFlight = { _id: 'flight123', flightCode: 'PR123', save: jest.fn().mockResolvedValue(true) };
         Flight.findById.mockResolvedValue(mockFlight);
         Flight.findOne.mockResolvedValue(null);
-        Reservations.countDocuments.mockResolvedValue(20); // 20 already booked, trying to drop to 10 seats
+        Reservations.countDocuments.mockResolvedValue(20); // 20 already booked, cannot reduce to 10
 
         await adminController.updateFlight(req, res);
 
