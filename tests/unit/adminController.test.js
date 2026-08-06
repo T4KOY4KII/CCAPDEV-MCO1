@@ -1,11 +1,13 @@
 const Flight = require('../../models/Flight');
 const Reservations = require('../../models/Reservation');
+const User = require('../../models/User');
 const adminController = require('../../controllers/adminController');
 
 //Mock models
 jest.mock('../../models/Flight');
 jest.mock('../../models/Reservation');
 jest.mock('../../models/User');
+jest.mock('../../models/AuditLog');
 
 function mockResponse() {
     const res = {};

@@ -1,11 +1,13 @@
 const Flight = require('../../models/Flight');
 const Reservations = require('../../models/Reservation');
+const User = require('../../models/User');
 const reservationController = require('../../controllers/reservationController');
 
 //Similar to database mock but for User model
 jest.mock('../../models/Flight');
 jest.mock('../../models/Reservation');
 jest.mock('../../models/User');
+jest.mock('../../models/AuditLog');
 
 //Fakes a response object for the testing
 function mockResponse() {
@@ -23,7 +25,7 @@ describe('Business Rule Validation (createBooking) - Unit Testing', () => {
 
     //Booking a flight with no available seats
     test('rejects booking when the flight has no available seats', async () => {
-        
+
         const req = {
             params: { flightId: 'flight123' },
             body: { firstName: 'Juan', lastName: 'Dela Cruz', email: 'juan@example.com', passportNumber: 'P1234567', seat: '2A' },
@@ -34,14 +36,14 @@ describe('Business Rule Validation (createBooking) - Unit Testing', () => {
         Flight.findById.mockResolvedValue({ _id: 'flight123', price: 5000, availableSeats: 0 });
 
         await reservationController.createBooking(req, res);
-        
+
         expect(res.status).toHaveBeenCalledWith(400);
         expect(res.json).toHaveBeenCalledWith({ success: false, error: 'This flight has no available seats.' });
     });
 
     //Selecting an occupied seat
     test('rejects booking when the selected seat is already taken', async () => {
-        
+
         const req = {
             params: { flightId: 'flight123' },
             body: { firstName: 'Juan', lastName: 'Dela Cruz', email: 'juan@example.com', passportNumber: 'P1234567', seat: '2A' },
@@ -52,9 +54,9 @@ describe('Business Rule Validation (createBooking) - Unit Testing', () => {
         Flight.findById.mockResolvedValue({ _id: 'flight123', price: 5000, availableSeats: 5 });
         Reservations.findOne.mockResolvedValue({ _id: 'existingRes123', seat: '2A', status: 'confirmed' });
 
-        
+
         await reservationController.createBooking(req, res);
-        
+
         expect(res.status).toHaveBeenCalledWith(400);
         expect(res.json).toHaveBeenCalledWith({ success: false, error: 'That seat is already taken. Please choose another.' });
     });
@@ -66,11 +68,20 @@ describe('Reservation Management - Unit Testing', () => {
 
     beforeEach(() => {
         jest.clearAllMocks();
+
+        User.findById.mockReturnValue({
+            lean: jest.fn().mockResolvedValue({
+                _id: "user123",
+                firstName: "Juan",
+                lastName: "Dela Cruz",
+                role: "user"
+            })
+        });
     });
 
     //Create reservation
     test('successfully creates a reservation when seats are available and the seat is free', async () => {
-        
+
         const req = {
             params: { flightId: 'flight123' },
             body: { firstName: 'Juan', lastName: 'Dela Cruz', email: 'juan@example.com', passportNumber: 'P1234567', seat: '2A' },
@@ -86,9 +97,9 @@ describe('Reservation Management - Unit Testing', () => {
         Reservations.mockImplementation(function (data) {
             return { ...data, save: mockSave };
         });
-        
+
         await reservationController.createBooking(req, res);
-        
+
         expect(res.json).toHaveBeenCalledWith(expect.objectContaining({ success: true }));
         expect(mockFlight.availableSeats).toBe(4); // decremented from 5
         expect(mockSave).toHaveBeenCalled();
@@ -96,7 +107,7 @@ describe('Reservation Management - Unit Testing', () => {
 
     //Cancel Reservation
     test('successfully cancels a reservation', async () => {
-        
+
         const req = {
             params: { id: 'reservation123' },
             session: { userId: 'user123' }
@@ -119,12 +130,12 @@ describe('Reservation Management - Unit Testing', () => {
             save: jest.fn().mockResolvedValue(true)
         }
 
-        Reservations.findOne.mockResolvedValue(mockReservation); 
+        Reservations.findOne.mockResolvedValue(mockReservation);
         Flight.findById.mockResolvedValue(mockFlight);
 
-        
+
         await reservationController.cancelReservation(req, res);
-        
+
         expect(res.json).toHaveBeenCalledWith(expect.objectContaining({
             success: true,
             reservation: mockReservation

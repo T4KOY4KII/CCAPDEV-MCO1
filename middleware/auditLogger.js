@@ -3,6 +3,7 @@ const AuditLog = require('../models/AuditLog');
 
 async function createAuditLog(req, activity) {
     try {
+        if(!req.session) return;
         const currentUser = await User.findById(req.session.userId).lean();
 
         await AuditLog.create({

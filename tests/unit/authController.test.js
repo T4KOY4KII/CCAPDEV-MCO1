@@ -15,7 +15,19 @@ function mockResponse() {
 
 describe('User Authentication - Unit Testing', () => {
 
-    beforeEach(() => { jest.clearAllMocks(); });
+    beforeEach(() => {
+        jest.clearAllMocks();
+
+
+        User.findById.mockReturnValue({
+            lean: jest.fn().mockResolvedValue({
+                _id: "123",
+                firstName: "Tessa",
+                lastName: "McTest",
+                role: "user"
+            })
+        });
+    });
 
     //Successful registration
     test('successfully registers a new user', async () => {
@@ -104,7 +116,7 @@ describe('User Authentication - Unit Testing', () => {
     });
 
 
-     //Failed login: User inputted wrong credentials
+    //Failed login: User inputted wrong credentials
     test('fail login with incorrect password', async () => {
 
         const mockUser = {
