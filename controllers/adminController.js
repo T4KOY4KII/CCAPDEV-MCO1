@@ -2,7 +2,8 @@ const User = require('../models/User');
 const Flight = require('../models/Flight');
 const Reservations = require('../models/Reservation');
 const AuditLog = require('../models/AuditLog');
-const {airlines, airports} = require('../constants/flightOptions');
+const createAuditLog = require('../middleware/auditLogger');
+const { airlines, airports } = require('../constants/flightOptions');
 
 //Admin views details
 const adminDashboardView = {
@@ -51,6 +52,18 @@ const userMgmt = {
     extraJS: [
         '/js/admin.js'
     ]
+};
+
+const auditLogs = {
+    title: 'TravelBuddy - Audit Logs',
+    isAdmin: true,
+    layout: 'main',
+    extraCSS: [
+        '/css/admin-style.css'
+    ],
+    extraJS: [
+        '/js/audit.js'
+    ],
 };
 
 // Admin dashboard page
@@ -180,7 +193,7 @@ exports.showFlightsMgmt = async (req, res) => {
         res.render("admin/flights", {
             ...flightsMgmt,
             flights,
-            airlines, 
+            airlines,
             airports
         });
     } catch (errorObj) {
@@ -305,12 +318,8 @@ exports.createFlight = async (req, res) => {
         });
 
         await newFlight.save();
-        
-        await AuditLog.create({
-            username: req.session.email || 'Admin',
-            userRole: req.session.role || 'admin',
-            activity: 'Flight Creation'
-        });
+
+        await createAuditLog(req, "Flight Creation");
 
         res.json({ success: true, flight: formatFlight(newFlight) });
     } catch (errorObj) {
@@ -383,7 +392,7 @@ exports.updateFlight = async (req, res) => {
         if (promoError) {
             return res.status(400).json({ success: false, error: promoError });
         }
-        
+
 
         flight.flightCode = flightNum.trim();
         flight.airline = airline.trim();
@@ -403,11 +412,7 @@ exports.updateFlight = async (req, res) => {
 
         await flight.save();
 
-        await AuditLog.create({
-            username: req.session.email || 'Admin',
-            userRole: req.session.role || 'admin',
-            activity: 'Flight Update'
-        });
+        await createAuditLog(req, "Flight Update");
 
         res.json({ success: true, flight: formatFlight(flight) });
     } catch (errorObj) {
@@ -436,11 +441,7 @@ exports.deleteFlight = async (req, res) => {
 
         await Flight.findByIdAndDelete(id);
 
-        await AuditLog.create({
-            username: req.session.email || 'Admin',
-            userRole: req.session.role || 'admin',
-            activity: 'Flight Deletion'
-        });
+        await createAuditLog(req, "Flight Deletion");
 
         res.json({ success: true, id });
     } catch (errorObj) {
@@ -670,10 +671,11 @@ exports.getUsersAPI = async (req, res) => {
 exports.showAuditLogs = async (req, res) => {
     try {
         const logs = await AuditLog.find().sort({ date: -1 }).lean();
-        
+
         // Format dates for display
         const formattedLogs = logs.map(log => ({
             ...log,
+            createdAt: log.date,   
             formattedDate: new Date(log.date).toLocaleString('en-US', {
                 month: 'short', day: '2-digit', year: 'numeric',
                 hour: 'numeric', minute: '2-digit', hour12: true
@@ -681,10 +683,8 @@ exports.showAuditLogs = async (req, res) => {
         }));
 
         res.render('admin/auditLogs', {
-            title: 'TravelBuddy - Audit Logs',
-            isAdmin: true,
-            layout: 'main',
-            logs: formattedLogs
+            ...auditLogs,
+            logsJSON: JSON.stringify(formattedLogs)
         });
     } catch (error) {
         console.error("Error retrieving audit logs:", error);

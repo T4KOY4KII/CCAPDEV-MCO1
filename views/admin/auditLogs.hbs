@@ -3,6 +3,57 @@
         <h4 class="fw-bold mb-0">Audit Logs</h4>
     </div>
 
+    <div class="card shadow-sm border-0 mb-3">
+        <div class="card-body">
+            <div class="row g-2 align-items-center">
+
+                <!-- Search -->
+                <div class="col-md-4">
+                    <div class="input-group">
+                        <span class="input-group-text bg-white border-end-0">
+                            <i class="bi bi-search text-muted"></i>
+                        </span>
+                        <input type="text" id="auditSearch" class="form-control border-start-0"
+                            placeholder="Search">
+                    </div>
+                </div>
+
+                <!-- Sort -->
+                <div class="col-md-3">
+                    <select class="form-select" id="auditSort">
+                        <option value="newest">Newest First</option>
+                        <option value="oldest">Oldest First</option>
+                    </select>
+                </div>
+
+                <!-- Role Filter -->
+                <div class="col-md-2">
+                    <select class="form-select" id="auditRoleFilter">
+                        <option value="all">All Roles</option>
+                        <option value="admin">Administrator</option>
+                        <option value="user">Passenger</option>
+                    </select>
+                </div>
+
+                <!-- Activity Filter -->
+                <div class="col-md-3">
+                    <select class="form-select" id="auditActivityFilter">
+                        <option value="all">All Activities</option>
+                        <option value="User Registration">User Registration</option>
+                        <option value="User Login">User Login</option>
+                        <option value="User Logout">User Logout</option>
+                        <option value="Flight Creation">Flight Creation</option>
+                        <option value="Flight Update">Flight Update</option>
+                        <option value="Flight Deletion">Flight Deletion</option>
+                        <option value="Reservation Creation">Reservation Creation</option>
+                        <option value="Reservation Cancellation">Reservation Cancellation</option>
+                    </select>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
     <div class="card shadow-sm border-0">
         <div class="card-body p-0">
             <div class="table-responsive">
@@ -15,27 +66,20 @@
                             <th scope="col">Activity</th>
                         </tr>
                     </thead>
-                    <tbody>
-                        {{#if logs.length}}
-                            {{#each logs}}
-                            <tr>
-                                <td class="ps-4 text-muted small">{{this.formattedDate}}</td>
-                                <td>{{this.username}}</td>
-                                <td>
-                                    <span class="badge {{#if (eq this.userRole 'admin')}}bg-danger{{else}}bg-primary{{/if}}">
-                                        {{this.userRole}}
-                                    </span>
-                                </td>
-                                <td>{{this.activity}}</td>
-                            </tr>
-                            {{/each}}
-                        {{else}}
-                            <tr>
-                                <td colspan="4" class="text-center text-muted py-4">No audit logs found.</td>
-                            </tr>
-                        {{/if}}
-                    </tbody>
+                    <script id="auditLogsData" type="application/json">{{{logsJSON}}}</script>
+                    <tbody id="auditLogsBody"></tbody>
                 </table>
+            </div>
+
+            <!-- Pagination -->
+            <div class="d-flex justify-content-between align-items-center mt-3 px-4 pb-3" id="auditPagination">
+                <button class="btn btn-outline-secondary btn-sm" id="auditPrevBtn">
+                    <i class="bi bi-chevron-left me-1"></i>Back
+                </button>
+                <span class="res-page-info" id="auditPageInfo"></span>
+                <button class="btn btn-save btn-sm" id="auditNextBtn">
+                    Next<i class="bi bi-chevron-right ms-1"></i>
+                </button>
             </div>
         </div>
     </div>

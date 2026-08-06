@@ -2,6 +2,7 @@ const User = require('../models/User');
 const Reservations = require('../models/Reservation');
 const Flight = require('../models/Flight');
 const AuditLog = require('../models/AuditLog');
+const createAuditLog = require('../middleware/auditLogger');
 const { mealOptions, seatPricing, extraServicesPricing, taxRate } = require('../constants/flightOptions');
 
 //Reservations-related views details
@@ -235,11 +236,7 @@ exports.createBooking = async (req, res) => {
         flight.availableSeats -= 1;
         await flight.save();
 
-        await AuditLog.create({
-            username: req.session.email || 'User',
-            userRole: req.session.role || 'user',
-            activity: 'Reservation Creation'
-        });
+        await createAuditLog(req, "Reservation Creation");
 
         res.json({ success: true, reservationNumber, totalPrice });
     } catch (err) {
@@ -323,11 +320,7 @@ exports.cancelReservation = async (req, res) => {
             await flight.save();
         }
 
-        await AuditLog.create({
-            username: req.session.email || 'User',
-            userRole: req.session.role || 'user',
-            activity: 'Reservation Cancellation'
-        });
+        await createAuditLog(req, "Reservation Cancellation");
 
         res.json({ success: true, reservation });
     } catch (err) {
