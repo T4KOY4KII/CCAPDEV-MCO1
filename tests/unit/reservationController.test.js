@@ -1,11 +1,11 @@
-const Flight = require('../models/Flight');
-const Reservations = require('../models/Reservation');
-const reservationController = require('../controllers/reservationController');
+const Flight = require('../../models/Flight');
+const Reservations = require('../../models/Reservation');
+const reservationController = require('../../controllers/reservationController');
 
 //Similar to database mock but for User model
-jest.mock('../models/Flight');
-jest.mock('../models/Reservation');
-jest.mock('../models/User');
+jest.mock('../../models/Flight');
+jest.mock('../../models/Reservation');
+jest.mock('../../models/User');
 
 //Fakes a response object for the testing
 function mockResponse() {
@@ -15,7 +15,7 @@ function mockResponse() {
     return res;
 }
 
-describe('createBooking - Business Rule Validation', () => {
+describe('createBooking - Unit Testing', () => {
 
     beforeEach(() => {
         jest.clearAllMocks();
